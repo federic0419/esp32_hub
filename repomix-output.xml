@@ -1,0 +1,3748 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+src/
+  config.h
+  main.cpp
+  secret_example.h
+.gitignore
+diagram.json
+platformio.ini
+README.md
+wokwi.toml
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/config.h">
+#pragma once
+
+#ifndef WOKWI
+#include "secret.h"
+#endif
+
+// ===================== WiFi / piattaforma =====================
+// Wokwi usa la rete virtuale sul canale 6.
+// Sul CYD reale il canale 0 lascia all'ESP32 la ricerca automatica del canale AP.
+// ===================== WiFi / piattaforma =====================
+
+#ifdef WOKWI
+
+#define WIFI_SSID "Wokwi-GUEST"
+#define WIFI_PASS ""
+#define WIFI_CHANNEL 6
+#define REQUIRE_SPOTIFY_AUTH 0
+
+#else
+
+#define WIFI_SSID REAL_WIFI_SSID
+#define WIFI_PASS REAL_WIFI_PASS
+#define WIFI_CHANNEL 0
+#define REQUIRE_SPOTIFY_AUTH 1
+
+#endif
+
+// ===================== Spotify =====================
+// Da https://developer.spotify.com/dashboard  (crea un'app)
+// Redirect URI da registrare nell'app:  http://127.0.0.1:8888/callback
+#ifdef WOKWI
+
+// In simulazione non servono credenziali reali
+#define SPOTIFY_CLIENT_ID ""
+#define SPOTIFY_CLIENT_SECRET ""
+
+#else
+
+#define SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_ID_VALUE
+#define SPOTIFY_CLIENT_SECRET SPOTIFY_CLIENT_SECRET_VALUE
+
+#endif
+
+// ===================== Meteo (Open-Meteo, nessuna API key) =====================
+#define WEATHER_CITY "Imola"
+#define WEATHER_LAT "44.3592"
+#define WEATHER_LON "11.7132"
+
+// ===================== Orario =====================
+// Italia: CET/CEST con ora legale automatica
+#define TZ_INFO "CET-1CEST,M3.5.0,M10.5.0/3"
+
+// ===================== Display =====================
+#define ROTATION 3 // 1 oppure 3 (ruota di 180 gradi)
+#ifdef WOKWI
+// Il CYD simulato da Wokwi non richiede l'inversione colori.
+#define DISPLAY_INVERT false
+#else
+// Mantiene il comportamento del CYD reale attuale.
+#define DISPLAY_INVERT true
+#endif
+
+// Calibrazione touch (valori tipici CYD, ritocca se il tocco e' spostato)
+#define TS_MINX 200
+#define TS_MAXX 3700
+#define TS_MINY 240
+#define TS_MAXY 3800
+
+// ===================== Intervalli =====================
+#define SPOTIFY_POLL_MS 4000UL
+#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
+#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
+#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
+</file>
+
+<file path="src/main.cpp">
+// CYD Hub v6 (grafica "Ink"): Spotify + Playlist + Orologio + Meteo + Radar pioggia + Formula 1
+// Hardware: ESP32-2432S028R ("Cheap Yellow Display")
+// Home: orologio al centro; le altre pagine sono ai lati con swipe sinistra/destra.
+// Nessuno screensaver automatico: il display resta stabile sulla pagina corrente.
+
+#include <Arduino.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
+#include <WebServer.h>
+#include <Preferences.h>
+#include <SPI.h>
+#include <TFT_eSPI.h>
+#include <XPT2046_Touchscreen.h>
+#include <ArduinoJson.h>
+#include <JPEGDEC.h>
+#include <PNGdec.h>
+#include <time.h>
+#include <vector>
+#include "mbedtls/base64.h"
+#include "config.h"
+
+// ===================== Hardware =====================
+#define TOUCH_CS 33
+#define TOUCH_IRQ 36
+#define TOUCH_CLK 25
+#define TOUCH_MISO 39
+#define TOUCH_MOSI 32
+
+TFT_eSPI tft;
+SPIClass touchSPI(VSPI);
+XPT2046_Touchscreen ts(TOUCH_CS, TOUCH_IRQ);
+JPEGDEC jpeg;
+PNG png;
+Preferences prefs;
+
+#define C565(r, g, b) ((((r) & 0xF8) << 8) | (((g) & 0xFC) << 3) | ((b) >> 3))
+// Palette "Ink": fondo quasi nero, pannelli piatti, un solo colore d'accento per pagina.
+constexpr uint16_t C_BG = C565(8, 10, 15);
+constexpr uint16_t C_NAV = C565(13, 15, 22);
+constexpr uint16_t C_PANEL = C565(20, 23, 33);
+constexpr uint16_t C_PANEL2 = C565(31, 35, 50);
+constexpr uint16_t C_LINE = C565(46, 52, 72);
+constexpr uint16_t C_HAIR = C565(25, 28, 40);
+constexpr uint16_t C_FG = C565(250, 250, 255);
+constexpr uint16_t C_DIM = C565(185, 192, 210);   // era (140, 148, 168)
+constexpr uint16_t C_FAINT = C565(88, 96, 116);
+constexpr uint16_t C_TRACK = C565(38, 43, 60);
+constexpr uint16_t C_GREEN  = C565(30, 220, 60);
+constexpr uint16_t C_CYAN   = C565(64, 200, 255);
+constexpr uint16_t C_AMBER = C565(255, 255, 0);
+constexpr uint16_t C_SUN   = C565(255, 255, 0);
+constexpr uint16_t C_BLUE   = C565(92, 142, 255);
+constexpr uint16_t C_RED    = C565(255, 25, 25);
+constexpr uint16_t C_VIOLET = C565(172, 128, 255);
+constexpr uint16_t C_PINK   = C565(255, 104, 176);
+constexpr uint16_t C_CLOUD = C565(220, 228, 242);
+constexpr uint16_t C_DARK = C565(112, 126, 152);
+constexpr uint16_t C_RAIN = C565(90, 182, 255);
+constexpr int NAV_Y = 214; // tab bar: y 214..240
+constexpr int NAV_H = 26;
+int lastTopBarMinute = -1;
+bool bootStatic = false;
+
+// dichiarazione anticipata
+extern int curPage;
+
+// ===================== Utility =====================// ===================== Utility =====================
+// I font integrati sono solo ASCII: converte accenti e caratteri UTF-8 comuni.
+String fold(const char *s)
+{
+  static const char *L1 = "AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTsaaaaaaaceeeeiiiidnooooo/ouuuuyty";
+  String o;
+  const uint8_t *p = (const uint8_t *)s;
+  while (*p)
+  {
+    uint8_t c = *p;
+    if (c < 0x80)
+    {
+      o += (char)c;
+      p++;
+    }
+    else if (c == 0xC3 && p[1])
+    {
+      uint8_t d = p[1];
+      o += (d >= 0x80 && d <= 0xBF) ? L1[d - 0x80] : '?';
+      p += 2;
+    }
+    else if (c == 0xE2 && p[1] == 0x80 && p[2])
+    {
+      uint8_t e = p[2];
+      if (e == 0x98 || e == 0x99)
+        o += '\'';
+      else if (e == 0x9C || e == 0x9D)
+        o += '"';
+      else if (e == 0x93 || e == 0x94)
+        o += '-';
+      else if (e == 0xA6)
+        o += "...";
+      else
+        o += '?';
+      p += 3;
+    }
+    else
+    {
+      int len = (c >= 0xF0) ? 4 : (c >= 0xE0) ? 3
+                              : (c >= 0xC0)   ? 2
+                                              : 1;
+      for (int i = 0; i < len && *p; i++)
+        p++;
+      if (!o.endsWith("?"))
+        o += '?';
+    }
+  }
+  return o;
+}
+
+std::vector<String> wrapText(const String &s, int font, int maxW)
+{
+  std::vector<String> lines;
+  String cur;
+  int i = 0, n = s.length();
+  while (i < n)
+  {
+    int j = s.indexOf(' ', i);
+    if (j < 0)
+      j = n;
+    String w = s.substring(i, j);
+    i = j + 1;
+    if (!w.length())
+      continue;
+    String t = cur.length() ? cur + " " + w : w;
+    if (tft.textWidth(t, font) <= maxW)
+    {
+      cur = t;
+      continue;
+    }
+    if (cur.length())
+    {
+      lines.push_back(cur);
+      cur = "";
+    }
+    while (tft.textWidth(w, font) > maxW && w.length() > 1)
+    {
+      int k = w.length();
+      while (k > 1 && tft.textWidth(w.substring(0, k), font) > maxW)
+        k--;
+      lines.push_back(w.substring(0, k));
+      w = w.substring(k);
+    }
+    cur = w;
+  }
+  if (cur.length())
+    lines.push_back(cur);
+  return lines;
+}
+
+// Disegna le righe (max maxLines, con "..." se tagliate). Ritorna la y finale.
+int drawLines(std::vector<String> &lines, int x, int y, int font, int lh, int maxLines, uint16_t col, int maxW)
+{
+  tft.setTextColor(col);
+  tft.setTextDatum(TL_DATUM);
+  int n = min((int)lines.size(), maxLines);
+  for (int i = 0; i < n; i++)
+  {
+    String l = lines[i];
+    if (i == n - 1 && (int)lines.size() > maxLines)
+    {
+      l += "...";
+      while (l.length() > 4 && tft.textWidth(l, font) > maxW)
+        l.remove(l.length() - 4, 1);
+    }
+    tft.drawString(l, x, y, font);
+    y += lh;
+  }
+  return y;
+}
+
+uint8_t c5to8(uint16_t c) { return ((c >> 11) & 0x1F) * 255 / 31; }
+uint8_t c6to8(uint16_t c) { return ((c >> 5) & 0x3F) * 255 / 63; }
+uint8_t cb5to8(uint16_t c) { return (c & 0x1F) * 255 / 31; }
+
+uint16_t mix565(uint16_t a, uint16_t b, uint8_t amount)
+{
+  uint16_t ia = 255 - amount;
+  uint8_t r = (c5to8(a) * ia + c5to8(b) * amount) / 255;
+  uint8_t g = (c6to8(a) * ia + c6to8(b) * amount) / 255;
+  uint8_t bl = (cb5to8(a) * ia + cb5to8(b) * amount) / 255;
+  return C565(r, g, bl);
+}
+
+uint16_t pageAccent(int page)
+{
+  static const uint16_t A[] = {C_GREEN, C_GREEN, C_CYAN, C_AMBER, C_BLUE, C_RED, C_VIOLET};
+  return A[constrain(page, 0, 6)];
+}
+
+String upperStr(const char *s)
+{
+  String o = fold(s);
+  o.toUpperCase();
+  return o;
+}
+
+// Rettangolo arrotondato con bordi anti-aliasing (bg = colore sotto).
+void rrect(int x, int y, int w, int h, int r, uint16_t c, uint16_t bg = C_BG)
+{
+  if (w <= 0 || h <= 0)
+    return;
+  if (r > w / 2)
+    r = w / 2;
+  if (r > h / 2)
+    r = h / 2;
+  if (r < 1)
+    tft.fillRect(x, y, w, h, c);
+  else
+    tft.fillSmoothRoundRect(x, y, w, h, r, c, bg);
+}
+
+// Pannello piatto con bordo sottile.
+void panel(int x, int y, int w, int h, int r = 9, uint16_t fill = C_PANEL, uint16_t border = C_LINE, uint16_t bg = C_BG)
+{
+  rrect(x, y, w, h, r, border, bg);
+  rrect(x + 1, y + 1, w - 2, h - 2, r - 1, fill, border);
+}
+
+void disc(int cx, int cy, int r, uint16_t c, uint16_t bg = C_BG)
+{
+  tft.fillSmoothCircle(cx, cy, r, c, bg);
+}
+
+void pill(int x, int y, int w, int h, const String &txt, uint16_t fg, uint16_t fill, int font = 1, uint16_t under = C_BG)
+{
+  rrect(x, y, w, h, h / 2, fill, under);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(fg, fill);
+  tft.drawString(txt, x + w / 2, y + h / 2 + (font == 1 ? 1 : 0), font);
+  tft.setTextDatum(TL_DATUM);
+}
+
+// Anello (es. simbolo di grado).
+void ring(int cx, int cy, int r, int thick, uint16_t c, uint16_t bg)
+{
+  tft.fillSmoothCircle(cx, cy, r, c, bg);
+  tft.fillSmoothCircle(cx, cy, r - thick, bg, c);
+}
+
+void drawWifiIcon(int x, int y, uint16_t col)
+{
+  int rssi = WiFi.RSSI();
+  int bars = (rssi > -58) ? 3 : (rssi > -70) ? 2
+                                             : 1;
+  for (int i = 0; i < 3; i++)
+  {
+    int h = 4 + i * 3;
+    rrect(x + i * 5, y + 10 - h, 3, h, 1, i < bars ? col : C_LINE);
+  }
+}
+
+void getTinyTime(char *b, size_t n)
+{
+  struct tm ti;
+  if (getLocalTime(&ti, 0))
+    snprintf(b, n, "%02d:%02d", ti.tm_hour, ti.tm_min);
+  else
+    snprintf(b, n, "--:--");
+}
+
+void drawTopBarTime(uint16_t accent)
+{
+  char tm[8];
+  getTinyTime(tm, sizeof(tm));
+  tft.fillRect(240, 3, 76, 20, C_BG);
+  tft.setTextDatum(MR_DATUM);
+  tft.setTextColor(C_FG, C_BG);
+  tft.drawString(tm, 292, 13, 2);
+  drawWifiIcon(298, 8, accent);
+  tft.setTextDatum(TL_DATUM);
+}
+
+void updateTopBarClock()
+{
+  struct tm ti;
+  if (!getLocalTime(&ti, 0))
+    return;
+  if (ti.tm_min == lastTopBarMinute)
+    return;
+  lastTopBarMinute = ti.tm_min;
+  drawTopBarTime(pageAccent(curPage));
+}
+
+// Testata: barretta d'accento + titolo pagina a sinistra, ora e WiFi a destra.
+void drawTopBar(const char *label, uint16_t accent)
+{
+  tft.fillRect(0, 0, 320, 26, C_BG);
+  rrect(12, 7, 3, 12, 1, accent);
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_FG);
+  tft.drawString(label, 21, 13, 2);
+  drawTopBarTime(accent);
+  tft.drawFastHLine(12, 25, 296, C_HAIR);
+  tft.setTextDatum(TL_DATUM);
+}
+
+// Angoli arrotondati "a ritaglio" su immagini gia' disegnate (copertine, radar).
+void roundCorners(int x, int y, int w, int h, int r, uint16_t outside)
+{
+  for (int i = 0; i < r; i++)
+  {
+    float dy = r - i - 0.5f;
+    int inset = r - (int)floorf(sqrtf((float)r * r - dy * dy) + 0.5f);
+    if (inset <= 0)
+      continue;
+    tft.fillRect(x, y + i, inset, 1, outside);
+    tft.fillRect(x + w - inset, y + i, inset, 1, outside);
+    tft.fillRect(x, y + h - 1 - i, inset, 1, outside);
+    tft.fillRect(x + w - inset, y + h - 1 - i, inset, 1, outside);
+  }
+}
+
+void drawChevron(int cx, int cy, bool left, uint16_t c, uint16_t bg)
+{
+  int d = left ? -1 : 1;
+  tft.drawWideLine(cx - 2 * d, cy - 5, cx + 2 * d, cy, 2.4f, c, bg);
+  tft.drawWideLine(cx + 2 * d, cy, cx - 2 * d, cy + 5, 2.4f, c, bg);
+}
+
+void drawRefreshIcon(int cx, int cy, uint16_t c, uint16_t bg)
+{
+  ring(cx, cy, 6, 2, c, bg);
+  tft.fillRect(cx + 1, cy - 8, 8, 8, bg); // apre il varco in alto a destra
+  tft.fillTriangle(cx + 1, cy - 9, cx + 1, cy - 2, cx + 7, cy - 6, c);
+}
+
+// Icone 16x16 della tab bar.
+void drawTabIcon(int i, int cx, int cy, uint16_t c, uint16_t bg)
+{
+  switch (i)
+  {
+  case 0: // playlist
+    for (int k = -1; k <= 1; k++)
+    {
+      tft.fillCircle(cx - 6, cy + k * 5, 1, c);
+      tft.fillRect(cx - 2, cy + k * 5 - 1, 9, 2, c);
+    }
+    break;
+  case 1: // nota musicale
+    tft.fillSmoothCircle(cx - 4, cy + 5, 3, c, bg);
+    tft.fillSmoothCircle(cx + 5, cy + 3, 3, c, bg);
+    tft.fillRect(cx - 2, cy - 6, 2, 12, c);
+    tft.fillRect(cx + 7, cy - 8, 2, 12, c);
+    tft.drawWideLine(cx - 1, cy - 6, cx + 8, cy - 8, 2.2f, c, bg);
+    break;
+  case 2: // nuvola
+    tft.fillSmoothCircle(cx - 4, cy + 2, 4, c, bg);
+    tft.fillSmoothCircle(cx + 1, cy - 2, 5, c, bg);
+    tft.fillSmoothCircle(cx + 5, cy + 2, 4, c, bg);
+    tft.fillRect(cx - 4, cy + 2, 10, 5, c);
+    break;
+  case 3: // casa
+    tft.fillTriangle(cx - 8, cy, cx, cy - 8, cx + 8, cy, c);
+    tft.fillRect(cx - 5, cy, 11, 8, c);
+    tft.fillRect(cx - 1, cy + 3, 3, 5, bg);
+    break;
+  case 4: // radar
+    tft.drawSmoothCircle(cx, cy, 7, c, bg);
+    tft.drawSmoothCircle(cx, cy, 3, c, bg);
+    tft.drawWideLine(cx, cy, cx + 5, cy - 5, 1.8f, c, bg);
+    break;
+  case 5: // bandiera a scacchi
+    tft.fillRect(cx - 7, cy - 8, 2, 17, c);
+    for (int r = 0; r < 3; r++)
+      for (int k = 0; k < 4; k++)
+        if ((r + k) % 2 == 0)
+          tft.fillRect(cx - 4 + k * 3, cy - 8 + r * 3, 3, 3, c);
+    break;
+  default: // calendario
+    tft.drawRoundRect(cx - 7, cy - 6, 15, 14, 3, c);
+    tft.fillRect(cx - 7, cy - 3, 15, 2, c);
+    tft.fillRect(cx - 4, cy - 8, 2, 4, c);
+    tft.fillRect(cx + 3, cy - 8, 2, 4, c);
+    tft.fillRect(cx - 4, cy + 1, 2, 2, c);
+    tft.fillRect(cx, cy + 1, 2, 2, c);
+    tft.fillRect(cx + 4, cy + 1, 2, 2, c);
+    tft.fillRect(cx - 4, cy + 4, 2, 2, c);
+    tft.fillRect(cx, cy + 4, 2, 2, c);
+    break;
+  }
+}
+
+void centerMsg(const String &l1, const String &l2 = "", uint16_t col = C_FG)
+{
+  bootStatic = false;
+  uint16_t accent = (col == C_FG) ? C_AMBER : col;
+  tft.fillScreen(C_BG);
+  int h = l2.length() ? 96 : 72;
+  int y = (240 - h) / 2;
+  panel(24, y, 272, h, 14);
+  rrect(24, y + 14, 4, h - 28, 2, accent, C_PANEL);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(col, C_PANEL);
+  tft.drawString(l1, 162, l2.length() ? y + 34 : y + h / 2, 4);
+  if (l2.length())
+  {
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(l2, 162, y + 68, 2);
+  }
+  tft.setTextDatum(TL_DATUM);
+}
+
+// ===================== Spotify: auth + API =====================
+static const char *REDIRECT_ENC = "http%3A%2F%2F127.0.0.1%3A8888%2Fcallback";
+static const char *SCOPES = "user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20playlist-read-private%20playlist-read-collaborative";
+
+String accessToken, refreshToken;
+uint32_t tokenExpiry = 0;
+
+String basicAuth()
+{
+  String s = String(SPOTIFY_CLIENT_ID) + ":" + SPOTIFY_CLIENT_SECRET;
+  unsigned char out[160];
+  size_t olen = 0;
+  mbedtls_base64_encode(out, sizeof(out) - 1, &olen, (const unsigned char *)s.c_str(), s.length());
+  out[olen] = 0;
+  return String((char *)out);
+}
+
+bool tokenRequest(const String &body)
+{
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.useHTTP10(true);
+  if (!http.begin(client, "https://accounts.spotify.com/api/token"))
+    return false;
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  http.addHeader("Authorization", "Basic " + basicAuth());
+  int code = http.POST(body);
+  if (code != 200)
+  {
+    Serial.printf("token HTTP %d\n", code);
+    http.end();
+    return false;
+  }
+  JsonDocument doc;
+  DeserializationError e = deserializeJson(doc, http.getStream());
+  http.end();
+  if (e)
+    return false;
+  accessToken = doc["access_token"].as<String>();
+  int exp = doc["expires_in"] | 3600;
+  tokenExpiry = millis() + (uint32_t)(exp - 60) * 1000UL;
+  if (doc["refresh_token"].is<const char *>())
+  {
+    refreshToken = doc["refresh_token"].as<String>();
+    prefs.putString("rt", refreshToken);
+  }
+  return accessToken.length() > 0;
+}
+
+bool ensureToken()
+{
+  if (accessToken.length() && (int32_t)(millis() - tokenExpiry) < 0)
+    return true;
+  if (!refreshToken.length())
+    return false;
+  return tokenRequest("grant_type=refresh_token&refresh_token=" + refreshToken);
+}
+
+// Ritorna il codice HTTP (o <0 in caso di errore). Se out != nullptr e HTTP 200, fa il parse JSON.
+int spotifyCall(const char *method, const char *path, JsonDocument *out = nullptr, const JsonDocument *filter = nullptr)
+{
+  for (int attempt = 0; attempt < 2; attempt++)
+  {
+    if (!ensureToken())
+      return -1;
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient http;
+    http.useHTTP10(true);
+    http.setTimeout(8000);
+    if (!http.begin(client, String("https://api.spotify.com") + path))
+      return -1;
+    http.addHeader("Authorization", "Bearer " + accessToken);
+    int code;
+    if (!strcmp(method, "GET"))
+    {
+      code = http.GET();
+    }
+    else
+    {
+      http.addHeader("Content-Length", "0");
+      code = http.sendRequest(method, String());
+    }
+    if (code == 401)
+    {
+      http.end();
+      accessToken = "";
+      continue;
+    }
+    if (code == 200 && out)
+    {
+      DeserializationError e = filter ? deserializeJson(*out, http.getStream(), DeserializationOption::Filter(*filter))
+                                      : deserializeJson(*out, http.getStream());
+      if (e)
+        code = -2;
+    }
+    http.end();
+    return code;
+  }
+  return -1;
+}
+
+// Variante per le API Spotify che richiedono un body JSON, ad esempio
+// l'avvio di una playlist tramite context_uri.
+int spotifyCallJson(const char *method, const char *path, const String &body)
+{
+  for (int attempt = 0; attempt < 2; attempt++)
+  {
+    if (!ensureToken())
+      return -1;
+    WiFiClientSecure client;
+    client.setInsecure();
+    HTTPClient http;
+    http.useHTTP10(true);
+    http.setTimeout(8000);
+    if (!http.begin(client, String("https://api.spotify.com") + path))
+      return -1;
+    http.addHeader("Authorization", "Bearer " + accessToken);
+    http.addHeader("Content-Type", "application/json");
+    int code = http.sendRequest(method, body);
+    if (code == 401)
+    {
+      http.end();
+      accessToken = "";
+      continue;
+    }
+    http.end();
+    return code;
+  }
+  return -1;
+}
+
+// ----- Pagina web per collegare l'account (una tantum) -----
+WebServer server(80);
+bool authDone = false;
+
+void handleRoot()
+{
+  String url = String("https://accounts.spotify.com/authorize?response_type=code&client_id=") + SPOTIFY_CLIENT_ID +
+               "&scope=" + SCOPES + "&redirect_uri=" + REDIRECT_ENC;
+  String html = F("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+                  "<body style='font-family:sans-serif;max-width:520px;margin:20px auto;padding:0 12px'>"
+                  "<h2>Collega Spotify</h2><ol>"
+                  "<li>Nella dashboard Spotify l'app deve avere il Redirect URI:<br><code>http://127.0.0.1:8888/callback</code></li>"
+                  "<li><a href='");
+  html += url;
+  html += F("'>Clicca qui per autorizzare</a></li>"
+            "<li>Dopo aver accettato il browser mostrer&agrave; una pagina di errore: &egrave; normale. "
+            "Copia l'<b>intero indirizzo</b> dalla barra e incollalo qui sotto.</li></ol>"
+            "<form method=POST action=/code>"
+            "<input name=code style='width:100%;padding:8px' placeholder='http://127.0.0.1:8888/callback?code=...'>"
+            "<button style='margin-top:10px;padding:8px 16px'>Invia</button></form></body>");
+  server.send(200, "text/html", html);
+}
+
+void handleCode()
+{
+  String in = server.arg("code");
+  in.trim();
+  int i = in.indexOf("code=");
+  if (i >= 0)
+  {
+    in = in.substring(i + 5);
+    int a = in.indexOf('&');
+    if (a >= 0)
+      in = in.substring(0, a);
+  }
+  if (!in.length())
+  {
+    server.send(400, "text/plain", "Codice mancante");
+    return;
+  }
+  bool ok = tokenRequest("grant_type=authorization_code&code=" + in + "&redirect_uri=" + REDIRECT_ENC);
+  if (ok)
+  {
+    authDone = true;
+    server.send(200, "text/html", "<meta charset=utf-8><h2>Fatto!</h2>Puoi chiudere questa pagina.");
+  }
+  else
+  {
+    server.send(400, "text/html", "<meta charset=utf-8><h2>Errore</h2>Codice non valido o scaduto. <a href='/'>Riprova</a>");
+  }
+}
+
+void runAuthMode()
+{
+  server.on("/", HTTP_GET, handleRoot);
+  server.on("/code", HTTP_POST, handleCode);
+  server.begin();
+  tft.fillScreen(C_BG);
+  drawTopBar("COLLEGA SPOTIFY", C_GREEN);
+  panel(12, 34, 296, 72, 14);
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(C_DIM, C_PANEL);
+  tft.drawString("1. Dal telefono (stessa WiFi) apri:", 24, 44, 2);
+  tft.setTextColor(C_GREEN, C_PANEL);
+  tft.drawString("http://" + WiFi.localIP().toString(), 24, 68, 4);
+  panel(12, 114, 296, 84, 14);
+  tft.setTextColor(C_DIM, C_PANEL);
+  tft.drawString("2. Redirect URI da registrare su Spotify:", 24, 124, 2);
+  tft.setTextColor(C_FG, C_PANEL);
+  tft.drawString("http://127.0.0.1:8888/callback", 24, 148, 2);
+  tft.setTextColor(C_FAINT, C_PANEL);
+  tft.drawString("in attesa di collegamento...", 24, 172, 1);
+  while (!authDone)
+  {
+    server.handleClient();
+    delay(5);
+  }
+  delay(500);
+  server.stop();
+}
+
+// ===================== Spotify: stato + UI =====================
+constexpr int ART_X = 12, ART_Y = 32, ART_SZ = 150;
+constexpr int TXT_X = 174, TXT_W = 134;
+constexpr int PB_X = 12, PB_Y = 194, PB_W = 296, PB_H = 4;
+constexpr int CTL_Y = 164;
+
+struct Track
+{
+  String key, title, artist, artUrl;
+  bool playing = false;
+  uint32_t progress = 0, duration = 0, stamp = 0;
+} T;
+
+bool needText = true, needArt = true, needCtl = true, progDirty = true;
+bool drawnPlaying = false;
+uint32_t nextPoll = 0, lastProg = 0, statusUntil = 0;
+String statusMsg;
+JsonDocument fCur;
+
+void initFilter()
+{
+  fCur["is_playing"] = true;
+  fCur["progress_ms"] = true;
+  fCur["item"]["id"] = true;
+  fCur["item"]["name"] = true;
+  fCur["item"]["duration_ms"] = true;
+  fCur["item"]["artists"][0]["name"] = true;
+  fCur["item"]["show"]["name"] = true;
+  fCur["item"]["album"]["images"][0]["url"] = true;
+  fCur["item"]["album"]["images"][0]["width"] = true;
+  fCur["item"]["images"][0]["url"] = true;
+  fCur["item"]["images"][0]["width"] = true;
+}
+
+uint32_t progressNow() { return T.progress + (T.playing ? millis() - T.stamp : 0); }
+
+void drawEq(bool playing)
+{
+  tft.fillRect(TXT_X, 32, 18, 14, C_BG);
+  for (int i = 0; i < 4; i++)
+  {
+    int h = playing ? 3 + (int)(((millis() / 170) * 7 + i * 5 + i * i * 3) % 11) : 3;
+    rrect(TXT_X + i * 5, 45 - h, 3, h, 1, C_GREEN);
+  }
+}
+
+void drawTrackText()
+{
+  tft.fillRect(TXT_X - 4, 30, 146, 112, C_BG);
+  drawEq(T.playing);
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_GREEN);
+  tft.drawString(T.playing ? "IN RIPRODUZIONE" : "IN PAUSA", TXT_X + 24, 39, 1);
+  tft.setTextDatum(TL_DATUM);
+
+  String title = T.title.length() ? T.title : String("Pronto per la musica");
+  int font = 4, lh = 27, maxL = 2;
+  auto lines = wrapText(title, font, TXT_W);
+  if (lines.size() > 2)
+  {
+    font = 2;
+    lh = 18;
+    maxL = 3;
+    lines = wrapText(title, font, TXT_W);
+  }
+  int y = drawLines(lines, TXT_X, 54, font, lh, maxL, T.title.length() ? C_FG : C_DIM, TXT_W);
+  if (T.artist.length())
+  {
+    auto al = wrapText(T.artist, 2, TXT_W);
+    drawLines(al, TXT_X, min(y + 1, 104), 2, 17, 1, C_DIM, TXT_W);
+  }
+  if (statusMsg.length())
+  {
+    rrect(TXT_X, 126, TXT_W, 16, 8, C565(58, 24, 30));
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_RED, C565(58, 24, 30));
+    tft.drawString(statusMsg, TXT_X + TXT_W / 2, 134, 1);
+    tft.setTextDatum(TL_DATUM);
+  }
+}
+
+void drawControls()
+{
+  tft.fillRect(TXT_X - 4, 142, 146, 44, C_BG);
+  const int cy = CTL_Y;
+  // precedente
+  disc(192, cy, 16, C_LINE);
+  disc(192, cy, 15, C_PANEL2, C_LINE);
+  tft.fillRect(185, cy - 6, 2, 12, C_FG);
+  tft.fillTriangle(189, cy, 198, cy - 6, 198, cy + 6, C_FG);
+  // play / pausa
+  disc(241, cy, 21, C_GREEN);
+  if (T.playing)
+  {
+    rrect(233, cy - 8, 5, 16, 2, C_BG, C_GREEN);
+    rrect(244, cy - 8, 5, 16, 2, C_BG, C_GREEN);
+  }
+  else
+    tft.fillTriangle(236, cy - 9, 236, cy + 9, 251, cy, C_BG);
+  // successivo
+  disc(290, cy, 16, C_LINE);
+  disc(290, cy, 15, C_PANEL2, C_LINE);
+  tft.fillTriangle(283, cy - 6, 283, cy + 6, 292, cy, C_FG);
+  tft.fillRect(294, cy - 6, 2, 12, C_FG);
+  drawnPlaying = T.playing;
+}
+
+void fmtTime(uint32_t ms, char *b)
+{
+  uint32_t s = ms / 1000;
+  snprintf(b, 8, "%u:%02u", (unsigned)(s / 60), (unsigned)(s % 60));
+}
+
+void drawProgress()
+{
+  uint32_t p = progressNow();
+  if (T.duration && p > T.duration)
+    p = T.duration;
+  int w = T.duration ? (int)((uint64_t)PB_W * p / T.duration) : 0;
+  tft.fillRect(PB_X - 6, PB_Y - 6, PB_W + 12, 14, C_BG);
+  rrect(PB_X, PB_Y, PB_W, PB_H, 2, C_TRACK);
+  if (w > 0)
+  {
+    rrect(PB_X, PB_Y, max(w, 4), PB_H, 2, C_GREEN, C_TRACK);
+    tft.fillCircle(PB_X + w, PB_Y + PB_H / 2, 4, C_FG);
+  }
+  char b[8];
+  tft.setTextColor(C_DIM, C_BG);
+  tft.setTextPadding(30);
+  tft.setTextDatum(TL_DATUM);
+  fmtTime(p, b);
+  tft.drawString(b, PB_X, 203, 1);
+  tft.setTextDatum(TR_DATUM);
+  fmtTime(T.duration, b);
+  tft.drawString(b, PB_X + PB_W, 203, 1);
+  tft.setTextPadding(0);
+  tft.setTextDatum(TL_DATUM);
+  progDirty = false;
+}
+
+int jpegDraw(JPEGDRAW *d)
+{
+  tft.pushImage(ART_X + d->x, ART_Y + d->y, d->iWidth, d->iHeight, d->pPixels);
+  return 1;
+}
+
+void drawArtPlaceholder()
+{
+  panel(ART_X, ART_Y, ART_SZ, ART_SZ, 12, C_PANEL, C_LINE);
+  int cx = ART_X + ART_SZ / 2, cy = ART_Y + ART_SZ / 2;
+  uint16_t c = mix565(C_PANEL, C_GREEN, 150);
+  tft.fillSmoothCircle(cx - 19, cy + 22, 12, c, C_PANEL);
+  tft.fillSmoothCircle(cx + 23, cy + 12, 12, c, C_PANEL);
+  tft.fillRect(cx - 10, cy - 30, 4, 52, c);
+  tft.fillRect(cx + 32, cy - 40, 4, 52, c);
+  tft.drawWideLine(cx - 8, cy - 30, cx + 34, cy - 40, 7, c, C_PANEL);
+}
+
+// Dopo il decode JPEG: ritaglia gli angoli e aggiunge un filo di bordo.
+void finishArt()
+{
+  roundCorners(ART_X, ART_Y, ART_SZ, ART_SZ, 12, C_BG);
+  tft.drawRoundRect(ART_X, ART_Y, ART_SZ, ART_SZ, 12, C_LINE);
+}
+
+void fetchArt(const String &url)
+{
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.useHTTP10(true);
+  http.setTimeout(8000);
+  if (!http.begin(client, url))
+    return;
+  int code = http.GET();
+  int size = http.getSize();
+  if (code == 200 && size > 0 && size < 90000)
+  {
+    uint8_t *buf = (uint8_t *)malloc(size);
+    if (buf)
+    {
+      WiFiClient *s = http.getStreamPtr();
+      int got = 0;
+      uint32_t t0 = millis();
+      while (got < size && millis() - t0 < 8000)
+      {
+        int av = s->available();
+        if (av > 0)
+          got += s->readBytes(buf + got, min(av, size - got));
+        else if (!s->connected())
+          break;
+        else
+          delay(1);
+      }
+      if (got == size && jpeg.openRAM(buf, size, jpegDraw))
+      {
+        int w = jpeg.getWidth();
+        int sc = (w >= 500) ? JPEG_SCALE_QUARTER : (w >= 250) ? JPEG_SCALE_HALF
+                                                              : 0;
+        jpeg.decode(0, 0, sc);
+        jpeg.close();
+      }
+      free(buf);
+    }
+  }
+  http.end();
+}
+
+void spotifyPoll()
+{
+  JsonDocument doc;
+  int code = spotifyCall("GET", "/v1/me/player/currently-playing?additional_types=episode", &doc, &fCur);
+  uint32_t now = millis();
+  if (code == 200 && !doc["item"].isNull())
+  {
+    JsonObject it = doc["item"];
+    String id = it["id"] | "";
+    String name = fold(it["name"] | "");
+    String key = id + "|" + name;
+    String artist = fold(it["artists"][0]["name"] | (it["show"]["name"] | ""));
+    T.playing = doc["is_playing"] | false;
+    T.progress = doc["progress_ms"] | 0;
+    T.duration = it["duration_ms"] | 0;
+    T.stamp = now;
+    if (key != T.key)
+    {
+      T.key = key;
+      T.title = name;
+      T.artist = artist;
+      JsonArray imgs = it["album"]["images"].as<JsonArray>();
+      if (imgs.isNull())
+        imgs = it["images"].as<JsonArray>();
+      int best = 100000;
+      T.artUrl = "";
+      for (JsonObject im : imgs)
+      {
+        int d = abs((int)(im["width"] | 0) - 300);
+        if (d < best)
+        {
+          best = d;
+          T.artUrl = im["url"] | "";
+        }
+      }
+      needText = needArt = progDirty = true;
+    }
+    if (T.playing != drawnPlaying)
+      needCtl = true;
+    nextPoll = now + SPOTIFY_POLL_MS;
+  }
+  else if (code == 204 || code == 200)
+  {
+    String nt = (code == 200) ? "Pubblicita" : "";
+    if (T.key.length() || T.title != nt)
+    {
+      T.key = "";
+      T.title = nt;
+      T.artist = "";
+      T.artUrl = "";
+      T.playing = false;
+      T.progress = 0;
+      T.duration = 0;
+      needText = needArt = needCtl = progDirty = true;
+    }
+    nextPoll = now + 5000;
+  }
+  else if (code == 429)
+  {
+    nextPoll = now + 15000;
+  }
+  else
+  {
+    nextPoll = now + 6000;
+  }
+}
+
+void setStatus(const char *m)
+{
+  statusMsg = m;
+  statusUntil = millis() + 4000;
+  needText = true;
+}
+
+void spotifyCommand(const char *method, const char *path)
+{
+  int code = spotifyCall(method, path);
+  if (code == 404)
+    setStatus("Nessun dispositivo");
+  else if (code == 403)
+    setStatus("Serve Spotify Premium");
+  else if (code < 0)
+    setStatus("Errore di rete");
+  nextPoll = millis() + 800;
+}
+
+void spEnter()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("SPOTIFY", C_GREEN);
+  needText = needArt = needCtl = progDirty = true;
+  nextPoll = 0;
+  lastProg = 0;
+}
+
+void spLoop()
+{
+  static uint32_t lastEq = 0;
+  uint32_t now = millis();
+  if (statusMsg.length() && now > statusUntil)
+  {
+    statusMsg = "";
+    needText = true;
+  }
+  if (now >= nextPoll)
+    spotifyPoll();
+  if (needText)
+  {
+    drawTrackText();
+    needText = false;
+  }
+  if (needCtl)
+  {
+    drawControls();
+    needCtl = false;
+  }
+  if (needArt)
+  {
+    needArt = false;
+    drawArtPlaceholder();
+    if (T.artUrl.length())
+    {
+      fetchArt(T.artUrl);
+      finishArt();
+    }
+  }
+  if (now - lastEq >= 220)
+  {
+    drawEq(T.playing);
+    lastEq = now;
+  }
+  if (now - lastProg >= 500 || progDirty)
+  {
+    drawProgress();
+    lastProg = now;
+  }
+}
+
+void spTap(int x, int y)
+{
+  if (y < 140 || y >= NAV_Y - 26 || x < 172)
+    return;
+  if (x < 216)
+    spotifyCommand("POST", "/v1/me/player/previous");
+  else if (x < 266)
+  {
+    T.progress = progressNow();
+    T.stamp = millis();
+    T.playing = !T.playing;
+    drawControls();
+    needText = true;
+    spotifyCommand("PUT", T.playing ? "/v1/me/player/play" : "/v1/me/player/pause");
+  }
+  else
+    spotifyCommand("POST", "/v1/me/player/next");
+}
+
+// ===================== Spotify: playlist =====================
+struct PlaylistItem
+{
+  String name;
+  String uri;
+};
+
+std::vector<PlaylistItem> spotifyPlaylists;
+bool playlistsLoaded = false;
+bool playlistsLoading = false;
+String playlistsStatus;
+int playlistPage = 0;
+constexpr int PLAYLIST_COLS = 2;
+constexpr int PLAYLIST_ROWS = 3;
+constexpr int PLAYLISTS_PER_PAGE = PLAYLIST_COLS * PLAYLIST_ROWS;
+
+void drawPlaylistPage();
+
+bool fetchPlaylists()
+{
+  playlistsLoading = true;
+  playlistsStatus = "Caricamento...";
+  drawPlaylistPage();
+
+  JsonDocument doc;
+  JsonDocument filter;
+  filter["items"][0]["name"] = true;
+  filter["items"][0]["uri"] = true;
+
+  int code = spotifyCall("GET", "/v1/me/playlists?limit=50&offset=0", &doc, &filter);
+  playlistsLoading = false;
+  spotifyPlaylists.clear();
+
+  if (code == 200)
+  {
+    JsonArray items = doc["items"].as<JsonArray>();
+    for (JsonObject item : items)
+    {
+      String name = fold(item["name"] | "");
+      String uri = item["uri"] | "";
+      if (!name.length() || !uri.length())
+        continue;
+      spotifyPlaylists.push_back({name, uri});
+    }
+    playlistsLoaded = true;
+    playlistPage = 0;
+    playlistsStatus = spotifyPlaylists.empty() ? "Nessuna playlist trovata" : "";
+    return true;
+  }
+
+  playlistsLoaded = false;
+  if (code == 403)
+    playlistsStatus = "Ricollega Spotify";
+  else if (code == 429)
+    playlistsStatus = "Troppe richieste, riprova";
+  else if (code < 0)
+    playlistsStatus = "Errore di rete";
+  else
+    playlistsStatus = "Spotify HTTP " + String(code);
+  return false;
+}
+
+constexpr int PL_X = 12, PL_Y = 52, PL_W = 148, PL_H = 40, PL_GX = 4, PL_GY = 5;
+
+uint16_t monogramColor(const String &name)
+{
+  static const uint16_t P[] = {C_GREEN, C_CYAN, C_AMBER, C_VIOLET, C_PINK, C_BLUE};
+  uint32_t h = 7;
+  for (unsigned i = 0; i < name.length(); i++)
+    h = h * 31 + (uint8_t)name[i];
+  return P[h % 6];
+}
+
+void drawPlaylistPage()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("PLAYLIST", C_GREEN);
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_FG);
+  tft.drawString("Le tue playlist", 12, 40, 2);
+  if (spotifyPlaylists.size())
+  {
+    tft.setTextColor(C_FAINT);
+    tft.drawString(String((int)spotifyPlaylists.size()), 12 + tft.textWidth("Le tue playlist", 2) + 8, 40, 2);
+  }
+  // tasto aggiorna
+  panel(282, 30, 26, 22, 8, C_PANEL2, C_LINE);
+  drawRefreshIcon(295, 41, C_GREEN, C_PANEL2);
+  if (playlistsLoading)
+  {
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM);
+    tft.drawString("Caricamento playlist...", 160, 120, 2);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+  if (playlistsStatus.length())
+  {
+    tft.setTextDatum(MR_DATUM);
+    tft.setTextColor(playlistsStatus == "In riproduzione" ? C_GREEN : C_RED);
+    tft.drawString(playlistsStatus, 274, 40, 1);
+  }
+  tft.setTextDatum(TL_DATUM);
+  if (spotifyPlaylists.empty())
+  {
+    panel(36, 84, 248, 76, 14);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString("Nessuna playlist", 160, 108, 2);
+    tft.setTextColor(C_GREEN, C_PANEL);
+    tft.drawString("tocca l'icona in alto per aggiornare", 160, 134, 1);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+  int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
+  if (playlistPage >= pagesCount)
+    playlistPage = pagesCount - 1;
+  if (playlistPage < 0)
+    playlistPage = 0;
+  int first = playlistPage * PLAYLISTS_PER_PAGE;
+  for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
+  {
+    int idx = first + slot;
+    if (idx >= (int)spotifyPlaylists.size())
+      break;
+    int x = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
+    int y = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
+    const String &name = spotifyPlaylists[idx].name;
+    uint16_t col = monogramColor(name);
+    panel(x, y, PL_W, PL_H, 9);
+    rrect(x + 6, y + 5, 30, 30, 8, mix565(C_PANEL, col, 235), C_PANEL);
+    char ini[2] = {name.length() ? name[0] : '?', 0};
+    if (ini[0] >= 'a' && ini[0] <= 'z')
+      ini[0] -= 32;
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_BG, mix565(C_PANEL, col, 235));
+    tft.drawString(ini, x + 21, y + 21, 4);
+    auto lines = wrapText(name, 2, PL_W - 48);
+    int n = min((int)lines.size(), 2);
+    drawLines(lines, x + 42, y + (PL_H - n * 16) / 2, 2, 16, 2, C_FG, PL_W - 48);
+  }
+  // paginazione
+  if (pagesCount > 1)
+  {
+    bool canPrev = playlistPage > 0, canNext = playlistPage + 1 < pagesCount;
+    panel(12, 190, 44, 20, 10, canPrev ? C_PANEL2 : C_PANEL, C_LINE);
+    drawChevron(34, 200, true, canPrev ? C_FG : C_FAINT, canPrev ? C_PANEL2 : C_PANEL);
+    panel(264, 190, 44, 20, 10, canNext ? C_PANEL2 : C_PANEL, C_LINE);
+    drawChevron(286, 200, false, canNext ? C_FG : C_FAINT, canNext ? C_PANEL2 : C_PANEL);
+    int total = min(pagesCount, 8);
+    int x0 = 160 - (total - 1) * 7;
+    for (int i = 0; i < total; i++)
+    {
+      if (i == playlistPage)
+        rrect(x0 + i * 14 - 5, 198, 10, 4, 2, C_GREEN);
+      else
+        disc(x0 + i * 14, 200, 2, C_LINE);
+    }
+  }
+}
+void playPlaylist(int idx)
+{
+  if (idx < 0 || idx >= (int)spotifyPlaylists.size())
+    return;
+
+  JsonDocument bodyDoc;
+  bodyDoc["context_uri"] = spotifyPlaylists[idx].uri;
+  String body;
+  serializeJson(bodyDoc, body);
+
+  playlistsStatus = "Avvio...";
+  drawPlaylistPage();
+  int code = spotifyCallJson("PUT", "/v1/me/player/play", body);
+  if (code == 204)
+  {
+    playlistsStatus = "In riproduzione";
+    nextPoll = 0;
+  }
+  else if (code == 404)
+    playlistsStatus = "Nessun dispositivo attivo";
+  else if (code == 403)
+    playlistsStatus = "Serve Spotify Premium";
+  else if (code == 429)
+    playlistsStatus = "Troppe richieste, riprova";
+  else if (code < 0)
+    playlistsStatus = "Errore di rete";
+  else
+    playlistsStatus = "Spotify HTTP " + String(code);
+  drawPlaylistPage();
+}
+
+void playlistEnter()
+{
+  drawPlaylistPage();
+  if (!playlistsLoaded && !playlistsLoading)
+  {
+    fetchPlaylists();
+    drawPlaylistPage();
+  }
+}
+
+void playlistLoop() {}
+
+void playlistTap(int x, int y)
+{
+  if (x >= 274 && y >= 26 && y <= 56)
+  {
+    fetchPlaylists();
+    drawPlaylistPage();
+    return;
+  }
+  if (spotifyPlaylists.empty())
+    return;
+  for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
+  {
+    int cx = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
+    int cy = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
+    if (x >= cx && x < cx + PL_W && y >= cy && y < cy + PL_H)
+    {
+      int idx = playlistPage * PLAYLISTS_PER_PAGE + slot;
+      if (idx < (int)spotifyPlaylists.size())
+        playPlaylist(idx);
+      return;
+    }
+  }
+  int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
+  if (y >= 186 && y < NAV_Y)
+  {
+    if (x < 90 && playlistPage > 0)
+    {
+      playlistPage--;
+      drawPlaylistPage();
+    }
+    else if (x > 230 && playlistPage + 1 < pagesCount)
+    {
+      playlistPage++;
+      drawPlaylistPage();
+    }
+  }
+}
+// ===================== Meteo =====================
+struct Weather
+{
+  float t = 0, feels = 0, wind = 0;
+  int hum = 0, code = 0, isDay = 1;
+  float tmax[4] = {0}, tmin[4] = {0};
+  int dcode[4] = {0}, wday[4] = {0};
+} W;
+bool weatherOk = false;
+uint32_t weatherTs = 0, weatherTry = 0;
+
+const char *DAYS_S[] = {"Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"};
+const char *DAYS_L[] = {"Domenica", "Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato"};
+const char *MONTHS[] = {"Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio",
+                        "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"};
+
+bool fetchWeather()
+{
+  weatherTry = millis();
+  String url = String("https://api.open-meteo.com/v1/forecast?latitude=") + WEATHER_LAT + "&longitude=" + WEATHER_LON +
+               "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day"
+               "&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=4&timezone=auto&wind_speed_unit=kmh";
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.useHTTP10(true);
+  http.setTimeout(8000);
+  if (!http.begin(client, url))
+    return false;
+  int code = http.GET();
+  if (code != 200)
+  {
+    http.end();
+    return false;
+  }
+  JsonDocument doc;
+  DeserializationError e = deserializeJson(doc, http.getStream());
+  http.end();
+  if (e)
+    return false;
+  JsonObject c = doc["current"];
+  W.t = c["temperature_2m"] | 0.0f;
+  W.feels = c["apparent_temperature"] | 0.0f;
+  W.hum = c["relative_humidity_2m"] | 0;
+  W.code = c["weather_code"] | 0;
+  W.wind = c["wind_speed_10m"] | 0.0f;
+  W.isDay = c["is_day"] | 1;
+  for (int i = 0; i < 4; i++)
+  {
+    W.dcode[i] = doc["daily"]["weather_code"][i] | 0;
+    W.tmax[i] = doc["daily"]["temperature_2m_max"][i] | 0.0f;
+    W.tmin[i] = doc["daily"]["temperature_2m_min"][i] | 0.0f;
+    const char *d = doc["daily"]["time"][i] | "";
+    int y = 0, m = 0, dd = 0;
+    sscanf(d, "%d-%d-%d", &y, &m, &dd);
+    struct tm tmv = {};
+    tmv.tm_year = y - 1900;
+    tmv.tm_mon = m - 1;
+    tmv.tm_mday = dd;
+    tmv.tm_hour = 12;
+    mktime(&tmv);
+    W.wday[i] = tmv.tm_wday;
+  }
+  weatherOk = true;
+  weatherTs = millis();
+  return true;
+}
+
+enum Kind
+{
+  K_CLEAR,
+  K_PARTLY,
+  K_CLOUDY,
+  K_FOG,
+  K_DRIZZLE,
+  K_RAIN,
+  K_SNOW,
+  K_STORM
+};
+
+Kind kindOf(int c)
+{
+  if (c == 0)
+    return K_CLEAR;
+  if (c <= 2)
+    return K_PARTLY;
+  if (c == 3)
+    return K_CLOUDY;
+  if (c == 45 || c == 48)
+    return K_FOG;
+  if (c >= 51 && c <= 57)
+    return K_DRIZZLE;
+  if ((c >= 61 && c <= 67) || (c >= 80 && c <= 82))
+    return K_RAIN;
+  if ((c >= 71 && c <= 77) || c == 85 || c == 86)
+    return K_SNOW;
+  if (c >= 95)
+    return K_STORM;
+  return K_CLOUDY;
+}
+
+const char *descOf(int c)
+{
+  switch (c)
+  {
+  case 0:
+    return "Sereno";
+  case 1:
+    return "Quasi sereno";
+  case 2:
+    return "Poco nuvoloso";
+  case 3:
+    return "Coperto";
+  case 45:
+  case 48:
+    return "Nebbia";
+  case 51:
+  case 53:
+  case 55:
+  case 56:
+  case 57:
+    return "Pioviggine";
+  case 61:
+  case 63:
+  case 65:
+    return "Pioggia";
+  case 66:
+  case 67:
+    return "Pioggia gelata";
+  case 71:
+  case 73:
+  case 75:
+  case 77:
+    return "Neve";
+  case 80:
+  case 81:
+  case 82:
+    return "Rovesci";
+  case 85:
+  case 86:
+    return "Rovesci di neve";
+  case 95:
+  case 96:
+  case 99:
+    return "Temporale";
+  }
+  return "--";
+}
+
+void drawCloud(int cx, int cy, int s, uint16_t col, uint16_t bg)
+{
+  int r = max(s / 5, 2);
+  tft.fillSmoothCircle(cx - r * 3 / 2, cy + r / 2, r, col, bg);
+  tft.fillSmoothCircle(cx + r * 3 / 2, cy + r / 2, r, col, bg);
+  tft.fillSmoothCircle(cx - r / 4, cy - r / 3, r * 3 / 2, col, bg);
+  tft.fillRect(cx - r * 3 / 2, cy + r / 2 - r / 3, r * 3 + 1, r + r / 3 + 1, col);
+}
+
+void drawSun(int cx, int cy, int r, uint16_t bg)
+{
+  for (int a = 0; a < 8; a++)
+  {
+    float rad = a * PI / 4;
+    float c = cosf(rad), s = sinf(rad);
+    tft.drawWideLine(cx + c * (r + 3), cy + s * (r + 3), cx + c * (r + 3 + r / 2 + 2), cy + s * (r + 3 + r / 2 + 2),
+                     max(r / 5.0f, 1.6f), C_SUN, bg);
+  }
+  tft.fillSmoothCircle(cx, cy, r, C_SUN, bg);
+}
+
+void drawMoon(int cx, int cy, int r, uint16_t bg)
+{
+  tft.fillSmoothCircle(cx, cy, r, C565(240, 240, 205), bg);
+  tft.fillSmoothCircle(cx + r / 2, cy - r / 3, r * 4 / 5, bg, C565(240, 240, 205));
+}
+
+void drawIcon(int cx, int cy, int s, int code, bool day, uint16_t bg = C_BG)
+{
+  Kind k = kindOf(code);
+  int r = max(s / 5, 2);
+  float lw = max(s / 22.0f, 1.6f);
+  switch (k)
+  {
+  case K_CLEAR:
+    if (day)
+      drawSun(cx, cy, s / 4, bg);
+    else
+      drawMoon(cx, cy, s / 3, bg);
+    break;
+  case K_PARTLY:
+    if (day)
+      drawSun(cx - r, cy - r, r + r / 3, bg);
+    else
+      drawMoon(cx - r, cy - r, r + r / 2, bg);
+    drawCloud(cx + r / 2, cy + r / 2, s * 4 / 5, C_CLOUD, bg);
+    break;
+  case K_CLOUDY:
+    drawCloud(cx, cy, s, C_DARK, bg);
+    break;
+  case K_FOG:
+    drawCloud(cx, cy - r / 2, s, C_CLOUD, bg);
+    for (int i = 0; i < 3; i++)
+      tft.drawWideLine(cx - r * 2 + (i % 2) * r / 2, cy + r * 2 + i * (r / 2 + 2), cx + r * 2 + (i % 2) * r / 2, cy + r * 2 + i * (r / 2 + 2), lw, C_DIM, bg);
+    break;
+  case K_DRIZZLE:
+  case K_RAIN:
+    drawCloud(cx, cy - r / 2, s, C_DARK, bg);
+    for (int i = -1; i <= 1; i++)
+    {
+      int x = cx + i * r * 6 / 5;
+      int n = (k == K_RAIN) ? 2 : 1;
+      for (int j = 0; j < n; j++)
+        tft.drawWideLine(x, cy + r * 2 + j * (r / 2 + 3), x - r / 3, cy + r * 3 + j * (r / 2 + 3), lw, C_RAIN, bg);
+    }
+    break;
+  case K_SNOW:
+    drawCloud(cx, cy - r / 2, s, C_CLOUD, bg);
+    for (int i = -1; i <= 1; i++)
+    {
+      tft.fillSmoothCircle(cx + i * r * 6 / 5, cy + r * 2 + (i == 0 ? r / 2 : 0), max(r / 4, 1) + 1, C_FG, bg);
+      tft.fillSmoothCircle(cx + i * r * 6 / 5 - 2, cy + r * 3 + (i == 0 ? 0 : r / 2), max(r / 4, 1), C_FG, bg);
+    }
+    break;
+  case K_STORM:
+    drawCloud(cx, cy - r / 2, s, C_DARK, bg);
+    tft.fillTriangle(cx + r / 3, cy + r, cx - r / 2, cy + r * 2, cx, cy + r * 2, C_SUN);
+    tft.fillTriangle(cx - r / 8, cy + r * 2, cx + r / 2, cy + r * 3 / 2 + r / 4, cx - r / 5, cy + r * 3 + r / 4, C_SUN);
+    break;
+  }
+}
+
+void drawDegree(int x, int y, uint16_t col, uint16_t bg = C_BG)
+{
+  ring(x, y, 6, 3, col, bg);
+}
+
+void weatherEnter()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("METEO", C_CYAN);
+  tft.setTextDatum(TL_DATUM);
+  if (!weatherOk)
+  {
+    panel(24, 74, 272, 92, 16);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString("Meteo non disponibile", 160, 108, 2);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("riprovo automaticamente", 160, 134, 2);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+  char b[48];
+  // ---- hero ----
+  tft.setTextColor(C_DIM);
+  tft.drawString(upperStr(WEATHER_CITY), 14, 32, 2);
+  String temp = String((int)lroundf(W.t));
+  tft.setTextColor(C_FG);
+  tft.drawString(temp, 12, 50, 6);
+  int tw = tft.textWidth(temp, 6);
+  drawDegree(16 + tw, 62, C_FG);
+  // max / min
+  int bx = 24 + tw + 44;
+  tft.fillTriangle(bx, 72, bx + 8, 72, bx + 4, 66, C_AMBER);
+  tft.fillTriangle(bx, 86, bx + 8, 86, bx + 4, 92, C_CYAN);
+  snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmax[0]));
+  tft.setTextColor(C_FG);
+  tft.drawString(b, bx + 14, 62, 2);
+  snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmin[0]));
+  tft.setTextColor(C_DIM);
+  tft.drawString(b, bx + 14, 82, 2);
+  tft.setTextColor(C_CYAN);
+  tft.drawString(descOf(W.code), 14, 102, 2);
+  // medaglione con l'icona
+  disc(260, 72, 44, C_LINE);
+  disc(260, 72, 43, C_PANEL, C_LINE);
+  drawIcon(260, 72, 62, W.code, W.isDay, C_PANEL);
+  // ---- metriche ----
+  const int xs[3] = {12, 112, 212};
+  const char *labels[3] = {"PERCEPITA", "UMIDITA", "VENTO"};
+  String vals[3] = {String((int)lroundf(W.feels)) + "`", String(W.hum) + "%", String((int)lroundf(W.wind)) + " km/h"};
+  for (int i = 0; i < 3; i++)
+  {
+    panel(xs[i], 124, 96, 38, 9);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(labels[i], xs[i] + 9, 131, 1);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(vals[i], xs[i] + 9, 143, 2);
+  }
+  // ---- prossimi giorni ----
+  for (int i = 1; i <= 3; i++)
+  {
+    int x = 12 + (i - 1) * 100;
+    panel(x, 168, 96, 38, 9);
+    tft.setTextColor(C_CYAN, C_PANEL);
+    tft.drawString(upperStr(DAYS_S[W.wday[i]]), x + 9, 175, 1);
+    snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmax[i]));
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(b, x + 9, 185, 2);
+    snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmin[i]));
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(b, x + 37, 185, 2);
+    drawIcon(x + 76, 187, 26, W.dcode[i], true, C_PANEL);
+  }
+}
+
+void weatherLoop() {}
+void weatherTap(int, int) {}
+
+// ===================== Radar pioggia (RainViewer) =====================
+struct RadarState
+{
+  String host;
+  String path;
+  time_t frameTime = 0;
+  bool ok = false;
+  uint32_t stamp = 0;
+  int lastHttpCode = 0;
+  int lastPngError = 0;
+  size_t lastBytes = 0;
+} radarState;
+
+constexpr int RADAR_VIEW_X = 32;
+constexpr int RADAR_VIEW_Y = 38;
+constexpr int RADAR_VIEW_W = 256;
+constexpr int RADAR_VIEW_H = 166;
+constexpr int RADAR_CROP_Y = (256 - RADAR_VIEW_H) / 2;
+constexpr int RADAR_ZOOM = 7;
+volatile uint32_t radarPaintedPixels = 0;
+
+bool downloadBinary(const String &url, uint8_t *&data, size_t &len, size_t maxSize = 180000)
+{
+  data = nullptr;
+  len = 0;
+  radarState.lastHttpCode = 0;
+  radarState.lastBytes = 0;
+
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.setConnectTimeout(7000);
+  http.setTimeout(12000);
+  http.useHTTP10(true); // evita transfer chunked: piu affidabile con PNGdec su ESP32
+  http.addHeader("User-Agent", "CYD-Hub/6.0");
+  http.addHeader("Accept", "image/png,*/*;q=0.8");
+  if (!http.begin(client, url))
+  {
+    Serial.println("Radar: http.begin fallito");
+    return false;
+  }
+
+  int code = http.GET();
+  radarState.lastHttpCode = code;
+  Serial.printf("Radar GET %d: %s\n", code, url.c_str());
+  if (code != HTTP_CODE_OK)
+  {
+    http.end();
+    return false;
+  }
+
+  int declared = http.getSize();
+  if (declared > 0 && (size_t)declared > maxSize)
+  {
+    Serial.printf("Radar: Content-Length troppo grande: %d\n", declared);
+    http.end();
+    return false;
+  }
+
+  size_t cap = declared > 0 ? (size_t)declared : 32768;
+  cap = min(cap, maxSize);
+  data = (uint8_t *)malloc(cap);
+  if (!data)
+  {
+    Serial.printf("Radar: malloc fallita (%u bytes)\n", (unsigned)cap);
+    http.end();
+    return false;
+  }
+
+  WiFiClient *stream = http.getStreamPtr();
+  uint32_t lastData = millis();
+  while (true)
+  {
+    int av = stream->available();
+    if (av > 0)
+    {
+      size_t need = len + (size_t)av;
+      if (need > maxSize)
+      {
+        Serial.println("Radar: PNG supera maxSize");
+        free(data);
+        data = nullptr;
+        http.end();
+        return false;
+      }
+      if (need > cap)
+      {
+        size_t newCap = cap * 2;
+        if (newCap < need)
+          newCap = need;
+        if (newCap > maxSize)
+          newCap = maxSize;
+        uint8_t *grown = (uint8_t *)realloc(data, newCap);
+        if (!grown)
+        {
+          Serial.println("Radar: realloc fallita");
+          free(data);
+          data = nullptr;
+          http.end();
+          return false;
+        }
+        data = grown;
+        cap = newCap;
+      }
+      size_t room = cap - len;
+      size_t want = min((size_t)av, room);
+      int got = stream->readBytes(data + len, want);
+      if (got > 0)
+      {
+        len += (size_t)got;
+        lastData = millis();
+      }
+    }
+    else
+    {
+      if (declared >= 0 && len >= (size_t)declared)
+        break;
+      if (!stream->connected())
+        break;
+      if (millis() - lastData > 4500)
+        break;
+      delay(1);
+    }
+  }
+  http.end();
+
+  radarState.lastBytes = len;
+  // Firma PNG: 89 50 4E 47 0D 0A 1A 0A
+  const uint8_t sig[8] = {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A};
+  bool pngSig = len >= 8 && memcmp(data, sig, 8) == 0;
+  bool complete = declared < 0 || len == (size_t)declared;
+  Serial.printf("Radar: %u bytes, expected=%d, png=%s\n",
+                (unsigned)len, declared, pngSig ? "yes" : "no");
+  if (!pngSig || !complete)
+  {
+    free(data);
+    data = nullptr;
+    len = 0;
+    return false;
+  }
+  return true;
+}
+
+bool fetchRadarMeta()
+{
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.setConnectTimeout(7000);
+  http.setTimeout(10000);
+  http.useHTTP10(true);
+  http.addHeader("User-Agent", "CYD-Hub/6.0");
+  if (!http.begin(client, "https://api.rainviewer.com/public/weather-maps.json"))
+    return false;
+  int code = http.GET();
+  Serial.printf("RainViewer meta HTTP %d\n", code);
+  if (code != HTTP_CODE_OK)
+  {
+    http.end();
+    return false;
+  }
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, http.getStream());
+  http.end();
+  if (err)
+  {
+    Serial.printf("RainViewer JSON: %s\n", err.c_str());
+    return false;
+  }
+
+  JsonArray past = doc["radar"]["past"].as<JsonArray>();
+  if (past.isNull() || past.size() == 0)
+  {
+    Serial.println("RainViewer: nessun frame radar passato");
+    return false;
+  }
+
+  JsonObject frame = past[past.size() - 1];
+  radarState.host = String((const char *)(doc["host"] | "https://tilecache.rainviewer.com"));
+  radarState.path = String((const char *)(frame["path"] | ""));
+  radarState.frameTime = (time_t)(frame["time"] | 0);
+  radarState.ok = radarState.host.length() > 0 && radarState.path.length() > 0;
+  if (radarState.ok)
+    radarState.stamp = millis();
+  Serial.printf("RainViewer host=%s path=%s\n", radarState.host.c_str(), radarState.path.c_str());
+  return radarState.ok;
+}
+
+void drawRadarBase()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("RADAR PIOGGIA", C_BLUE);
+  panel(RADAR_VIEW_X - 3, RADAR_VIEW_Y - 3, RADAR_VIEW_W + 6, RADAR_VIEW_H + 6, 10);
+  tft.fillRect(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, C565(6, 13, 24));
+  uint16_t grid = C565(15, 30, 46);
+  for (int x = RADAR_VIEW_X + 16; x < RADAR_VIEW_X + RADAR_VIEW_W; x += 32)
+    tft.drawFastVLine(x, RADAR_VIEW_Y, RADAR_VIEW_H, grid);
+  for (int y = RADAR_VIEW_Y + 15; y < RADAR_VIEW_Y + RADAR_VIEW_H; y += 30)
+    tft.drawFastHLine(RADAR_VIEW_X, y, RADAR_VIEW_W, grid);
+  int cx = RADAR_VIEW_X + RADAR_VIEW_W / 2;
+  int cy = RADAR_VIEW_Y + RADAR_VIEW_H / 2;
+  tft.drawCircle(cx, cy, 34, C565(28, 58, 84));
+  tft.drawCircle(cx, cy, 68, C565(24, 50, 72));
+  tft.setTextDatum(TC_DATUM);
+  tft.setTextColor(C565(70, 110, 140));
+  tft.drawString("30 km", cx, cy - 34 - 10, 1);
+  tft.drawString("60 km", cx, cy - 68 - 10, 1);
+  tft.setTextDatum(TL_DATUM);
+  roundCorners(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, 7, C_PANEL);
+}
+
+int radarPngDraw(PNGDRAW *pDraw)
+{
+  if (pDraw->y < RADAR_CROP_Y || pDraw->y >= RADAR_CROP_Y + RADAR_VIEW_H)
+    return 1;
+  if (pDraw->iWidth > 256)
+    return 0;
+
+  uint16_t pixels[256];
+  uint8_t mask[1 + 256 / 8];
+  png.getLineAsRGB565(pDraw, pixels, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+
+  // RainViewer usa alpha anche per precipitazioni leggere. Una soglia bassa
+  // conserva gli echi deboli e lascia trasparente lo sfondo.
+  if (!png.getAlphaMask(pDraw, mask, 16))
+    return 1;
+
+  uint32_t linePixels = 0;
+  for (int i = 0; i < pDraw->iWidth; ++i)
+    if (mask[i >> 3] & (0x80 >> (i & 7)))
+      linePixels++;
+  radarPaintedPixels += linePixels;
+
+  tft.pushMaskedImage(RADAR_VIEW_X,
+                      RADAR_VIEW_Y + pDraw->y - RADAR_CROP_Y,
+                      pDraw->iWidth, 1, pixels, mask);
+  return 1;
+}
+
+int radarTileX(double lon, int zoom)
+{
+  double n = (double)(1UL << zoom);
+  int x = (int)floor((lon + 180.0) / 360.0 * n);
+  return constrain(x, 0, (1 << zoom) - 1);
+}
+
+int radarTileY(double lat, int zoom)
+{
+  lat = constrain(lat, -85.05112878, 85.05112878);
+  double latRad = lat * PI / 180.0;
+  double n = (double)(1UL << zoom);
+  int y = (int)floor((1.0 - log(tan(latRad) + 1.0 / cos(latRad)) / PI) / 2.0 * n);
+  return constrain(y, 0, (1 << zoom) - 1);
+}
+
+bool decodeRadarPng(uint8_t *data, size_t len)
+{
+  radarPaintedPixels = 0;
+  radarState.lastPngError = 0;
+  int rc = png.openRAM(data, (int)len, radarPngDraw);
+  if (rc != PNG_SUCCESS)
+  {
+    radarState.lastPngError = rc;
+    Serial.printf("Radar PNG open error=%d\n", rc);
+    return false;
+  }
+
+  tft.startWrite();
+  rc = png.decode(nullptr, PNG_FAST_PALETTE);
+  tft.endWrite();
+  radarState.lastPngError = rc;
+  png.close();
+  Serial.printf("Radar PNG decode=%d, painted=%u\n", rc, (unsigned)radarPaintedPixels);
+  return rc == PNG_SUCCESS;
+}
+
+bool tryRadarUrl(const String &url)
+{
+  uint8_t *data = nullptr;
+  size_t len = 0;
+  if (!downloadBinary(url, data, len))
+    return false;
+  bool ok = decodeRadarPng(data, len);
+  free(data);
+  return ok;
+}
+
+bool fetchAndDrawRadarTile()
+{
+  if (!radarState.ok && !fetchRadarMeta())
+    return false;
+
+  const double lat = atof(WEATHER_LAT);
+  const double lon = atof(WEATHER_LON);
+  int tx = radarTileX(lon, RADAR_ZOOM);
+  int ty = radarTileY(lat, RADAR_ZOOM);
+
+  // Prima scelta: normale tile Web-Mercator x/y, la forma piu standard e robusta.
+  String urlXY = radarState.host + radarState.path + "/256/" + String(RADAR_ZOOM) + "/" +
+                 String(tx) + "/" + String(ty) + "/2/1_0.png";
+  if (tryRadarUrl(urlXY))
+    return true;
+
+  // Fallback: widget centrato direttamente sulle coordinate di Imola.
+  Serial.println("Radar: fallback lat/lon");
+  String urlLL = radarState.host + radarState.path + "/256/" + String(RADAR_ZOOM) + "/" +
+                 String(WEATHER_LAT) + "/" + String(WEATHER_LON) + "/2/1_0.png";
+  return tryRadarUrl(urlLL);
+}
+
+void drawRadarOverlay()
+{
+  int cx = RADAR_VIEW_X + RADAR_VIEW_W / 2;
+  int cy = RADAR_VIEW_Y + RADAR_VIEW_H / 2;
+  tft.fillCircle(cx, cy, 6, C_BG);
+  tft.fillCircle(cx, cy, 5, C_FG);
+  tft.fillCircle(cx, cy, 3, C_BLUE);
+  // etichetta citta'
+  String city = upperStr(WEATHER_CITY);
+  int w = tft.textWidth(city, 1) + 14;
+  rrect(RADAR_VIEW_X + 8, RADAR_VIEW_Y + 8, w, 15, 7, C565(9, 16, 28), C565(6, 13, 24));
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_FG, C565(9, 16, 28));
+  tft.drawString(city, RADAR_VIEW_X + 15, RADAR_VIEW_Y + 16, 1);
+  roundCorners(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, 7, C_PANEL);
+  tft.setTextDatum(TL_DATUM);
+}
+
+void drawRadarStamp()
+{
+  tft.fillRect(0, 202, 320, 11, C_BG);
+  tft.setTextDatum(ML_DATUM);
+  if (radarState.frameTime)
+  {
+    struct tm ti;
+    localtime_r(&radarState.frameTime, &ti);
+    char b[32];
+    snprintf(b, sizeof(b), "ultimo frame %02d:%02d", ti.tm_hour, ti.tm_min);
+    disc(RADAR_VIEW_X + 4, 206, 3, C_GREEN);
+    tft.setTextColor(C_DIM);
+    tft.drawString(b, RADAR_VIEW_X + 13, 206, 1);
+  }
+  tft.setTextDatum(MR_DATUM);
+  tft.setTextColor(C_FAINT);
+  tft.drawString("RainViewer", RADAR_VIEW_X + RADAR_VIEW_W, 206, 1);
+  tft.setTextDatum(TL_DATUM);
+}
+
+void radarEnter()
+{
+  drawRadarBase();
+  bool stale = !radarState.ok || (millis() - radarState.stamp > RADAR_REFRESH_MS);
+  if (stale)
+  {
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_BG);
+    tft.drawString("aggiorno radar...", 160, 206, 1);
+    tft.setTextDatum(TL_DATUM);
+    radarState.ok = false;
+    fetchRadarMeta();
+  }
+  if (!fetchAndDrawRadarTile())
+  {
+    panel(60, 88, 200, 68, 14, C_PANEL2, C_LINE, C565(6, 13, 24));
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL2);
+    tft.drawString("Radar non disponibile", 160, 108, 2);
+    tft.setTextColor(C_DIM, C_PANEL2);
+    char e[52];
+    snprintf(e, sizeof(e), "HTTP %d  PNG %d", radarState.lastHttpCode, radarState.lastPngError);
+    tft.drawString(e, 160, 128, 1);
+    tft.setTextColor(C_BLUE, C_PANEL2);
+    tft.drawString("tocca per riprovare", 160, 141, 1);
+    tft.setTextDatum(TL_DATUM);
+  }
+  else
+  {
+    drawRadarOverlay();
+    if (radarPaintedPixels < 24)
+    {
+      int cy = RADAR_VIEW_Y + RADAR_VIEW_H - 24;
+      rrect(160 - 74, cy, 148, 16, 8, C565(9, 16, 28), C565(6, 13, 24));
+      tft.setTextDatum(MC_DATUM);
+      tft.setTextColor(C_DIM, C565(9, 16, 28));
+      tft.drawString("nessuna pioggia rilevata", 160, cy + 8, 1);
+      tft.setTextDatum(TL_DATUM);
+    }
+  }
+  drawRadarStamp();
+}
+
+void radarLoop() {}
+void radarTap(int, int)
+{
+  radarState.ok = false;
+  radarState.stamp = 0;
+  radarEnter();
+}
+
+// ===================== Calendario Formula 1 (Jolpica) =====================
+struct F1Race
+{
+  int round = 0;
+  String name;
+  String locality;
+  String country;
+  time_t raceEpoch = 0;
+  time_t qualifyingEpoch = 0;
+  bool sprint = false;
+};
+
+F1Race f1Races[3];
+int f1Count = 0;
+bool f1Ok = false;
+uint32_t f1Stamp = 0;
+
+int64_t daysFromCivil(int y, unsigned m, unsigned d)
+{
+  y -= m <= 2;
+  const int era = (y >= 0 ? y : y - 399) / 400;
+  const unsigned yoe = (unsigned)(y - era * 400);
+  const unsigned doy = (153 * (m + (m > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+  const unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+  return (int64_t)era * 146097 + (int64_t)doe - 719468;
+}
+
+time_t parseUtcIso(const char *date, const char *utcTime)
+{
+  if (!date || !*date)
+    return 0;
+  int y = 0, m = 0, d = 0, hh = 0, mm = 0, ss = 0;
+  if (sscanf(date, "%d-%d-%d", &y, &m, &d) != 3)
+    return 0;
+  if (utcTime && *utcTime)
+    sscanf(utcTime, "%d:%d:%d", &hh, &mm, &ss);
+  int64_t epoch = daysFromCivil(y, (unsigned)m, (unsigned)d) * 86400LL + hh * 3600LL + mm * 60LL + ss;
+  return (time_t)epoch;
+}
+
+String compactGpName(String s)
+{
+  s = fold(s.c_str());
+  s.replace(" Grand Prix", " GP");
+  return s;
+}
+
+bool fetchF1Calendar()
+{
+  struct tm nowTm;
+  if (!getLocalTime(&nowTm, 1000))
+    return false;
+  int year = nowTm.tm_year + 1900;
+  String url = String("https://api.jolpi.ca/ergast/f1/") + year + ".json";
+
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+  http.setTimeout(9000);
+  http.useHTTP10(true);
+  if (!http.begin(client, url))
+    return false;
+  int code = http.GET();
+  if (code != 200)
+  {
+    http.end();
+    return false;
+  }
+
+  JsonDocument filter;
+  filter["MRData"]["RaceTable"]["Races"][0]["round"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["raceName"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["date"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["time"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["locality"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["Circuit"]["Location"]["country"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["Qualifying"]["date"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["Qualifying"]["time"] = true;
+  filter["MRData"]["RaceTable"]["Races"][0]["Sprint"]["date"] = true;
+
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, http.getStream(), DeserializationOption::Filter(filter));
+  http.end();
+  if (err)
+    return false;
+
+  time_t now = time(nullptr);
+  f1Count = 0;
+  JsonArray races = doc["MRData"]["RaceTable"]["Races"].as<JsonArray>();
+  for (JsonObject r : races)
+  {
+    const char *date = r["date"] | "";
+    const char *tm = r["time"] | "00:00:00Z";
+    time_t raceTime = parseUtcIso(date, tm);
+    if (!raceTime || raceTime + 4 * 3600 < now)
+      continue;
+
+    F1Race &out = f1Races[f1Count];
+    out.round = atoi(r["round"] | "0");
+    out.name = compactGpName(String((const char *)(r["raceName"] | "")));
+    out.locality = fold(r["Circuit"]["Location"]["locality"] | "");
+    out.country = fold(r["Circuit"]["Location"]["country"] | "");
+    out.raceEpoch = raceTime;
+    out.qualifyingEpoch = parseUtcIso(r["Qualifying"]["date"] | "", r["Qualifying"]["time"] | "00:00:00Z");
+    out.sprint = !r["Sprint"]["date"].isNull();
+    f1Count++;
+    if (f1Count >= 3)
+      break;
+  }
+  f1Ok = f1Count > 0;
+  f1Stamp = millis();
+  return f1Ok;
+}
+
+void formatLocalRaceTime(time_t epoch, char *buf, size_t len)
+{
+  struct tm ti;
+  localtime_r(&epoch, &ti);
+  static const char *MON_S[] = {"GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"};
+  snprintf(buf, len, "%s %d %s  %02d:%02d", DAYS_S[ti.tm_wday], ti.tm_mday, MON_S[ti.tm_mon], ti.tm_hour, ti.tm_min);
+}
+
+String f1Countdown(time_t epoch)
+{
+  long sec = (long)(epoch - time(nullptr));
+  if (sec <= 0)
+    return "ORA";
+  if (sec < 48L * 3600L)
+    return String(sec / 3600L) + "H";
+  return String(sec / 86400L) + " GIORNI";
+}
+
+void f1CountdownParts(time_t epoch, String &num, String &unit)
+{
+  long sec = (long)(epoch - time(nullptr));
+  if (sec <= 0)
+  {
+    num = "0";
+    unit = "IN CORSO";
+  }
+  else if (sec < 48L * 3600L)
+  {
+    long h = max(1L, sec / 3600L);
+    num = String(h);
+    unit = h == 1 ? "ORA" : "ORE";
+  }
+  else
+  {
+    long d = sec / 86400L;
+    num = String(d);
+    unit = d == 1 ? "GIORNO" : "GIORNI";
+  }
+}
+
+void drawF1Calendar()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("FORMULA 1", C_RED);
+  if (!f1Ok)
+  {
+    panel(26, 76, 268, 88, 16, C_PANEL, mix565(C_LINE, C_RED, 70));
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString("Calendario non disponibile", 160, 108, 2);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("riprovo piu tardi", 160, 134, 2);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+  F1Race &r = f1Races[0];
+  uint16_t heroFill = mix565(C_PANEL, C_RED, 16);
+  panel(12, 32, 296, 92, 14, heroFill, mix565(C_LINE, C_RED, 110));
+  // countdown
+  String num, unit;
+  f1CountdownParts(r.raceEpoch, num, unit);
+  tft.setTextDatum(TC_DATUM);
+  tft.setTextColor(C_DIM, heroFill);
+  tft.drawString("TRA", 62, 41, 1);
+  tft.setTextColor(C_RED, heroFill);
+  tft.drawString(num, 62, 52, 6);
+  tft.setTextColor(C_FG, heroFill);
+  tft.drawString(unit, 62, 106, 1);
+  tft.drawFastVLine(114, 42, 72, mix565(C_LINE, C_RED, 60));
+  // dettagli
+  tft.setTextDatum(TL_DATUM);
+  char b[48];
+  snprintf(b, sizeof(b), "PROSSIMA GARA  R%02d", r.round);
+  tft.setTextColor(C_RED, heroFill);
+  tft.drawString(b, 128, 42, 1);
+  int titleFont = tft.textWidth(r.name, 4) <= 170 ? 4 : 2;
+  tft.setTextColor(C_FG, heroFill);
+  tft.drawString(r.name, 128, 56, titleFont);
+  String loc = r.locality + "  /  " + r.country;
+  if (tft.textWidth(loc, 2) > 172)
+    loc = r.locality;
+  tft.setTextColor(C_DIM, heroFill);
+  tft.drawString(loc, 128, 84, 2);
+  formatLocalRaceTime(r.raceEpoch, b, sizeof(b));
+  tft.setTextColor(C_FG, heroFill);
+  tft.drawString(b, 128, 104, 2);
+  if (r.sprint)
+    pill(246, 39, 52, 15, "SPRINT", C_FG, C565(120, 34, 40), 1, heroFill);
+  // prossime gare
+  for (int i = 1; i < f1Count; i++)
+  {
+    int y = 130 + (i - 1) * 40;
+    F1Race &n = f1Races[i];
+    panel(12, y, 296, 36, 11);
+    snprintf(b, sizeof(b), "R%02d", n.round);
+    rrect(20, y + 7, 34, 22, 7, mix565(C_PANEL, C_RED, 70), C_PANEL);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_RED, mix565(C_PANEL, C_RED, 70));
+    tft.drawString(b, 37, y + 19, 1);
+    tft.setTextDatum(ML_DATUM);
+    String nm = n.name;
+    if (nm.length() > 20)
+      nm = nm.substring(0, 19) + "...";
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(nm, 64, y + 12, 2);
+    formatLocalRaceTime(n.raceEpoch, b, sizeof(b));
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(b, 64, y + 28, 1);
+    if (n.sprint)
+      pill(258, y + 10, 40, 15, "SPR", C_FG, C565(120, 34, 40), 1, C_PANEL);
+  }
+  // scacchi decorativi
+  for (int rr = 0; rr < 2; rr++)
+    for (int k = 0; k < 8; k++)
+      tft.fillRect(268 + k * 3, 106 + rr * 3, 3, 3, ((rr + k) & 1) ? mix565(heroFill, C_FG, 60) : mix565(heroFill, C_RED, 200));
+  tft.setTextDatum(TL_DATUM);
+}
+
+void f1Enter()
+{
+  bool stale = !f1Ok || (millis() - f1Stamp > F1_REFRESH_MS);
+  if (stale)
+  {
+    tft.fillScreen(C_BG);
+    drawTopBar("FORMULA 1", C_RED);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_BG);
+    tft.drawString("scarico il calendario...", 160, 116, 2);
+    tft.setTextDatum(TL_DATUM);
+    fetchF1Calendar();
+  }
+  drawF1Calendar();
+}
+
+void f1Loop() {}
+void f1Tap(int, int) {}
+
+// ===================== Orologio =====================
+void drawNavBar();
+int lastMin = -1;
+
+// Cifre a sette segmenti "esagonali": segmenti spenti appena visibili, quelli accesi pieni.
+constexpr int CLK_DW = 62, CLK_DH = 104, CLK_T = 12, CLK_Y = 48;
+int lastDay = -1;
+static void hexH(int x0, int x1, int cy, int ht, uint16_t c)
+{
+  tft.fillRect(x0 + ht, cy - ht, x1 - x0 - 2 * ht + 1, 2 * ht + 1, c);
+  tft.fillTriangle(x0, cy, x0 + ht, cy - ht, x0 + ht, cy + ht, c);
+  tft.fillTriangle(x1, cy, x1 - ht, cy - ht, x1 - ht, cy + ht, c);
+}
+static void hexV(int cx, int y0, int y1, int ht, uint16_t c)
+{
+  tft.fillRect(cx - ht, y0 + ht, 2 * ht + 1, y1 - y0 - 2 * ht + 1, c);
+  tft.fillTriangle(cx, y0, cx - ht, y0 + ht, cx + ht, y0 + ht, c);
+  tft.fillTriangle(cx, y1, cx - ht, y1 - ht, cx + ht, y1 - ht, c);
+}
+void drawBigDigit(int x, int y, int digit, uint16_t on, uint16_t off)
+{
+  //   A
+  // F   B
+  //   G
+  // E   C
+  //   D
+  static const uint8_t segs[10] = {0b1111110, 0b0110000, 0b1101101, 0b1111001, 0b0110011,
+                                   0b1011011, 0b1011111, 0b1110000, 0b1111111, 0b1111011};
+  const int ht = CLK_T / 2, g = 2;
+  int xl = x + ht, xr = x + CLK_DW - ht;
+  int yt = y + ht, ym = y + CLK_DH / 2, yb = y + CLK_DH - ht;
+  uint8_t s = segs[digit];
+  auto col = [&](uint8_t bit)
+  { return (s & bit) ? on : off; };
+  hexH(xl + g, xr - g, yt, ht, col(0x40));
+  hexV(xr, yt + g, ym - g, ht, col(0x20));
+  hexV(xr, ym + g, yb - g, ht, col(0x10));
+  hexH(xl + g, xr - g, yb, ht, col(0x08));
+  hexV(xl, ym + g, yb - g, ht, col(0x04));
+  hexV(xl, yt + g, ym - g, ht, col(0x02));
+  hexH(xl + g, xr - g, ym, ht, col(0x01));
+}
+
+void drawBigClock(int hour, int minute)
+{
+  constexpr int GAP = 6, COLON_W = 22;
+  constexpr int TOTAL_W = CLK_DW * 4 + GAP * 2 + COLON_W;
+  const int x1 = (320 - TOTAL_W) / 2;
+  const int x2 = x1 + CLK_DW + GAP;
+  const int colonX = x2 + CLK_DW + COLON_W / 2;
+  const int x3 = x2 + CLK_DW + COLON_W;
+  const int x4 = x3 + CLK_DW + GAP;
+  const uint16_t off = C565(10, 12, 18); 
+  tft.fillRect(0, CLK_Y - 2, 320, CLK_DH + 4, C_BG);
+  drawBigDigit(x1, CLK_Y, hour / 10, C_FG, off);
+  drawBigDigit(x2, CLK_Y, hour % 10, C_FG, off);
+  drawBigDigit(x3, CLK_Y, minute / 10, C_FG, off);
+  drawBigDigit(x4, CLK_Y, minute % 10, C_FG, off);
+  rrect(colonX - 5, CLK_Y + 30, 10, 10, 3, C_AMBER);
+  rrect(colonX - 5, CLK_Y + 64, 10, 10, 3, C_AMBER);
+}
+
+// Riga dei secondi: sottile, sotto le cifre.
+void drawSecondsBar(int sec)
+{
+  constexpr int X = 50, W = 220, Y = 140;
+  tft.fillRect(X - 6, Y - 2, W + 12, 8, C_BG);
+  rrect(X, Y, W, 3, 1, C_TRACK);
+  int w = (int)((long)W * sec / 59);
+  if (w > 3)
+    rrect(X, Y, w, 3, 1, C_AMBER, C_TRACK);
+  tft.fillCircle(X + w, Y + 1, 2, C_AMBER);
+}
+
+void drawClockFull(const tm &ti)
+{
+  char b[80];
+  tft.fillScreen(C_BG);
+  drawTopBar("HOME", C_AMBER);
+  // data: giorno in accento, resto attenuato
+  String wd = upperStr(DAYS_L[ti.tm_wday]);
+  snprintf(b, sizeof(b), "%d %s %d", ti.tm_mday, MONTHS[ti.tm_mon], ti.tm_year + 1900);
+  int w1 = tft.textWidth(wd, 2), w2 = tft.textWidth(b, 2), gap = 10;
+  int sx = (320 - (w1 + gap + w2)) / 2;
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_AMBER);
+  tft.drawString(wd, sx, 38, 2);
+  tft.setTextColor(C_DIM);
+  tft.drawString(b, sx + w1 + gap, 38, 2);
+  drawBigClock(ti.tm_hour, ti.tm_min);
+  // drawSecondsBar(ti.tm_sec);
+  // meteo compatto
+  panel(12, 154, 296, 52, 12);
+  if (weatherOk)
+  {
+    drawIcon(42, 180, 34, W.code, W.isDay, C_PANEL);
+    String t = String((int)lroundf(W.t));
+    tft.setTextDatum(ML_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(t, 72, 180, 4);
+    drawDegree(72 + tft.textWidth(t, 4) + 5, 173, C_FG, C_PANEL);
+    tft.drawFastVLine(148, 164, 32, C_LINE);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(descOf(W.code), 160, 170, 2);
+    snprintf(b, sizeof(b), "MIN %d`  MAX %d`", (int)lroundf(W.tmin[0]), (int)lroundf(W.tmax[0]));
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(b, 160, 190, 2);
+  }
+  else
+  {
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("meteo non disponibile", 160, 180, 2);
+  }
+  tft.setTextDatum(TL_DATUM);
+}
+
+void clockEnter()
+{
+  lastMin = -1;
+  lastDay = -1;
+}
+void clockLoop()
+{
+  static int lastSec = -1;
+  struct tm ti;
+  if (!getLocalTime(&ti, 0))
+    return;
+  if (ti.tm_min != lastMin || ti.tm_mday != lastDay)
+  {
+    drawClockFull(ti);
+    drawNavBar();
+    lastMin = ti.tm_min;
+    lastDay = ti.tm_mday;
+    lastSec = ti.tm_sec;
+  }
+  else if (ti.tm_sec != lastSec)
+  {
+    // drawSecondsBar(ti.tm_sec);
+    lastSec = ti.tm_sec;
+  }
+}
+
+void clockTap(int, int) {}
+// ===================== Calendario mensile =====================
+
+int calendarYear = 0;
+int calendarMonth = 0; // 0 = gennaio
+int calendarToday = 0;
+
+bool isLeapYear(int year)
+{
+  return (year % 400 == 0) || ((year % 4 == 0) && (year % 100 != 0));
+}
+
+int daysInMonth(int year, int month)
+{
+  static const int days[] = {
+      31, 28, 31, 30, 31, 30,
+      31, 31, 30, 31, 30, 31};
+
+  if (month == 1 && isLeapYear(year))
+    return 29;
+
+  return days[month];
+}
+
+// Restituisce:
+// 0 = lunedi
+// 1 = martedi
+// ...
+// 6 = domenica
+int firstWeekdayOfMonth(int year, int month)
+{
+  struct tm t = {};
+
+  t.tm_year = year - 1900;
+  t.tm_mon = month;
+  t.tm_mday = 1;
+  t.tm_hour = 12;
+
+  mktime(&t);
+
+  // tm_wday:
+  // 0 = domenica ... 6 = sabato
+  return (t.tm_wday + 6) % 7;
+}
+
+void drawCalendarPage()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("CALENDARIO", C_VIOLET);
+  // titolo mese + anno
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_FG);
+  tft.drawString(MONTHS[calendarMonth], 14, 44, 4);
+  tft.setTextColor(C_DIM);
+  tft.drawString(String(calendarYear), 14 + tft.textWidth(MONTHS[calendarMonth], 4) + 8, 47, 2);
+  // frecce
+  panel(242, 31, 30, 26, 10, C_PANEL2, C_LINE);
+  drawChevron(257, 44, true, C_FG, C_PANEL2);
+  panel(278, 31, 30, 26, 10, C_PANEL2, C_LINE);
+  drawChevron(293, 44, false, C_FG, C_PANEL2);
+  // intestazione giorni
+  static const char *weekDays[7] = {"L", "M", "M", "G", "V", "S", "D"};
+  constexpr int GRID_X = 12, COL_W = 42;
+  for (int col = 0; col < 7; col++)
+  {
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(col >= 5 ? C_VIOLET : C_FAINT);
+    tft.drawString(weekDays[col], GRID_X + col * COL_W + COL_W / 2, 68, 1);
+  }
+  tft.drawFastHLine(12, 76, 296, C_HAIR);
+  // giorni
+  int firstDay = firstWeekdayOfMonth(calendarYear, calendarMonth);
+  int count = daysInMonth(calendarYear, calendarMonth);
+  int prevMonth = (calendarMonth + 11) % 12;
+  int prevYear = calendarMonth == 0 ? calendarYear - 1 : calendarYear;
+  int prevCount = daysInMonth(prevYear, prevMonth);
+  constexpr int FIRST_ROW_Y = 90, ROW_H = 22;
+  struct tm now;
+  bool timeOk = getLocalTime(&now, 0);
+  int realYear = timeOk ? now.tm_year + 1900 : -1;
+  int realMonth = timeOk ? now.tm_mon : -1;
+  int realDay = timeOk ? now.tm_mday : -1;
+  int rows = (firstDay + count + 6) / 7;
+  for (int cell = 0; cell < rows * 7; cell++)
+  {
+    int col = cell % 7, row = cell / 7;
+    int x = GRID_X + col * COL_W + COL_W / 2;
+    int y = FIRST_ROW_Y + row * ROW_H;
+    int day = cell - firstDay + 1;
+    bool inMonth = day >= 1 && day <= count;
+    if (day < 1)
+      day = prevCount + day;
+    else if (day > count)
+      day -= count;
+    bool today = inMonth && calendarYear == realYear && calendarMonth == realMonth && day == realDay;
+    uint16_t txt;
+    if (today)
+    {
+      disc(x, y, 11, C_VIOLET);
+      txt = C_BG;
+    }
+    else if (!inMonth)
+      txt = C565(58, 64, 82);
+    else
+      txt = col >= 5 ? mix565(C_DIM, C_VIOLET, 120) : C_FG;
+    char d[4];
+    snprintf(d, sizeof(d), "%d", day);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(txt);
+    tft.drawString(d, x, y, 2);
+  }
+  tft.setTextDatum(TL_DATUM);
+}
+
+void calendarEnter()
+{
+  struct tm ti;
+
+  if (getLocalTime(&ti, 0))
+  {
+    calendarYear = ti.tm_year + 1900;
+    calendarMonth = ti.tm_mon;
+    calendarToday = ti.tm_mday;
+  }
+
+  drawCalendarPage();
+}
+
+void calendarLoop()
+{
+}
+
+void calendarTap(int x, int y)
+{
+  if (y > 26 && y < 62)
+  {
+    if (x >= 236 && x < 275)
+    {
+      calendarMonth--;
+      if (calendarMonth < 0)
+      {
+        calendarMonth = 11;
+        calendarYear--;
+      }
+      drawCalendarPage();
+    }
+    else if (x >= 275)
+    {
+      calendarMonth++;
+      if (calendarMonth > 11)
+      {
+        calendarMonth = 0;
+        calendarYear++;
+      }
+      drawCalendarPage();
+    }
+    else if (x < 200)
+    {
+      // tocco sul titolo: torna al mese corrente
+      calendarEnter();
+    }
+  }
+}
+// ===================== Gestione pagine =====================
+struct Page
+{
+  void (*enter)();
+  void (*loop)();
+  void (*tap)(int, int);
+};
+
+const Page pages[] = {
+    {playlistEnter, playlistLoop, playlistTap}, // 0
+    {spEnter, spLoop, spTap},                   // 1
+    {weatherEnter, weatherLoop, weatherTap},    // 2
+    {clockEnter, clockLoop, clockTap},          // 3 HOME
+    {radarEnter, radarLoop, radarTap},          // 4
+    {f1Enter, f1Loop, f1Tap},                   // 5
+    {calendarEnter, calendarLoop, calendarTap}  // 6 CALENDARIO
+};
+constexpr int NUM_PAGES = sizeof(pages) / sizeof(pages[0]);
+constexpr int HOME_PAGE = 3;
+int curPage = HOME_PAGE;
+
+int pageTabX(int i)
+{
+  return (2 * i + 1) * 320 / (2 * NUM_PAGES);
+}
+
+void drawNavBar()
+{
+  uint16_t accent = pageAccent(curPage);
+  tft.fillRect(0, NAV_Y, 320, NAV_H, C_NAV);
+  tft.drawFastHLine(0, NAV_Y, 320, C_HAIR);
+  for (int i = 0; i < NUM_PAGES; i++)
+  {
+    int cx = pageTabX(i);
+    int cy = NAV_Y + 14;
+    if (i == curPage)
+    {
+      rrect(cx - 17, NAV_Y + 3, 34, 21, 9, C_PANEL2, C_NAV);
+      drawTabIcon(i, cx, cy, accent, C_PANEL2);
+      rrect(cx - 7, NAV_Y, 14, 2, 1, accent, C_NAV);
+    }
+    else
+      drawTabIcon(i, cx, cy, C_FAINT, C_NAV);
+  }
+}
+
+void switchPage(int n)
+{
+  curPage = (n + NUM_PAGES) % NUM_PAGES;
+  tft.setTextPadding(0);
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextSize(1);
+  pages[curPage].enter();
+  drawNavBar();
+}
+
+// Aggiorna il meteo solo quando non si e' sulle pagine Spotify/Playlist.
+void maybeFetchWeather()
+{
+  if (curPage == 0 || curPage == 1)
+    return;
+  uint32_t now = millis();
+  bool stale = weatherOk && (now - weatherTs > WEATHER_REFRESH_MS);
+  bool retry = !weatherOk && (weatherTry == 0 || now - weatherTry > 30000);
+  if (stale || retry)
+  {
+    if (fetchWeather())
+      switchPage(curPage);
+  }
+}
+
+// Nessuna sospensione/screensaver automatica.
+// Il display resta sulla pagina corrente finche l'utente non cambia pagina.
+
+// ===================== Touch =====================
+bool tsDown = false;
+uint32_t tsLastSeen = 0, tsStartT = 0;
+int sx, sy, lx, ly;
+
+void handleTouch()
+{
+#ifdef WOKWI
+  // Diagnostica Wokwi: ci serve capire se il click arriva davvero
+  // all'XPT2046 simulato prima di modificare ancora la navigazione.
+  static uint32_t lastTouchDebug = 0;
+
+  bool irqActive = (digitalRead(TOUCH_IRQ) == LOW);
+  bool touchedNow = ts.touched();
+  bool now = touchedNow;
+
+  uint32_t dbgNow = millis();
+  if (dbgNow - lastTouchDebug >= 500)
+  {
+    Serial.printf("[WOKWI TOUCH] IRQ=%d touched=%d\n",
+                  irqActive ? 1 : 0,
+                  touchedNow ? 1 : 0);
+    lastTouchDebug = dbgNow;
+  }
+#else
+  bool now = ts.tirqTouched() && ts.touched();
+#endif
+
+  uint32_t ms = millis();
+
+  if (now)
+  {
+    TS_Point p = ts.getPoint();
+
+#ifdef WOKWI
+    Serial.printf("[WOKWI TOUCH] RAW x=%d y=%d z=%d\n", p.x, p.y, p.z);
+#endif
+
+    int x = constrain(map(p.x, TS_MINX, TS_MAXX, 0, 319), 0, 319);
+    int y = constrain(map(p.y, TS_MINY, TS_MAXY, 0, 239), 0, 239);
+
+#ifdef WOKWI
+    Serial.printf("[WOKWI TOUCH] MAP x=%d y=%d\n", x, y);
+#endif
+    if (!tsDown)
+    {
+      tsDown = true;
+      sx = x;
+      sy = y;
+      tsStartT = ms;
+    }
+    lx = x;
+    ly = y;
+    tsLastSeen = ms;
+  }
+  else if (tsDown && ms - tsLastSeen > 60)
+  {
+    tsDown = false;
+    int dx = lx - sx, dy = ly - sy;
+    bool tap = abs(dx) < 20 && abs(dy) < 20 && ms - tsStartT < 800;
+
+    if (tap && ly >= NAV_Y - 2)
+    {
+      // Tab bar: la colonna toccata decide la pagina.
+      int best = constrain(lx * NUM_PAGES / 320, 0, NUM_PAGES - 1);
+      if (best != curPage)
+        switchPage(best);
+    }
+    else if (abs(dx) > 50 && abs(dx) > abs(dy) * 2)
+    {
+      switchPage(curPage + (dx < 0 ? 1 : -1));
+    }
+    else if (tap)
+    {
+      pages[curPage].tap(lx, ly);
+    }
+  }
+}
+
+// ===================== Boot animation =====================
+
+static const uint16_t BOOT_DOTS[4] = {C_GREEN, C_CYAN, C_AMBER, C_RED};
+
+void drawBootLogo(float phase)
+{
+  // marchio: quattro nodi (le sezioni dell'hub) attorno a un centro
+  int active = ((int)(phase * 2.5f)) % 4;
+  const int cx = 160, cy = 84;
+  panel(cx - 34, cy - 34, 68, 68, 18, C_PANEL, C_LINE);
+  static const int8_t ox[4] = {-15, 15, 15, -15}, oy[4] = {-15, -15, 15, 15};
+  for (int i = 0; i < 4; i++)
+  {
+    uint16_t c = (i == active) ? BOOT_DOTS[i] : mix565(C_PANEL, BOOT_DOTS[i], 105);
+    disc(cx + ox[i], cy + oy[i], (i == active) ? 8 : 7, c, C_PANEL);
+  }
+  disc(cx, cy, 4, C_FG, C_PANEL);
+}
+
+
+void drawBootProgress(float progress)
+{
+  progress = constrain(progress, 0.0f, 1.0f);
+  constexpr int X = 80, Y = 196, W = 160, H = 4;
+  rrect(X, Y, W, H, 2, C_TRACK);
+  int fillW = (int)(W * progress);
+  if (fillW > 0)
+    rrect(X, Y, max(fillW, H), H, 2, C_GREEN, C_TRACK);
+}
+
+void drawBootFrame(
+    float phase,
+    float progress,
+    const char *status = nullptr)
+{
+  if (!bootStatic)
+  {
+    tft.fillScreen(C_BG);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_BG);
+    tft.drawString("CYD HUB", 160, 146, 4);
+    tft.setTextColor(C_FAINT, C_BG);
+    tft.drawString("v6", 160, 166, 1);
+    bootStatic = true;
+  }
+  drawBootLogo(phase);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_DIM, C_BG);
+  tft.setTextPadding(200);
+  tft.drawString(status && strlen(status) ? status : "avvio...", 160, 182, 2);
+  tft.setTextPadding(0);
+  drawBootProgress(progress);
+  tft.setTextDatum(TL_DATUM);
+}
+
+void bootIntro()
+{
+  bootStatic = false;
+  for (int i = 0; i < 8; i++)
+  {
+    drawBootFrame(i * 0.4f, 0.05f + i * 0.02f, "avvio...");
+    delay(90);
+  }
+}
+// ===================== Test calibrazione colori =====================
+
+uint16_t testColor565(uint8_t r, uint8_t g, uint8_t b)
+{
+  return C565(r, g, b);
+}
+
+void showColorCalibrationTest()
+{
+  tft.fillScreen(TFT_BLACK);
+
+  const int cellW = 106;
+  const int cellH = 70;
+
+  struct TestColor
+  {
+    const char *name;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+  };
+
+  const TestColor colors[9] = {
+      {"ROSSO", 255, 0, 0},
+      {"VERDE", 0, 255, 0},
+      {"BLU", 0, 0, 255},
+
+      {"GIALLO", 255, 255, 0},
+      {"CIANO", 0, 255, 255},
+      {"MAGENTA", 255, 0, 255},
+
+      {"BIANCO", 255, 255, 255},
+      {"GRIGIO", 128, 128, 128},
+      {"NERO", 0, 0, 0}};
+
+  tft.setTextDatum(MC_DATUM);
+
+  for (int i = 0; i < 9; i++)
+  {
+    int col = i % 3;
+    int row = i / 3;
+
+    int x = col * cellW;
+    int y = row * cellH;
+
+    uint16_t c = testColor565(
+        colors[i].r,
+        colors[i].g,
+        colors[i].b);
+
+    tft.fillRect(x, y, cellW, cellH, c);
+
+    // Scritta nera sui colori chiari, bianca sugli altri
+    bool light =
+        (colors[i].r + colors[i].g + colors[i].b) > 380;
+
+    tft.setTextColor(light ? TFT_BLACK : TFT_WHITE);
+    tft.drawString(
+        colors[i].name,
+        x + cellW / 2,
+        y + cellH / 2,
+        2);
+  }
+
+  tft.setTextDatum(TL_DATUM);
+}
+
+// ===================== Setup / loop =====================
+void setup()
+{
+  Serial.begin(115200);
+
+  // LED RGB della scheda spento (attivo basso)
+  pinMode(4, OUTPUT);
+  pinMode(16, OUTPUT);
+  pinMode(17, OUTPUT);
+  digitalWrite(4, HIGH);
+  digitalWrite(16, HIGH);
+  digitalWrite(17, HIGH);
+
+  // Display
+  tft.init();
+  tft.setRotation(ROTATION);
+  tft.invertDisplay(DISPLAY_INVERT);
+  tft.setSwapBytes(true);
+  tft.fillScreen(C_BG);
+  // showColorCalibrationTest();
+  // delay(10000);
+  // Breve intro animata.
+  bootIntro();
+
+  // Touch
+  touchSPI.begin(TOUCH_CLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
+  ts.begin(touchSPI);
+  ts.setRotation(ROTATION);
+
+  // Preferences / reset Spotify tenendo premuto lo schermo all'avvio.
+  prefs.begin("cyddash", false);
+  if (ts.tirqTouched() && ts.touched())
+  {
+    prefs.remove("rt");
+    centerMsg("Account Spotify", "dimenticato, rilascia lo schermo");
+    delay(2000);
+  }
+  refreshToken = prefs.getString("rt", "");
+
+  // ---------------------------------------------------------
+  // WiFi
+  // ---------------------------------------------------------
+  drawBootFrame(
+      0.8f,
+      0.15f,
+      "connecting WiFi");
+
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(WIFI_SSID, WIFI_PASS, WIFI_CHANNEL);
+
+  uint32_t wifiStart = millis();
+  while (WiFi.status() != WL_CONNECTED &&
+         millis() - wifiStart < 25000)
+  {
+    delay(100);
+  }
+
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    centerMsg(
+        "WiFi non riuscito",
+        "controlla config.h - riavvio...",
+        C_RED);
+
+    delay(8000);
+    ESP.restart();
+  }
+
+  drawBootFrame(
+      1.2f,
+      0.30f,
+      "WiFi connected");
+
+  delay(180);
+
+  // ---------------------------------------------------------
+  // Ora / NTP
+  // ---------------------------------------------------------
+  drawBootFrame(
+      1.6f,
+      0.40f,
+      "sync time");
+
+  configTzTime(
+      TZ_INFO,
+      "pool.ntp.org",
+      "time.google.com");
+
+  struct tm ti;
+  bool timeOk = getLocalTime(&ti, 10000);
+
+  drawBootFrame(
+      2.0f,
+      0.50f,
+      timeOk ? "time synced" : "time offline");
+
+  delay(150);
+
+  // ---------------------------------------------------------
+  // Meteo
+  // ---------------------------------------------------------
+  drawBootFrame(
+      2.4f,
+      0.60f,
+      "weather");
+
+  bool bootWeatherOk = fetchWeather();
+
+  drawBootFrame(
+      2.8f,
+      0.70f,
+      bootWeatherOk ? "weather ready" : "weather offline");
+
+  delay(160);
+
+  // ---------------------------------------------------------
+  // Spotify
+  // ---------------------------------------------------------
+  drawBootFrame(
+      3.2f,
+      0.80f,
+      "spotify");
+
+  initFilter();
+
+#if REQUIRE_SPOTIFY_AUTH
+  if (!refreshToken.length())
+  {
+    drawBootFrame(
+        3.6f,
+        0.85f,
+        "Spotify login");
+
+    delay(150);
+    runAuthMode();
+  }
+#else
+  Serial.println("Wokwi: autenticazione Spotify saltata");
+#endif
+
+  // ---------------------------------------------------------
+  // Fine boot
+  // ---------------------------------------------------------
+  drawBootFrame(
+      4.0f,
+      1.0f,
+      "ready");
+
+  delay(300);
+
+  switchPage(HOME_PAGE);
+}
+
+void loop()
+{
+  handleTouch();
+
+  pages[curPage].loop();
+
+  updateTopBarClock();
+
+  maybeFetchWeather();
+
+  delay(2);
+}
+</file>
+
+<file path="src/secret_example.h">
+#pragma once
+
+#define REAL_WIFI_SSID "..."
+#define REAL_WIFI_PASS "..."
+
+#define SPOTIFY_CLIENT_ID_VALUE "..."
+#define SPOTIFY_CLIENT_SECRET_VALUE "..."
+</file>
+
+<file path=".gitignore">
+.pio
+.vscode
+src/secret.h
+</file>
+
+<file path="diagram.json">
+{
+  "version": 1,
+  "author": "CYD Hub",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-2432s028r",
+      "id": "cyd",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    }
+  ],
+  "connections": [],
+  "dependencies": {}
+}
+</file>
+
+<file path="platformio.ini">
+; Default = hardware reale. Wokwi usa esplicitamente env:cyd-wokwi.
+[platformio]
+default_envs = cyd, cyd-wokwi
+
+[env]
+platform = espressif32@^6.9.0
+board = esp32dev
+framework = arduino
+monitor_speed = 115200
+board_build.partitions = min_spiffs.csv
+lib_deps =
+    bodmer/TFT_eSPI@^2.5.43
+    https://github.com/PaulStoffregen/XPT2046_Touchscreen.git
+    bblanchon/ArduinoJson@^7.0.4
+    bitbank2/JPEGDEC@^1.4.2
+    https://github.com/bitbank2/PNGdec.git
+; TFT_eSPI configurato da qui: non serve toccare User_Setup.h
+build_flags =
+    -DUSER_SETUP_LOADED=1
+    -DUSE_HSPI_PORT=1
+    -DTFT_WIDTH=240
+    -DTFT_HEIGHT=320
+    -DTFT_MISO=12
+    -DTFT_MOSI=13
+    -DTFT_SCLK=14
+    -DTFT_CS=15
+    -DTFT_DC=2
+    -DTFT_RST=-1
+    -DTFT_BL=21
+    -DTFT_BACKLIGHT_ON=HIGH
+    -DLOAD_GLCD=1
+    -DLOAD_FONT2=1
+    -DLOAD_FONT4=1
+    -DLOAD_FONT6=1
+    -DLOAD_FONT7=1
+    -DSPI_FREQUENCY=55000000
+    -DSPI_READ_FREQUENCY=20000000
+    -DSPI_TOUCH_FREQUENCY=2500000
+    -DCORE_DEBUG_LEVEL=0
+
+; CYD standard (1 porta USB micro, driver ILI9341)
+[env:cyd]
+build_flags =
+    ${env.build_flags}
+    -DILI9341_2_DRIVER=1
+
+; CYD con 2 porte USB (micro + USB-C, driver ST7789)
+[env:cyd2usb]
+build_flags =
+    ${env.build_flags}
+    -DST7789_DRIVER=1
+
+[env:cyd-wokwi]
+extends = env:cyd
+build_flags =
+    ${env:cyd.build_flags}
+    -DWOKWI
+</file>
+
+<file path="README.md">
+# CYD Hub v6
+
+Dashboard touchscreen per **ESP32-2432S028R (Cheap Yellow Display / CYD)** sviluppata con **PlatformIO + Arduino Framework**.
+
+Il progetto è pensato per funzionare sia su **hardware reale** sia in **simulazione con Wokwi**, usando due environment PlatformIO separati ma lo stesso codice sorgente.
+
+## Funzionalità
+
+CYD Hub include diverse pagine navigabili tramite swipe orizzontale o barra di navigazione inferiore:
+
+- **Playlist Spotify**
+  - visualizzazione delle playlist dell'account
+  - griglia 2×3, fino a 6 playlist per pagina
+  - cambio pagina interno
+  - refresh manuale
+  - avvio diretto di una playlist
+
+- **Spotify Player**
+  - brano in riproduzione
+  - artista
+  - copertina album
+  - barra di avanzamento
+  - play / pausa
+  - traccia precedente / successiva
+
+- **Meteo**
+  - temperatura attuale
+  - temperatura percepita
+  - umidità
+  - vento
+  - minima / massima giornaliera
+  - previsioni dei giorni successivi
+  - dati forniti da Open-Meteo, senza API key
+
+- **Home / Orologio**
+  - orologio digitale a grandi cifre
+  - data corrente
+  - riepilogo meteo compatto
+
+- **Radar pioggia**
+  - immagini radar RainViewer
+  - aggiornamento periodico
+
+- **Formula 1**
+  - informazioni F1 tramite API Jolpica / Ergast
+  - aggiornamento automatico
+
+- **Calendario mensile**
+  - mese corrente
+  - giorno corrente evidenziato
+  - navigazione tra i mesi
+
+## Hardware supportato
+
+Hardware principale:
+
+```text
+ESP32-2432S028R
+"Cheap Yellow Display"
+320×240
+ILI9341 / compatibile
+Touch resistivo XPT2046
+```
+
+Pin touch utilizzati:
+
+```text
+CS   = 33
+IRQ  = 36
+CLK  = 25
+MISO = 39
+MOSI = 32
+```
+
+## Ambiente di sviluppo
+
+Il progetto utilizza:
+
+- Visual Studio Code
+- PlatformIO
+- Arduino Framework
+- ESP32 platform
+- TFT_eSPI
+- XPT2046_Touchscreen
+- ArduinoJson
+- JPEGDEC
+- PNGdec
+
+## Struttura del progetto
+
+```text
+CYD-Hub/
+│
+├── src/
+│   ├── main.cpp
+│   ├── config.h
+│   ├── secrets.h
+│   └── secrets.example.h
+│
+├── platformio.ini
+├── diagram.json
+├── wokwi.toml
+├── .gitignore
+└── README.md
+```
+
+`secrets.h` contiene le credenziali personali e **non deve essere pubblicato nel repository**.
+
+## Configurazione delle credenziali
+
+Copia:
+
+```text
+src/secrets.example.h
+```
+
+in:
+
+```text
+src/secrets.h
+```
+
+e inserisci le tue credenziali:
+
+```cpp
+#pragma once
+
+#define REAL_WIFI_SSID "YOUR_WIFI_SSID"
+#define REAL_WIFI_PASS "YOUR_WIFI_PASSWORD"
+
+#define SPOTIFY_CLIENT_ID_VALUE "YOUR_SPOTIFY_CLIENT_ID"
+#define SPOTIFY_CLIENT_SECRET_VALUE "YOUR_SPOTIFY_CLIENT_SECRET"
+```
+
+Assicurati che `.gitignore` contenga:
+
+```gitignore
+src/secrets.h
+```
+
+In questo modo il file con le credenziali resta solo sul PC locale.
+
+## Configurazione generale
+
+Le impostazioni non sensibili sono in:
+
+```text
+src/config.h
+```
+
+Esempio:
+
+```cpp
+#define WEATHER_CITY "Imola"
+#define WEATHER_LAT "44.3592"
+#define WEATHER_LON "11.7132"
+
+#define TZ_INFO "CET-1CEST,M3.5.0,M10.5.0/3"
+
+#define ROTATION 3
+```
+
+Per l'hardware reale vengono usate le credenziali presenti in `secrets.h`.
+
+Per Wokwi viene invece utilizzata automaticamente la rete virtuale:
+
+```cpp
+Wokwi-GUEST
+```
+
+senza password.
+
+## Spotify
+
+Per utilizzare Spotify devi creare una app da:
+
+https://developer.spotify.com/dashboard
+
+Configura come Redirect URI:
+
+```text
+http://127.0.0.1:8888/callback
+```
+
+Il firmware utilizza gli scope necessari per:
+
+```text
+user-read-playback-state
+user-modify-playback-state
+user-read-currently-playing
+playlist-read-private
+playlist-read-collaborative
+```
+
+Al primo avvio sul CYD reale, se non è ancora presente un refresh token, il dispositivo entra nella procedura di associazione Spotify.
+
+Il refresh token viene salvato nella memoria Preferences dell'ESP32.
+
+Per dimenticare l'account Spotify è possibile tenere premuto il touchscreen durante l'avvio.
+
+> Nota: alcune funzioni di controllo playback richiedono Spotify Premium e un dispositivo Spotify attivo.
+
+## Meteo
+
+Il progetto utilizza:
+
+```text
+Open-Meteo
+```
+
+Non è necessaria alcuna API key.
+
+La posizione è configurata in `config.h` tramite:
+
+```cpp
+#define WEATHER_CITY "Imola"
+#define WEATHER_LAT "44.3592"
+#define WEATHER_LON "11.7132"
+```
+
+L'aggiornamento predefinito è:
+
+```cpp
+#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
+```
+
+ovvero ogni 15 minuti.
+
+## Navigazione
+
+Ordine delle pagine:
+
+```text
+Playlist
+   ←
+Spotify Player
+   ←
+Meteo
+   ←
+HOME
+   →
+Radar
+   →
+Formula 1
+   →
+Calendario
+```
+
+La Home è la pagina centrale.
+
+È possibile cambiare pagina tramite:
+
+- swipe orizzontale sul touchscreen
+- pallini di navigazione nella parte inferiore dello schermo
+
+## Build per CYD reale
+
+Environment PlatformIO:
+
+```text
+cyd
+```
+
+Build:
+
+```bash
+pio run -e cyd
+```
+
+Upload:
+
+```bash
+pio run -e cyd -t upload
+```
+
+Il firmware compilato viene generato in:
+
+```text
+.pio/build/cyd/firmware.bin
+```
+
+## Simulazione con Wokwi
+
+Il progetto è già configurato per essere eseguito anche nel simulatore **Wokwi**.
+
+Environment PlatformIO:
+
+```text
+cyd-wokwi
+```
+
+Build:
+
+```bash
+pio run -e cyd-wokwi
+```
+
+Il firmware simulato viene generato in:
+
+```text
+.pio/build/cyd-wokwi/firmware.bin
+```
+
+Il file:
+
+```text
+wokwi.toml
+```
+
+punta automaticamente a:
+
+```toml
+[wokwi]
+version = 1
+firmware = ".pio/build/cyd-wokwi/firmware.bin"
+elf = ".pio/build/cyd-wokwi/firmware.elf"
+```
+
+La board simulata è definita in:
+
+```text
+diagram.json
+```
+
+ed utilizza:
+
+```json
+{
+  "type": "board-esp32-2432s028r"
+}
+```
+
+### Differenze automatiche tra hardware reale e Wokwi
+
+Quando viene compilato l'environment:
+
+```text
+cyd-wokwi
+```
+
+PlatformIO definisce:
+
+```cpp
+WOKWI
+```
+
+Il codice può quindi applicare automaticamente configurazioni differenti.
+
+In simulazione:
+
+- WiFi: `Wokwi-GUEST`
+- password WiFi vuota
+- canale WiFi 6
+- autenticazione Spotify iniziale disabilitata
+- inversione colori display disabilitata
+
+Sul CYD reale:
+
+- vengono usate le credenziali presenti in `secrets.h`
+- il canale WiFi viene cercato automaticamente
+- autenticazione Spotify abilitata
+- configurazione display reale
+
+## Avviare Wokwi da Visual Studio Code
+
+Installa l'estensione Wokwi per Visual Studio Code.
+
+Poi:
+
+1. compila l'environment:
+
+```bash
+pio run -e cyd-wokwi
+```
+
+2. avvia la simulazione Wokwi
+
+3. dopo una nuova build usa **Restart Simulation** per caricare il firmware aggiornato
+
+Non utilizzare `Upload` per Wokwi.
+
+`Upload` serve solo per scrivere il firmware sul CYD fisico.
+
+## Build di entrambi gli environment
+
+Per compilare entrambe le versioni:
+
+```bash
+pio run -e cyd -e cyd-wokwi
+```
+
+In alternativa puoi configurare:
+
+```ini
+[platformio]
+default_envs = cyd, cyd-wokwi
+```
+
+e poi eseguire:
+
+```bash
+pio run
+```
+
+## platformio.ini
+
+Il progetto contiene environment separati.
+
+Esempio:
+
+```ini
+[platformio]
+default_envs = cyd
+
+[env]
+platform = espressif32@^6.9.0
+board = esp32dev
+framework = arduino
+monitor_speed = 115200
+
+[env:cyd]
+; configurazione hardware reale
+
+[env:cyd-wokwi]
+extends = env:cyd
+build_flags =
+    ${env:cyd.build_flags}
+    -DWOKWI
+```
+
+L'environment predefinito resta `cyd`, in modo che il normale pulsante Build di PlatformIO compili il firmware destinato all'hardware reale.
+
+## Aggiornamenti periodici
+
+Gli intervalli principali sono configurabili in `config.h`.
+
+Valori predefiniti:
+
+```cpp
+#define SPOTIFY_POLL_MS 4000UL
+#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
+#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
+#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
+```
+
+## Interfaccia grafica
+
+La UI utilizza una palette scura chiamata internamente **Midnight Glass**.
+
+Colori principali:
+
+- fondo blu / nero
+- viola e rosa per Home e Calendario
+- verde per Spotify
+- ciano per Meteo
+- blu per Radar
+- rosso per Formula 1
+
+L'interfaccia è progettata specificamente per il display CYD da 320×240 pixel.
+
+## Boot
+
+All'avvio viene mostrata una schermata grafica dedicata invece di semplici messaggi testuali.
+
+Durante l'inizializzazione vengono gestiti:
+
+```text
+WiFi
+NTP / ora
+Meteo
+Spotify
+```
+
+La logica può essere resa ulteriormente asincrona per mostrare la Home ancora prima e completare gli aggiornamenti di rete in background.
+
+## Wokwi e servizi Internet
+
+Wokwi è principalmente utilizzato per:
+
+- test grafici
+- layout
+- navigazione
+- sviluppo senza collegare continuamente il CYD fisico
+
+Alcune funzionalità che dipendono da autenticazioni esterne possono essere volutamente disabilitate o limitate durante la simulazione.
+
+In particolare la procedura OAuth Spotify viene saltata nell'environment `cyd-wokwi`, così il simulatore non rimane bloccato in attesa dell'autenticazione.
+
+## Sicurezza
+
+Non pubblicare mai:
+
+```text
+password WiFi
+Spotify Client Secret
+token Spotify
+refresh token
+```
+
+Il repository deve contenere solo:
+
+```text
+secrets.example.h
+```
+
+e non:
+
+```text
+secrets.h
+```
+
+Se una credenziale è stata accidentalmente pubblicata su Git, rimuoverla dal file non è sufficiente: deve essere considerata compromessa e rigenerata.
+
+## Pulizia della build
+
+In caso di errori strani di linker o file `.pio` corrotti:
+
+Windows PowerShell:
+
+```powershell
+Remove-Item -Recurse -Force .pio
+pio run -e cyd -j 1
+```
+
+Per Wokwi:
+
+```powershell
+Remove-Item -Recurse -Force .pio
+pio run -e cyd-wokwi -j 1
+```
+
+## Stato del progetto
+
+Il progetto è in sviluppo attivo.
+
+Attualmente include:
+
+```text
+[✓] Home / Clock
+[✓] Meteo
+[✓] Spotify Player
+[✓] Playlist Spotify
+[✓] Radar pioggia
+[✓] Formula 1
+[✓] Calendario
+[✓] Navigazione touchscreen
+[✓] Build CYD reale
+[✓] Build Wokwi
+[✓] Configurazione separata delle credenziali
+```
+
+## Licenza
+
+Aggiungi qui la licenza che vuoi utilizzare per il repository.
+
+Per un progetto open source semplice puoi ad esempio utilizzare la licenza MIT.
+
+---
+
+**CYD Hub v6**
+
+ESP32-2432S028R dashboard for home, weather, music and more.
+</file>
+
+<file path="wokwi.toml">
+[wokwi]
+version = 1
+firmware = ".pio/build/cyd-wokwi/firmware.bin"
+elf = ".pio/build/cyd-wokwi/firmware.elf"
+</file>
+
+</files>
