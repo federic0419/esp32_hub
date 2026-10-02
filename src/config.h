@@ -18,8 +18,11 @@
 
 #else
 
-#define WIFI_SSID REAL_WIFI_SSID
-#define WIFI_PASS REAL_WIFI_PASS
+#define WIFI_SSID_1 WIFI_SSID_PRIMARY
+#define WIFI_PASS_1 WIFI_PASS_PRIMARY
+#define WIFI_SSID_2 WIFI_SSID_BACKUP
+#define WIFI_PASS_2 WIFI_PASS_BACKUP
+
 #define WIFI_CHANNEL 0
 #define REQUIRE_SPOTIFY_AUTH 1
 
@@ -31,8 +34,8 @@
 #ifdef WOKWI
 
 // In simulazione non servono credenziali reali
-#define SPOTIFY_CLIENT_ID ""
-#define SPOTIFY_CLIENT_SECRET ""
+// #define SPOTIFY_CLIENT_ID ""
+// #define SPOTIFY_CLIENT_SECRET ""
 
 #else
 

@@ -43,17 +43,17 @@ constexpr uint16_t C_PANEL2 = C565(31, 35, 50);
 constexpr uint16_t C_LINE = C565(46, 52, 72);
 constexpr uint16_t C_HAIR = C565(25, 28, 40);
 constexpr uint16_t C_FG = C565(250, 250, 255);
-constexpr uint16_t C_DIM = C565(185, 192, 210);   // era (140, 148, 168)
+constexpr uint16_t C_DIM = C565(185, 192, 210); // era (140, 148, 168)
 constexpr uint16_t C_FAINT = C565(88, 96, 116);
 constexpr uint16_t C_TRACK = C565(38, 43, 60);
-constexpr uint16_t C_GREEN  = C565(30, 220, 60);
-constexpr uint16_t C_CYAN   = C565(64, 200, 255);
+constexpr uint16_t C_GREEN = C565(30, 220, 60);
+constexpr uint16_t C_CYAN = C565(64, 200, 255);
 constexpr uint16_t C_AMBER = C565(255, 255, 0);
-constexpr uint16_t C_SUN   = C565(255, 255, 0);
-constexpr uint16_t C_BLUE   = C565(92, 142, 255);
-constexpr uint16_t C_RED    = C565(255, 25, 25);
+constexpr uint16_t C_SUN = C565(255, 255, 0);
+constexpr uint16_t C_BLUE = C565(92, 142, 255);
+constexpr uint16_t C_RED = C565(255, 25, 25);
 constexpr uint16_t C_VIOLET = C565(172, 128, 255);
-constexpr uint16_t C_PINK   = C565(255, 104, 176);
+constexpr uint16_t C_PINK = C565(255, 104, 176);
 constexpr uint16_t C_CLOUD = C565(220, 228, 242);
 constexpr uint16_t C_DARK = C565(112, 126, 152);
 constexpr uint16_t C_RAIN = C565(90, 182, 255);
@@ -2239,7 +2239,7 @@ void drawBigClock(int hour, int minute)
   const int colonX = x2 + CLK_DW + COLON_W / 2;
   const int x3 = x2 + CLK_DW + COLON_W;
   const int x4 = x3 + CLK_DW + GAP;
-  const uint16_t off = C565(10, 12, 18); 
+  const uint16_t off = C565(10, 12, 18);
   tft.fillRect(0, CLK_Y - 2, 320, CLK_DH + 4, C_BG);
   drawBigDigit(x1, CLK_Y, hour / 10, C_FG, off);
   drawBigDigit(x2, CLK_Y, hour % 10, C_FG, off);
@@ -2665,7 +2665,6 @@ void drawBootLogo(float phase)
   disc(cx, cy, 4, C_FG, C_PANEL);
 }
 
-
 void drawBootProgress(float progress)
 {
   progress = constrain(progress, 0.0f, 1.0f);
@@ -2777,6 +2776,21 @@ void showColorCalibrationTest()
   tft.setTextDatum(TL_DATUM);
 }
 
+bool connectWiFi(const char *ssid, const char *password, uint32_t timeoutMs)
+{
+  WiFi.begin(ssid, password);
+
+  uint32_t start = millis();
+
+  while (WiFi.status() != WL_CONNECTED &&
+         millis() - start < timeoutMs)
+  {
+    delay(100);
+  }
+
+  return WiFi.status() == WL_CONNECTED;
+}
+
 // ===================== Setup / loop =====================
 void setup()
 {
@@ -2822,28 +2836,20 @@ void setup()
   drawBootFrame(
       0.8f,
       0.15f,
-      "connecting WiFi");
+      "connecting to " WIFI_SSID_PRIMARY);
 
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-  WiFi.begin(WIFI_SSID, WIFI_PASS, WIFI_CHANNEL);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(WIFI_SSID_PRIMARY, WIFI_PASS_PRIMARY, WIFI_CHANNEL);
 
   uint32_t wifiStart = millis();
   while (WiFi.status() != WL_CONNECTED &&
          millis() - wifiStart < 25000)
   {
     delay(100);
-  }
-
-  if (WiFi.status() != WL_CONNECTED)
-  {
-    centerMsg(
-        "WiFi non riuscito",
-        "controlla config.h - riavvio...",
-        C_RED);
-
-    delay(8000);
-    ESP.restart();
   }
 
   drawBootFrame(
