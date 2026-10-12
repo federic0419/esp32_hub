@@ -67,17 +67,141 @@ This section contains the contents of the repository's files.
       "top": 0,
       "left": 0,
       "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnPrev",
+      "top": 175,
+      "left": -75,
+      "attrs": {
+        "color": "blue",
+        "label": "PREV",
+        "key": "ArrowLeft",
+        "bounce": "0"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnNext",
+      "top": 175,
+      "left": 355,
+      "attrs": {
+        "color": "green",
+        "label": "NEXT",
+        "key": "ArrowRight",
+        "bounce": "0"
+      }
     }
   ],
-  "connections": [],
-  "dependencies": {}
+  "connections": [
+    [
+      "btnPrev:1.l",
+      "cyd:IO27",
+      "green",
+      []
+    ],
+    [
+      "btnPrev:2.l",
+      "cyd:GND.1",
+      "black",
+      []
+    ],
+    [
+      "btnNext:1.l",
+      "cyd:IO22",
+      "green",
+      []
+    ],
+    [
+      "btnNext:2.l",
+      "cyd:GND.1",
+      "black",
+      []
+    ]
+  ],
+  "dependencies": {},
+  "serialMonitor": {
+    "display": "always",
+    "newline": "lf"
+  }
 }
+</file>
+
+<file path="wokwi.toml">
+[wokwi]
+version = 1
+firmware = ".pio/build/cyd-wokwi/firmware.bin"
+elf = ".pio/build/cyd-wokwi/firmware.elf"
+</file>
+
+<file path="src/config.h">
+#pragma once
+
+// Wokwi: modalita' demo OFFLINE. Non richiede credenziali reali.
+#ifdef WOKWI
+  #define WIFI_SSID "Wokwi-GUEST"
+  #define WIFI_PASS ""
+  #define WIFI_SSID_PRIMARY WIFI_SSID
+  #define WIFI_PASS_PRIMARY WIFI_PASS
+  #define WIFI_CHANNEL 6
+  #define SPOTIFY_CLIENT_ID "wokwi-demo"
+  #define SPOTIFY_CLIENT_SECRET "wokwi-demo"
+  #define REQUIRE_SPOTIFY_AUTH 0
+#else
+  #include "secret.h"  // Solo ESP32 fisico
+  #define WIFI_CHANNEL 0
+  #define REQUIRE_SPOTIFY_AUTH 1
+  #define WIFI_SSID_1 WIFI_SSID_PRIMARY
+  #define WIFI_PASS_1 WIFI_PASS_PRIMARY
+  #define WIFI_SSID_2 WIFI_SSID_BACKUP
+  #define WIFI_PASS_2 WIFI_PASS_BACKUP
+  #define SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_ID_VALUE
+  #define SPOTIFY_CLIENT_SECRET SPOTIFY_CLIENT_SECRET_VALUE
+#endif
+
+// Localita' meteo e orologio: Imola.
+#define WEATHER_CITY "Imola"
+#define WEATHER_LAT "44.3592"
+#define WEATHER_LON "11.7132"
+#define TZ_INFO "CET-1CEST,M3.5.0,M10.5.0/3"
+
+// Display CYD (320x240 in landscape)
+#define ROTATION 3
+#ifdef WOKWI
+  #define DISPLAY_INVERT false
+#else
+  #define DISPLAY_INVERT true
+#endif
+
+// Touch
+#define TS_MINX 200
+#define TS_MAXX 3700
+#define TS_MINY 240
+#define TS_MAXY 3800
+
+#define SPOTIFY_POLL_MS 4000UL
+#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
+#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
+#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
+</file>
+
+<file path="src/secret_example.h">
+#pragma once
+
+#define WIFI_SSID_BACKUP "..."
+#define WIFI_PASS_BACKUP "..."
+
+#define WIFI_SSID_PRIMARY "..."
+#define WIFI_PASS_PRIMARY "..."
+
+#define SPOTIFY_CLIENT_ID_VALUE "..."
+#define SPOTIFY_CLIENT_SECRET_VALUE "..."
 </file>
 
 <file path="platformio.ini">
 ; Default = hardware reale. Wokwi usa esplicitamente env:cyd-wokwi.
 [platformio]
-default_envs = cyd, cyd-wokwi
+default_envs = cyd , cyd-wokwi
 
 [env]
 platform = espressif32@^6.9.0
@@ -91,6 +215,7 @@ lib_deps =
     bblanchon/ArduinoJson@^7.0.4
     bitbank2/JPEGDEC@^1.4.2
     https://github.com/bitbank2/PNGdec.git
+    h2zero/NimBLE-Arduino@^2.5.1
 ; TFT_eSPI configurato da qui: non serve toccare User_Setup.h
 build_flags =
     -DUSER_SETUP_LOADED=1
@@ -646,107 +771,11 @@ Interfaccia: **Ink**
 Target principale: **ESP32-2432S028R / CYD 320x240**
 </file>
 
-<file path="wokwi.toml">
-[wokwi]
-version = 1
-firmware = ".pio/build/cyd-wokwi/firmware.bin"
-elf = ".pio/build/cyd-wokwi/firmware.elf"
-</file>
-
-<file path="src/config.h">
-#pragma once
-
-#ifndef WOKWI
-#include "secret.h"
-#endif
-
-// ===================== WiFi / piattaforma =====================
-// Wokwi usa la rete virtuale sul canale 6.
-// Sul CYD reale il canale 0 lascia all'ESP32 la ricerca automatica del canale AP.
-// ===================== WiFi / piattaforma =====================
-
-#ifdef WOKWI
-
-#define WIFI_SSID "Wokwi-GUEST"
-#define WIFI_PASS ""
-#define WIFI_CHANNEL 6
-#define REQUIRE_SPOTIFY_AUTH 0
-
-#else
-
-#define WIFI_SSID_1 WIFI_SSID_PRIMARY
-#define WIFI_PASS_1 WIFI_PASS_PRIMARY
-#define WIFI_SSID_2 WIFI_SSID_BACKUP
-#define WIFI_PASS_2 WIFI_PASS_BACKUP
-
-#define WIFI_CHANNEL 0
-#define REQUIRE_SPOTIFY_AUTH 1
-
-#endif
-
-// ===================== Spotify =====================
-// Da https://developer.spotify.com/dashboard  (crea un'app)
-// Redirect URI da registrare nell'app:  http://127.0.0.1:8888/callback
-#ifdef WOKWI
-
-// In simulazione non servono credenziali reali
-// #define SPOTIFY_CLIENT_ID ""
-// #define SPOTIFY_CLIENT_SECRET ""
-
-#else
-
-#define SPOTIFY_CLIENT_ID SPOTIFY_CLIENT_ID_VALUE
-#define SPOTIFY_CLIENT_SECRET SPOTIFY_CLIENT_SECRET_VALUE
-
-#endif
-
-// ===================== Meteo (Open-Meteo, nessuna API key) =====================
-#define WEATHER_CITY "Imola"
-#define WEATHER_LAT "44.3592"
-#define WEATHER_LON "11.7132"
-
-// ===================== Orario =====================
-// Italia: CET/CEST con ora legale automatica
-#define TZ_INFO "CET-1CEST,M3.5.0,M10.5.0/3"
-
-// ===================== Display =====================
-#define ROTATION 3 // 1 oppure 3 (ruota di 180 gradi)
-#ifdef WOKWI
-// Il CYD simulato da Wokwi non richiede l'inversione colori.
-#define DISPLAY_INVERT false
-#else
-// Mantiene il comportamento del CYD reale attuale.
-#define DISPLAY_INVERT true
-#endif
-
-// Calibrazione touch (valori tipici CYD, ritocca se il tocco e' spostato)
-#define TS_MINX 200
-#define TS_MAXX 3700
-#define TS_MINY 240
-#define TS_MAXY 3800
-
-// ===================== Intervalli =====================
-#define SPOTIFY_POLL_MS 4000UL
-#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
-#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
-#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
-</file>
-
 <file path="src/main.cpp">
-// CYD Hub v7 (grafica "Ink"): Spotify + Playlist/Coda + Orologio + Meteo + Radar pioggia + Sport (F1 + Juventus)
+// CYD Hub (base v6): Spotify + Playlist/Coda + Orologio + Meteo + Radar + F1/Juventus
 // Hardware: ESP32-2432S028R ("Cheap Yellow Display")
 // Home: orologio al centro; le altre pagine sono ai lati con swipe sinistra/destra.
-// Ambient mode Spotify: dopo 30 s senza touch, se Spotify sta suonando mostra una vista Now Playing minimale.
-//
-// v7:
-// - Coda Spotify a scorrimento verticale continuo (non paginata).
-// - Pagina SPORT unificata: Formula 1 + prossime partite Juventus.
-// - Calendario mensile mantenuto come pagina separata.
-// - Barra di navigazione ridisegnata anche dopo refresh/redraw completi.
-// - Sorgente suddiviso con separatori evidenti per pagina/funzione.
-// - Menu HOME per calibrazione touchscreen persistente in NVS/Preferences.
-// - Modalita Spotify Ambient dopo 30 s di inattivita, con tap per tornare alla pagina precedente.
-// - LED RGB usato solo durante il boot e nella modalita Spotify Ambient.
+// Nessuno screensaver automatico: il display resta stabile sulla pagina corrente.
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -761,29 +790,25 @@ elf = ".pio/build/cyd-wokwi/firmware.elf"
 #include <JPEGDEC.h>
 #include <PNGdec.h>
 #include <time.h>
+#include <sys/time.h>
 #include <vector>
 #include "mbedtls/base64.h"
 #include "config.h"
 
-// ########==================== HARDWARE / PALETTE / DISPLAY ====================########
+// ===================== Hardware =====================
 #define TOUCH_CS 33
 #define TOUCH_IRQ 36
 #define TOUCH_CLK 25
 #define TOUCH_MISO 39
 #define TOUCH_MOSI 32
 
-// LED RGB onboard del CYD (attivo basso)
+// LED RGB del CYD, attivi bassi
 #define RGB_LED_R 4
 #define RGB_LED_G 16
 #define RGB_LED_B 17
 
-constexpr uint32_t SPOTIFY_AMBIENT_DELAY_MS = 30UL * 1000UL;
-
-bool ambientSpotifyEnabled = true;
+// Il LED si puo' disattivare dal menu SET della HOME.
 bool rgbLedEnabled = true;
-bool spotifyAmbientMode = false;
-int ambientReturnPage = 3;
-uint32_t lastUserInteractionMs = 0;
 
 TFT_eSPI tft;
 SPIClass touchSPI(VSPI);
@@ -820,24 +845,16 @@ constexpr int NAV_H = 26;
 int lastTopBarMinute = -1;
 bool bootStatic = false;
 
-// dichiarazioni anticipate
+// dichiarazione anticipata
 extern int curPage;
 void switchPage(int n);
-void openSpotifyQueue();
 void drawNavBar();
+void openSpotifyQueue();
 void updateRgbLed();
-void exitSpotifyAmbientMode();
+void setBootRgbLed(int active);
+void runTouchCalibrationMenu();
 
-// Ordine delle pagine / tab della barra inferiore:
-//   0 = Playlist / Coda Spotify
-//   1 = Spotify Player
-//   2 = Meteo
-//   3 = Orologio / HOME
-//   4 = Radar pioggia
-//   5 = Sport (Formula 1 + Juventus)
-//   6 = Calendario mensile
-
-// ########==================== UTILITY / UI COMUNE ====================########
+// ===================== Utility =====================// ===================== Utility =====================
 // I font integrati sono solo ASCII: converte accenti e caratteri UTF-8 comuni.
 String fold(const char *s)
 {
@@ -1180,7 +1197,7 @@ void centerMsg(const String &l1, const String &l2 = "", uint16_t col = C_FG)
   tft.setTextDatum(TL_DATUM);
 }
 
-// ########==================== SERVIZIO SPOTIFY - AUTH + API COMUNE ====================########
+// ===================== Spotify: auth + API =====================
 static const char *REDIRECT_ENC = "http%3A%2F%2F127.0.0.1%3A8888%2Fcallback";
 static const char *SCOPES = "user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20playlist-read-private%20playlist-read-collaborative";
 
@@ -1242,6 +1259,9 @@ bool ensureToken()
 // Ritorna il codice HTTP (o <0 in caso di errore). Se out != nullptr e HTTP 200, fa il parse JSON.
 int spotifyCall(const char *method, const char *path, JsonDocument *out = nullptr, const JsonDocument *filter = nullptr)
 {
+#ifdef WOKWI
+  return 204; // volume e comandi simulati localmente
+#endif
   for (int attempt = 0; attempt < 2; attempt++)
   {
     if (!ensureToken())
@@ -1287,6 +1307,9 @@ int spotifyCall(const char *method, const char *path, JsonDocument *out = nullpt
 // l'avvio di una playlist tramite context_uri.
 int spotifyCallJson(const char *method, const char *path, const String &body)
 {
+#ifdef WOKWI
+  return 204;
+#endif
   for (int attempt = 0; attempt < 2; attempt++)
   {
     if (!ensureToken())
@@ -1394,10 +1417,57 @@ void runAuthMode()
   server.stop();
 }
 
-// ########==================== PAGINA 2 - SPOTIFY PLAYER ====================########
+// ===================== Spotify Dark Neon: UI 320x240 =====================
+// Colori locali alle pagine Spotify: le altre schermate non cambiano.
+constexpr uint16_t SP_BG = C565(6, 17, 22);
+constexpr uint16_t SP_NAV = C565(7, 22, 27);
+constexpr uint16_t SP_PANEL = C565(18, 37, 43);
+constexpr uint16_t SP_PANEL2 = C565(23, 49, 54);
+constexpr uint16_t SP_LINE = C565(41, 72, 75);
+constexpr uint16_t SP_GREEN = C565(27, 232, 163);
+constexpr uint16_t SP_MUTED = C565(145, 169, 176);
+constexpr uint16_t SP_FAINT = C565(88, 122, 128);
+constexpr uint16_t SP_BAR = C565(56, 83, 88);
+
+String spotifyFit(String s, int maxW, int font = 2)
+{
+  if (tft.textWidth(s, font) <= maxW)
+    return s;
+  while (s.length() && tft.textWidth(s + "...", font) > maxW)
+    s.remove(s.length() - 1);
+  return s + "...";
+}
+
+void spotifyHeader(bool library)
+{
+  tft.fillRect(0, 0, 320, 29, SP_BG);
+  if (!library)
+  {
+    // Titolo compatto: lascia spazio allo stato e al tasto CODA.
+    tft.setTextDatum(ML_DATUM);
+    tft.setTextColor(C_FG, SP_BG);
+    tft.drawString("SPOTIFY", 12, 14, 1);
+
+    // Lo stato di riproduzione viene disegnato da drawTrackText().
+    rrect(175, 4, 51, 20, 8, SP_PANEL2, SP_BG);
+    tft.setTextColor(SP_GREEN, SP_PANEL2);
+    tft.setTextDatum(MC_DATUM);
+    tft.drawString("CODA", 200, 14, 1);
+
+    drawTopBarTime(SP_GREEN);
+  }
+  else
+  {
+    drawTopBar("SPOTIFY", C_GREEN);
+  }
+  tft.setTextDatum(TL_DATUM);
+  tft.drawFastHLine(12, 28, 296, SP_LINE);
+}
+
+// ===================== Spotify: stato + UI =====================
 constexpr int ART_X = 12, ART_Y = 32, ART_SZ = 150;
 constexpr int TXT_X = 174, TXT_W = 134;
-constexpr int PB_X = 12, PB_Y = 194, PB_W = 296, PB_H = 4;
+constexpr int PB_X = 14, PB_Y = 198, PB_W = 292, PB_H = 4;
 constexpr int CTL_Y = 164;
 
 struct Track
@@ -1430,49 +1500,45 @@ void initFilter()
 
 uint32_t progressNow() { return T.progress + (T.playing ? millis() - T.stamp : 0); }
 
-void drawEq(bool playing)
-{
-  tft.fillRect(TXT_X, 32, 18, 14, C_BG);
-  for (int i = 0; i < 4; i++)
-  {
-    int h = playing ? 3 + (int)(((millis() / 170) * 7 + i * 5 + i * i * 3) % 11) : 3;
-    rrect(TXT_X + i * 5, 45 - h, 3, h, 1, C_GREEN);
-  }
-}
-
 void drawTrackText()
 {
-  tft.fillRect(TXT_X - 4, 30, 146, 112, C_BG);
-  drawEq(T.playing);
-  tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(C_GREEN);
-  tft.drawString(T.playing ? "IN RIPRODUZIONE" : "IN PAUSA", TXT_X + 24, 39, 1);
-  tft.setTextDatum(TL_DATUM);
-
+  const int x = 174, w = 134;
+  tft.fillRect(169, 32, 151, 112, SP_BG);
+  // Titolo e artista senza banner superiore.
   String title = T.title.length() ? T.title : String("Pronto per la musica");
-  int font = 4, lh = 27, maxL = 2;
-  auto lines = wrapText(title, font, TXT_W);
-  if (lines.size() > 2)
+  tft.setTextColor(C_FG, SP_BG);
+  if (tft.textWidth(title, 4) <= w)
   {
-    font = 2;
-    lh = 18;
-    maxL = 3;
-    lines = wrapText(title, font, TXT_W);
+    tft.drawString(title, x, 43, 4);
   }
-  int y = drawLines(lines, TXT_X, 54, font, lh, maxL, T.title.length() ? C_FG : C_DIM, TXT_W);
+  else
+  {
+    auto lines = wrapText(title, 2, w);
+    drawLines(lines, x, 43, 2, 17, 2, C_FG, w);
+  }
   if (T.artist.length())
   {
-    auto al = wrapText(T.artist, 2, TXT_W);
-    drawLines(al, TXT_X, min(y + 1, 104), 2, 17, 1, C_DIM, TXT_W);
+    tft.setTextColor(SP_MUTED, SP_BG);
+    tft.drawString(spotifyFit(T.artist, w, 2), x, 96, 2);
   }
+
+  // Stato vicino a CODA, nella barra superiore (senza animazioni).
+  rrect(71, 5, 98, 18, 8, SP_PANEL2, SP_BG);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(T.playing ? SP_GREEN : SP_MUTED, SP_PANEL2);
+  tft.drawString(T.playing ? "IN RIPRODUZIONE" : "IN PAUSA", 120, 14, 1);
+
+  // Gli eventuali messaggi d'errore restano sotto il titolo.
+  tft.fillRect(x, 121, w, 21, SP_BG);
   if (statusMsg.length())
   {
-    rrect(TXT_X, 126, TXT_W, 16, 8, C565(58, 24, 30));
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_RED, C565(58, 24, 30));
-    tft.drawString(statusMsg, TXT_X + TXT_W / 2, 134, 1);
-    tft.setTextDatum(TL_DATUM);
+    const uint16_t errorBg = C565(71, 29, 35);
+    rrect(x, 121, w, 21, 8, errorBg, SP_BG);
+    tft.setTextDatum(ML_DATUM);
+    tft.setTextColor(C_RED, errorBg);
+    tft.drawString(spotifyFit(statusMsg, w - 12, 1), x + 6, 131, 1);
   }
+  tft.setTextDatum(TL_DATUM);
 }
 
 void drawControls()
@@ -1513,73 +1579,129 @@ void drawProgress()
   if (T.duration && p > T.duration)
     p = T.duration;
   int w = T.duration ? (int)((uint64_t)PB_W * p / T.duration) : 0;
-  tft.fillRect(PB_X - 6, PB_Y - 6, PB_W + 12, 14, C_BG);
-  rrect(PB_X, PB_Y, PB_W, PB_H, 2, C_TRACK);
+  tft.fillRect(0, 195, 320, 19, SP_BG);
+  rrect(PB_X, PB_Y, PB_W, PB_H, 2, SP_BAR, SP_BG);
   if (w > 0)
-  {
-    rrect(PB_X, PB_Y, max(w, 4), PB_H, 2, C_GREEN, C_TRACK);
-    tft.fillCircle(PB_X + w, PB_Y + PB_H / 2, 4, C_FG);
-  }
+    rrect(PB_X, PB_Y, max(4, w), PB_H, 2, SP_GREEN, SP_BAR);
+  disc(PB_X + w, PB_Y + 2, 3, C_FG, SP_BG);
   char b[8];
-  tft.setTextColor(C_DIM, C_BG);
-  tft.setTextPadding(30);
+  tft.setTextColor(SP_MUTED, SP_BG);
   tft.setTextDatum(TL_DATUM);
   fmtTime(p, b);
-  tft.drawString(b, PB_X, 203, 1);
+  tft.drawString(b, PB_X, 205, 1);
   tft.setTextDatum(TR_DATUM);
   fmtTime(T.duration, b);
-  tft.drawString(b, PB_X + PB_W, 203, 1);
-  tft.setTextPadding(0);
+  tft.drawString(b, PB_X + PB_W, 205, 1);
   tft.setTextDatum(TL_DATUM);
   progDirty = false;
 }
 
-int jpegTargetX = ART_X;
-int jpegTargetY = ART_Y;
+// ===================== Spotify Ambilight (nessun buffer aggiuntivo) =====================
+// I 6 gruppi raccolgono colori simili. Si campiona 1 pixel ogni 8
+// direttamente dai blocchi RGB565 che JPEGDEC invia al display.
+struct ArtColorGroup
+{
+  uint32_t sumR = 0, sumG = 0, sumB = 0;
+  uint32_t count = 0;
+};
+
+ArtColorGroup artGroups[6];
+bool artSampling = false;
+bool artColorValid = false;
+uint8_t artColorR = 0, artColorG = 165, artColorB = 0;
+
+void sampleArtPixel(uint16_t px)
+{
+  // JPEGDEC produce pixel RGB565; TFT_eSPI gestisce il byte swap in pushImage.
+  uint8_t r = ((px >> 11) & 31) * 255 / 31;
+  uint8_t g = ((px >> 5) & 63) * 255 / 63;
+  uint8_t b = (px & 31) * 255 / 31;
+  uint8_t hi = max(r, max(g, b));
+  uint8_t lo = min(r, min(g, b));
+  // Evita che sfondi neri, grigi e bianchi dominino il colore scelto.
+  if (hi < 65 || (hi - lo) < 48)
+    return;
+
+  int group;
+  if (r >= g && r >= b)
+    group = (g >= b) ? 0 : 1; // rosso/arancio, rosa
+  else if (g >= r && g >= b)
+    group = (r >= b) ? 2 : 3; // giallo/verde, verde/ciano
+  else
+    group = (r >= g) ? 4 : 5; // viola, blu/azzurro
+
+  ArtColorGroup &a = artGroups[group];
+  a.sumR += r;
+  a.sumG += g;
+  a.sumB += b;
+  a.count++;
+}
+
+void applyArtDominantColor()
+{
+  artSampling = false;
+  int best = -1;
+  for (int i = 0; i < 6; ++i)
+    if (artGroups[i].count > 0 &&
+        (best < 0 || artGroups[i].count > artGroups[best].count))
+      best = i;
+
+  if (best < 0)
+  {
+    artColorValid = false; // ritorna al verde originale
+    return;
+  }
+
+  const ArtColorGroup &a = artGroups[best];
+  uint8_t r = a.sumR / a.count;
+  uint8_t g = a.sumG / a.count;
+  uint8_t b = a.sumB / a.count;
+  uint8_t peak = max(r, max(g, b));
+  // Massima vivacita': il canale dominante arriva a 255 anziche' 180.
+  // Riduciamo parzialmente la componente neutra per rendere il colore piu' saturo.
+  uint8_t neutral = min(r, min(g, b)) / 2;
+  r -= neutral;
+  g -= neutral;
+  b -= neutral;
+  peak = max(r, max(g, b));
+  artColorR = (uint16_t)r * 255 / peak;
+  artColorG = (uint16_t)g * 255 / peak;
+  artColorB = (uint16_t)b * 255 / peak;
+  artColorValid = true;
+}
 
 int jpegDraw(JPEGDRAW *d)
 {
-  tft.pushImage(jpegTargetX + d->x, jpegTargetY + d->y, d->iWidth, d->iHeight, d->pPixels);
+  if (artSampling)
+  {
+    const int total = d->iWidth * d->iHeight;
+    for (int i = 0; i < total; i += 8)
+      sampleArtPixel(d->pPixels[i]);
+  }
+  tft.pushImage(ART_X + d->x, ART_Y + d->y, d->iWidth, d->iHeight, d->pPixels);
   return 1;
-}
-
-void drawArtPlaceholderAt(int x, int y, int sz = ART_SZ)
-{
-  panel(x, y, sz, sz, 12, C_PANEL, C_LINE);
-  int cx = x + sz / 2, cy = y + sz / 2;
-  float k = sz / (float)ART_SZ;
-  uint16_t c = mix565(C_PANEL, C_GREEN, 150);
-  int r = max(8, (int)(12 * k));
-  tft.fillSmoothCircle(cx - (int)(19 * k), cy + (int)(22 * k), r, c, C_PANEL);
-  tft.fillSmoothCircle(cx + (int)(23 * k), cy + (int)(12 * k), r, c, C_PANEL);
-  tft.fillRect(cx - (int)(10 * k), cy - (int)(30 * k), max(3, (int)(4 * k)), (int)(52 * k), c);
-  tft.fillRect(cx + (int)(32 * k), cy - (int)(40 * k), max(3, (int)(4 * k)), (int)(52 * k), c);
-  tft.drawWideLine(cx - (int)(8 * k), cy - (int)(30 * k),
-                   cx + (int)(34 * k), cy - (int)(40 * k),
-                   max(5.0f, 7.0f * k), c, C_PANEL);
 }
 
 void drawArtPlaceholder()
 {
-  drawArtPlaceholderAt(ART_X, ART_Y, ART_SZ);
-}
-
-void finishArtAt(int x, int y, int sz = ART_SZ)
-{
-  roundCorners(x, y, sz, sz, 12, C_BG);
-  tft.drawRoundRect(x, y, sz, sz, 12, C_LINE);
+  panel(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_PANEL, SP_LINE, SP_BG);
+  int cx = ART_X + ART_SZ / 2, cy = ART_Y + ART_SZ / 2;
+  // Disco stilizzato; niente immagini aggiuntive in RAM.
+  disc(cx, cy, 39, SP_PANEL2, SP_PANEL);
+  for (int r = 14; r < 39; r += 9)
+    tft.drawCircle(cx, cy, r, SP_LINE);
+  disc(cx, cy, 8, SP_GREEN, SP_PANEL2);
 }
 
 // Dopo il decode JPEG: ritaglia gli angoli e aggiunge un filo di bordo.
 void finishArt()
 {
-  finishArtAt(ART_X, ART_Y);
+  roundCorners(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_BG);
+  tft.drawRoundRect(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_LINE);
 }
 
-void fetchArt(const String &url, int targetX = ART_X, int targetY = ART_Y)
+void fetchArt(const String &url)
 {
-  jpegTargetX = targetX;
-  jpegTargetY = targetY;
   WiFiClientSecure client;
   client.setInsecure();
   HTTPClient http;
@@ -1612,19 +1734,47 @@ void fetchArt(const String &url, int targetX = ART_X, int targetY = ART_Y)
         int w = jpeg.getWidth();
         int sc = (w >= 500) ? JPEG_SCALE_QUARTER : (w >= 250) ? JPEG_SCALE_HALF
                                                               : 0;
-        jpeg.decode(0, 0, sc);
+        for (ArtColorGroup &a : artGroups)
+          a = ArtColorGroup{};
+        artSampling = true;
+        int decoded = jpeg.decode(0, 0, sc);
+        artSampling = false;
         jpeg.close();
+        if (decoded)
+          applyArtDominantColor();
       }
       free(buf);
     }
   }
   http.end();
-  jpegTargetX = ART_X;
-  jpegTargetY = ART_Y;
 }
+
+#ifdef WOKWI
+// Solo per il simulatore: nessuna chiamata Spotify reale.
+int demoTrackIndex = 0;
+#endif
 
 void spotifyPoll()
 {
+#ifdef WOKWI
+  static const char *titles[] = {"Midnight City", "Instant Crush", "Nightcall", "Starlight", "Sunset Lover"};
+  static const char *artists[] = {"M83", "Daft Punk", "Kavinsky", "Muse", "Petit Biscuit"};
+  demoTrackIndex = (demoTrackIndex + 5) % 5;
+  String key = String(demoTrackIndex);
+  if (T.key != key)
+  {
+    T.key = key;
+    T.title = titles[demoTrackIndex];
+    T.artist = artists[demoTrackIndex];
+    T.artUrl = ""; // niente download HTTPS o JPEG demo
+    T.duration = 245000;
+    T.progress = 41000;
+    T.stamp = millis();
+    needArt = needText = needCtl = progDirty = true;
+  }
+  nextPoll = millis() + SPOTIFY_POLL_MS;
+  return;
+#endif
   JsonDocument doc;
   int code = spotifyCall("GET", "/v1/me/player/currently-playing?additional_types=episode", &doc, &fCur);
   uint32_t now = millis();
@@ -1649,10 +1799,10 @@ void spotifyPoll()
         imgs = it["images"].as<JsonArray>();
       int best = 100000;
       T.artUrl = "";
+      artColorValid = false; // nuova traccia: non riutilizzare il vecchio colore
       for (JsonObject im : imgs)
       {
-        int width = im["width"] | 0;
-        int d = abs(width - 300);
+        int d = abs((int)(im["width"] | 0) - 300);
         if (d < best)
         {
           best = d;
@@ -1662,7 +1812,7 @@ void spotifyPoll()
       needText = needArt = progDirty = true;
     }
     if (T.playing != drawnPlaying)
-      needCtl = true;
+      needCtl = needText = true;
     nextPoll = now + SPOTIFY_POLL_MS;
   }
   else if (code == 204 || code == 200)
@@ -1674,6 +1824,7 @@ void spotifyPoll()
       T.title = nt;
       T.artist = "";
       T.artUrl = "";
+      artColorValid = false;
       T.playing = false;
       T.progress = 0;
       T.duration = 0;
@@ -1687,8 +1838,7 @@ void spotifyPoll()
   }
   else
   {
-    if (code < 0)
-      nextPoll = now + 6000;
+    nextPoll = now + 6000;
   }
 }
 
@@ -1701,158 +1851,40 @@ void setStatus(const char *m)
 
 void spotifyCommand(const char *method, const char *path)
 {
+#ifdef WOKWI
+  String p(path);
+  if (p.indexOf("/next") >= 0)
+  {
+    demoTrackIndex++;
+    T.key = "";
+  }
+  else if (p.indexOf("/previous") >= 0)
+  {
+    demoTrackIndex--;
+    T.key = "";
+  }
+  else if (p.endsWith("/pause"))
+    T.playing = false;
+  else if (p.endsWith("/play"))
+    T.playing = true;
+  needText = needCtl = progDirty = true;
+  nextPoll = 0;
+  return;
+#endif
   int code = spotifyCall(method, path);
   if (code == 404)
     setStatus("Nessun dispositivo");
   else if (code == 403)
     setStatus("Serve Spotify Premium");
   else if (code < 0)
-  {
     setStatus("Errore di rete");
-  }
   nextPoll = millis() + 800;
-}
-
-String fitAmbientText(String s, int font, int maxW)
-{
-  if (tft.textWidth(s, font) <= maxW)
-    return s;
-
-  while (s.length() > 4 && tft.textWidth(s + "...", font) > maxW)
-    s.remove(s.length() - 1);
-
-  return s + "...";
-}
-
-void drawSpotifyAmbientProgress()
-{
-  constexpr int X = 12, Y = 226, W = 296, H = 4;
-
-  uint32_t p = progressNow();
-  if (T.duration && p > T.duration)
-    p = T.duration;
-
-  int w = T.duration ? (int)((uint64_t)W * p / T.duration) : 0;
-
-  tft.fillRect(0, 214, 320, 26, C_BG);
-  rrect(X, Y, W, H, 2, C_TRACK);
-  if (w > 0)
-    rrect(X, Y, max(w, 4), H, 2, C_GREEN, C_TRACK);
-
-  char elapsed[8], total[8];
-  fmtTime(p, elapsed);
-  fmtTime(T.duration, total);
-
-  tft.setTextColor(C_DIM, C_BG);
-  tft.setTextDatum(TL_DATUM);
-  tft.drawString(elapsed, X, 214, 1);
-  tft.setTextDatum(TR_DATUM);
-  tft.drawString(total, X + W, 214, 1);
-  tft.setTextDatum(TL_DATUM);
-}
-
-void drawSpotifyAmbientScreen()
-{
-  constexpr int AX = 85;
-  constexpr int AY = 8;
-  constexpr int ASZ = 150;
-
-  tft.fillScreen(C_BG);
-
-  drawArtPlaceholderAt(AX, AY, ASZ);
-  if (T.artUrl.length())
-  {
-    fetchArt(T.artUrl, AX, AY);
-    finishArtAt(AX, AY, ASZ);
-  }
-
-  tft.setTextDatum(MC_DATUM);
-
-  String title = fitAmbientText(T.title.length() ? T.title : String("Spotify"), 2, 296);
-  String artist = fitAmbientText(T.artist, 1, 280);
-
-  tft.setTextColor(C_FG, C_BG);
-  tft.drawString(title, 160, 171, 2);
-
-  if (artist.length())
-  {
-    tft.setTextColor(C_DIM, C_BG);
-    tft.drawString(artist, 160, 191, 1);
-  }
-
-  tft.setTextColor(C_GREEN, C_BG);
-  tft.drawString("NOW PLAYING", 160, 204, 1);
-  tft.setTextDatum(TL_DATUM);
-
-  drawSpotifyAmbientProgress();
-}
-
-void enterSpotifyAmbientMode()
-{
-  if (spotifyAmbientMode || !ambientSpotifyEnabled || !T.playing || !T.key.length())
-    return;
-
-  ambientReturnPage = curPage;
-  spotifyAmbientMode = true;
-  updateRgbLed();
-  drawSpotifyAmbientScreen();
-}
-
-void exitSpotifyAmbientMode()
-{
-  if (!spotifyAmbientMode)
-    return;
-
-  spotifyAmbientMode = false;
-  updateRgbLed();
-  lastUserInteractionMs = millis();
-  switchPage(ambientReturnPage);
-}
-
-void spotifyAmbientLoop()
-{
-  static String lastAmbientTrackKey;
-  static uint32_t lastAmbientProgress = 0;
-
-  uint32_t now = millis();
-
-  if (now >= nextPoll)
-    spotifyPoll();
-
-  if (!T.playing || !T.key.length())
-  {
-    lastAmbientTrackKey = "";
-    exitSpotifyAmbientMode();
-    return;
-  }
-
-  if (lastAmbientTrackKey != T.key)
-  {
-    lastAmbientTrackKey = T.key;
-    drawSpotifyAmbientScreen();
-    lastAmbientProgress = now;
-    return;
-  }
-
-  if (now - lastAmbientProgress >= 500)
-  {
-    drawSpotifyAmbientProgress();
-    lastAmbientProgress = now;
-  }
 }
 
 void spEnter()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("SPOTIFY", C_GREEN);
-
-  // Accesso rapido alla coda: apre la stessa pagina usata da Playlist/Coda.
-  panel(188, 4, 44, 18, 8, C_PANEL2, C_LINE, C_BG);
-  tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(C_GREEN, C_PANEL2);
-  tft.drawString("CODA", 210, 13, 1);
-  tft.setTextDatum(TL_DATUM);
-
+  tft.fillScreen(SP_BG);
+  spotifyHeader(false);
   needText = needArt = needCtl = progDirty = true;
   nextPoll = 0;
   lastProg = 0;
@@ -1860,7 +1892,6 @@ void spEnter()
 
 void spLoop()
 {
-  static uint32_t lastEq = 0;
   uint32_t now = millis();
   if (statusMsg.length() && now > statusUntil)
   {
@@ -1889,11 +1920,6 @@ void spLoop()
       finishArt();
     }
   }
-  if (now - lastEq >= 220)
-  {
-    drawEq(T.playing);
-    lastEq = now;
-  }
   if (now - lastProg >= 500 || progDirty)
   {
     drawProgress();
@@ -1903,18 +1929,35 @@ void spLoop()
 
 void spTap(int x, int y)
 {
-  // Pulsante CODA nella top bar.
-  if (x >= 184 && x <= 236 && y <= 28)
+  // CODA e' ora nel riquadro x=175..225, y=4..23.
+  if (x >= 175 && x < 226 && y >= 4 && y < 24)
   {
     openSpotifyQueue();
     return;
   }
-
-  if (y < 140 || y >= NAV_Y - 26 || x < 172)
+  // Tap sulla barra di avanzamento = seek (Premium / player attivo).
+  if (y >= 196 && y < NAV_Y - 2 && T.duration > 0)
+  {
+    int seekX = constrain(x - PB_X, 0, PB_W);
+    uint32_t dest = (uint64_t)T.duration * seekX / PB_W;
+    String path = "/v1/me/player/seek?position_ms=" + String(dest);
+    int code = spotifyCall("PUT", path.c_str());
+    if (code == 204)
+    {
+      T.progress = dest;
+      T.stamp = millis();
+      progDirty = true;
+    }
+    else if (code < 0)
+      setStatus("Errore di rete");
+    nextPoll = millis() + 800;
     return;
-  if (x < 216)
+  }
+  if (y < 144 || y >= 193 || x < 172)
+    return;
+  if (x < 214)
     spotifyCommand("POST", "/v1/me/player/previous");
-  else if (x < 266)
+  else if (x < 267)
   {
     T.progress = progressNow();
     T.stamp = millis();
@@ -1969,8 +2012,8 @@ constexpr int PLAYLISTS_PER_PAGE = PLAYLIST_COLS * PLAYLIST_ROWS;
 // La coda non e' paginata: mostra una finestra di righe e si scorre verticalmente.
 constexpr int QUEUE_VISIBLE_ROWS = 4;
 
-constexpr int PL_X = 12, PL_Y = 60, PL_W = 148, PL_H = 38, PL_GX = 4, PL_GY = 4;
-constexpr int Q_X = 12, Q_Y = 60, Q_W = 296, Q_H = 31, Q_GY = 3;
+constexpr int PL_X = 12, PL_Y = 74, PL_W = 146, PL_H = 38, PL_GX = 4, PL_GY = 4;
+constexpr int Q_X = 12, Q_Y = 74, Q_W = 290, Q_H = 30, Q_GY = 4;
 
 void drawPlaylistPage();
 
@@ -1986,6 +2029,17 @@ String spotifyArtistFromItem(JsonObject item)
 
 bool fetchPlaylists()
 {
+#ifdef WOKWI
+  static const char *samples[] = {"Daily Mix", "Elettronica", "Chill Evening", "Rock Classics", "Night Drive", "Deep Focus", "Workout Mix", "Synthwave", "Discover Weekly"};
+  spotifyPlaylists.clear();
+  for (int i = 0; i < 9; i++)
+    spotifyPlaylists.push_back({String(samples[i]), String("spotify:playlist:demo") + String(i)});
+  playlistsLoaded = true;
+  playlistsLoading = false;
+  playlistsStatus = "";
+  playlistPage = 0;
+  return true;
+#endif
   playlistsLoading = true;
   playlistsStatus = "Caricamento...";
   drawPlaylistPage();
@@ -2032,6 +2086,18 @@ bool fetchPlaylists()
 
 bool fetchSpotifyQueue()
 {
+#ifdef WOKWI
+  static const char *titles[] = {"Midnight City", "Instant Crush", "Something About Us", "Nightcall", "Starlight", "Intro", "Awake", "Electric Feel", "Sunset Lover", "Tadow"};
+  static const char *artists[] = {"M83", "Daft Punk", "Daft Punk", "Kavinsky", "Muse", "The xx", "Tycho", "MGMT", "Petit Biscuit", "Masego"};
+  spotifyQueue.clear();
+  for (int i = 0; i < 18; i++)
+    spotifyQueue.push_back({String(titles[i % 10]), String(artists[i % 10]), String("spotify:track:demo") + String(i)});
+  queueLoaded = true;
+  queueLoading = false;
+  queueStatus = "";
+  queueScrollRow = 0;
+  return true;
+#endif
   queueLoading = true;
   queueStatus = "Caricamento...";
   drawPlaylistPage();
@@ -2094,211 +2160,180 @@ uint16_t monogramColor(const String &name)
 
 void drawLibraryTabs()
 {
-  const bool pl = spotifyLibraryView == LIB_PLAYLISTS;
-
-  panel(12, 31, 80, 22, 9, pl ? C_GREEN : C_PANEL2, pl ? C_GREEN : C_LINE);
+  bool pl = spotifyLibraryView == LIB_PLAYLISTS;
+  rrect(12, 33, 240, 24, 10, SP_PANEL, SP_BG);
+  rrect(pl ? 15 : 131, 36, pl ? 113 : 117, 18, 8, SP_GREEN, SP_PANEL);
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(pl ? C_BG : C_DIM, pl ? C_GREEN : C_PANEL2);
-  tft.drawString("PLAYLIST", 52, 42, 1);
-
-  panel(98, 31, 58, 22, 9, !pl ? C_GREEN : C_PANEL2, !pl ? C_GREEN : C_LINE);
-  tft.setTextColor(!pl ? C_BG : C_DIM, !pl ? C_GREEN : C_PANEL2);
-  tft.drawString("CODA", 127, 42, 1);
-
-  panel(282, 31, 26, 22, 8, C_PANEL2, C_LINE);
-  drawRefreshIcon(295, 42, C_GREEN, C_PANEL2);
+  tft.setTextColor(pl ? SP_BG : SP_MUTED, pl ? SP_GREEN : SP_PANEL);
+  tft.drawString("PLAYLIST", 71, 45, 2);
+  tft.setTextColor(pl ? SP_MUTED : SP_BG, pl ? SP_PANEL : SP_GREEN);
+  tft.drawString("CODA", 188, 45, 2);
+  rrect(278, 33, 30, 24, 9, SP_PANEL2, SP_BG);
+  drawRefreshIcon(293, 45, SP_GREEN, SP_PANEL2);
   tft.setTextDatum(TL_DATUM);
 }
 
 void drawPlaylistGrid()
 {
-  if (playlistsLoading)
-  {
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_DIM);
-    tft.drawString("Caricamento playlist...", 160, 122, 2);
-    tft.setTextDatum(TL_DATUM);
-    return;
-  }
-
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(SP_FAINT, SP_BG);
+  tft.drawString("LE TUE PLAYLIST", 14, 66, 1);
   if (playlistsStatus.length())
   {
     tft.setTextDatum(MR_DATUM);
-    tft.setTextColor(playlistsStatus == "In riproduzione" ? C_GREEN : C_RED);
-    tft.drawString(playlistsStatus, 274, 42, 1);
-    tft.setTextDatum(TL_DATUM);
+    tft.setTextColor(playlistsStatus == "In riproduzione" ? SP_GREEN : C_RED, SP_BG);
+    tft.drawString(spotifyFit(playlistsStatus, 154, 1), 306, 66, 1);
   }
+  else
+  {
+    tft.setTextDatum(MR_DATUM);
+    tft.setTextColor(SP_FAINT, SP_BG);
+    tft.drawString(String((int)spotifyPlaylists.size()) + " LISTE", 305, 66, 1);
+  }
+  tft.setTextDatum(TL_DATUM);
 
+  if (playlistsLoading)
+  {
+    tft.setTextColor(SP_MUTED, SP_BG);
+    tft.drawCentreString("Caricamento playlist...", 160, 122, 2);
+    return;
+  }
   if (spotifyPlaylists.empty())
   {
-    panel(36, 84, 248, 76, 14);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString("Nessuna playlist", 160, 108, 2);
-    tft.setTextColor(C_GREEN, C_PANEL);
-    tft.drawString("tocca aggiorna", 160, 134, 1);
-    tft.setTextDatum(TL_DATUM);
+    panel(28, 92, 264, 76, 12, SP_PANEL, SP_LINE, SP_BG);
+    tft.setTextColor(C_FG, SP_PANEL);
+    tft.drawCentreString("Nessuna playlist", 160, 109, 2);
+    tft.setTextColor(SP_MUTED, SP_PANEL);
+    tft.drawCentreString("Premi aggiorna per riprovare", 160, 136, 1);
     return;
   }
 
   int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
   playlistPage = constrain(playlistPage, 0, max(0, pagesCount - 1));
-
   int first = playlistPage * PLAYLISTS_PER_PAGE;
-  for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
+  for (int slot = 0; slot < PLAYLISTS_PER_PAGE; ++slot)
   {
     int idx = first + slot;
     if (idx >= (int)spotifyPlaylists.size())
       break;
-
     int x = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
     int y = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
     const String &name = spotifyPlaylists[idx].name;
-    uint16_t col = monogramColor(name);
-
-    panel(x, y, PL_W, PL_H, 9);
-    rrect(x + 6, y + 4, 30, 30, 8, mix565(C_PANEL, col, 235), C_PANEL);
-
-    char ini[2] = {name.length() ? name[0] : '?', 0};
-    if (ini[0] >= 'a' && ini[0] <= 'z')
-      ini[0] -= 32;
-
+    uint16_t color = monogramColor(name);
+    panel(x, y, PL_W, PL_H, 9, SP_PANEL, SP_LINE, SP_BG);
+    rrect(x + 5, y + 5, 28, 28, 7, mix565(SP_PANEL, color, 190), SP_PANEL);
+    char letter[2] = {name.length() ? name[0] : '?', 0};
+    if (letter[0] >= 'a' && letter[0] <= 'z')
+      letter[0] -= 32;
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_BG, mix565(C_PANEL, col, 235));
-    tft.drawString(ini, x + 21, y + 19, 4);
-
-    auto lines = wrapText(name, 2, PL_W - 48);
-    int n = min((int)lines.size(), 2);
-    drawLines(lines, x + 42, y + (PL_H - n * 16) / 2, 2, 16, 2, C_FG, PL_W - 48);
+    tft.setTextColor(SP_BG, mix565(SP_PANEL, color, 190));
+    tft.drawString(letter, x + 19, y + 19, 4);
+    tft.setTextDatum(TL_DATUM);
+    auto lines = wrapText(name, 2, PL_W - 44);
+    drawLines(lines, x + 39, y + ((int)lines.size() > 1 ? 5 : 12), 2, 16, 2, C_FG, PL_W - 44);
   }
-
   if (pagesCount > 1)
   {
-    bool canPrev = playlistPage > 0, canNext = playlistPage + 1 < pagesCount;
-    panel(12, 190, 44, 20, 10, canPrev ? C_PANEL2 : C_PANEL, C_LINE);
-    drawChevron(34, 200, true, canPrev ? C_FG : C_FAINT, canPrev ? C_PANEL2 : C_PANEL);
-    panel(264, 190, 44, 20, 10, canNext ? C_PANEL2 : C_PANEL, C_LINE);
-    drawChevron(286, 200, false, canNext ? C_FG : C_FAINT, canNext ? C_PANEL2 : C_PANEL);
-
-    String pg = String(playlistPage + 1) + "/" + String(pagesCount);
+    bool prev = playlistPage > 0, next = playlistPage + 1 < pagesCount;
+    rrect(12, 198, 38, 14, 7, SP_PANEL2, SP_BG);
+    drawChevron(31, 205, true, prev ? SP_GREEN : SP_FAINT, SP_PANEL2);
+    rrect(270, 198, 38, 14, 7, SP_PANEL2, SP_BG);
+    drawChevron(289, 205, false, next ? SP_GREEN : SP_FAINT, SP_PANEL2);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_FAINT);
-    tft.drawString(pg, 160, 200, 1);
+    tft.setTextColor(SP_MUTED, SP_BG);
+    tft.drawString(String(playlistPage + 1) + " / " + String(pagesCount), 160, 205, 1);
     tft.setTextDatum(TL_DATUM);
   }
 }
 
 void drawQueueList()
 {
-  if (queueLoading)
-  {
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_DIM);
-    tft.drawString("Caricamento coda...", 160, 122, 2);
-    tft.setTextDatum(TL_DATUM);
-    return;
-  }
-
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(SP_FAINT, SP_BG);
+  tft.drawString("PROSSIMI BRANI", 14, 66, 1);
   if (queueStatus.length())
   {
     tft.setTextDatum(MR_DATUM);
-    tft.setTextColor(queueStatus == "In riproduzione" ? C_GREEN : C_RED);
-    tft.drawString(queueStatus, 274, 42, 1);
-    tft.setTextDatum(TL_DATUM);
+    tft.setTextColor(queueStatus == "In riproduzione" ? SP_GREEN : C_RED, SP_BG);
+    tft.drawString(spotifyFit(queueStatus, 162, 1), 304, 66, 1);
   }
-
+  else
+  {
+    tft.setTextDatum(MR_DATUM);
+    tft.setTextColor(SP_FAINT, SP_BG);
+    tft.drawString(String((int)spotifyQueue.size()) + " BRANI", 304, 66, 1);
+  }
+  tft.setTextDatum(TL_DATUM);
+  if (queueLoading)
+  {
+    tft.setTextColor(SP_MUTED, SP_BG);
+    tft.drawCentreString("Caricamento coda...", 160, 122, 2);
+    return;
+  }
   if (spotifyQueue.empty())
   {
-    panel(36, 84, 248, 76, 14);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString("Coda vuota", 160, 108, 2);
-    tft.setTextColor(C_GREEN, C_PANEL);
-    tft.drawString("tocca aggiorna", 160, 134, 1);
-    tft.setTextDatum(TL_DATUM);
+    panel(28, 92, 264, 76, 12, SP_PANEL, SP_LINE, SP_BG);
+    tft.setTextColor(C_FG, SP_PANEL);
+    tft.drawCentreString("Coda vuota", 160, 109, 2);
+    tft.setTextColor(SP_MUTED, SP_PANEL);
+    tft.drawCentreString("Premi aggiorna per riprovare", 160, 136, 1);
     return;
   }
 
-  const int total = (int)spotifyQueue.size();
-  const int visible = min(QUEUE_VISIBLE_ROWS, total);
-  const int maxFirst = max(0, total - visible);
+  int total = (int)spotifyQueue.size();
+  int visible = min(QUEUE_VISIBLE_ROWS, total);
+  int maxFirst = max(0, total - visible);
   queueScrollRow = constrain(queueScrollRow, 0, maxFirst);
-
-  // Lista verticale: nessuna pagina e nessuna freccia.
-  for (int slot = 0; slot < visible; slot++)
+  for (int slot = 0; slot < visible; ++slot)
   {
     int idx = queueScrollRow + slot;
     int y = Q_Y + slot * (Q_H + Q_GY);
-    const QueueItem &q = spotifyQueue[idx];
-
-    panel(Q_X, y, Q_W, Q_H, 8);
-
-    rrect(Q_X + 6, y + 5, 22, 21, 7, mix565(C_PANEL, C_GREEN, 70), C_PANEL);
+    const QueueItem &item = spotifyQueue[idx];
+    panel(Q_X, y, Q_W, Q_H, 8, SP_PANEL, SP_LINE, SP_BG);
+    rrect(Q_X + 5, y + 5, 23, 20, 6, SP_PANEL2, SP_PANEL);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_GREEN, mix565(C_PANEL, C_GREEN, 70));
-    tft.drawString(String(idx + 1), Q_X + 17, y + 16, 1);
-
-    String title = q.title;
-    while (title.length() > 1 && tft.textWidth(title, 2) > 210)
-      title.remove(title.length() - 1);
-    if (title != q.title && title.length() > 3)
-    {
-      title.remove(title.length() - 3);
-      title += "...";
-    }
-
-    String artist = q.artist;
-    while (artist.length() > 1 && tft.textWidth(artist, 1) > 210)
-      artist.remove(artist.length() - 1);
-    if (artist != q.artist && artist.length() > 3)
-    {
-      artist.remove(artist.length() - 3);
-      artist += "...";
-    }
-
+    tft.setTextColor(SP_GREEN, SP_PANEL2);
+    tft.drawString(String(idx + 1), Q_X + 16, y + 15, 1);
     tft.setTextDatum(TL_DATUM);
-    tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString(title, Q_X + 36, y + 4, 2);
-    tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString(artist, Q_X + 36, y + 20, 1);
-
-    tft.fillTriangle(Q_X + Q_W - 18, y + 10,
-                     Q_X + Q_W - 18, y + 22,
-                     Q_X + Q_W - 9, y + 16, C_GREEN);
+    tft.setTextColor(C_FG, SP_PANEL);
+    tft.drawString(spotifyFit(item.title, 230, 2), Q_X + 35, y + 2, 2);
+    tft.setTextColor(SP_MUTED, SP_PANEL);
+    tft.drawString(spotifyFit(item.artist, 230, 1), Q_X + 35, y + 19, 1);
+    tft.fillTriangle(Q_X + Q_W - 16, y + 9, Q_X + Q_W - 16, y + 21,
+                     Q_X + Q_W - 8, y + 15, SP_GREEN);
   }
-
-  // Scrollbar verticale discreta: indica la posizione nella coda.
   if (total > visible)
   {
-    const int trackX = 312;
-    const int trackY = Q_Y;
     const int trackH = visible * (Q_H + Q_GY) - Q_GY;
-    const int thumbH = max(14, trackH * visible / total);
-    const int travel = trackH - thumbH;
-    const int thumbY = trackY + (maxFirst ? (travel * queueScrollRow / maxFirst) : 0);
-
-    rrect(trackX, trackY, 3, trackH, 1, C_TRACK);
-    rrect(trackX, thumbY, 3, thumbH, 1, C_GREEN, C_TRACK);
+    int thumbH = max(14, trackH * visible / total);
+    int thumbY = Q_Y + (trackH - thumbH) * queueScrollRow / maxFirst;
+    rrect(309, Q_Y, 3, trackH, 1, SP_BAR, SP_BG);
+    rrect(309, thumbY, 3, thumbH, 1, SP_GREEN, SP_BAR);
   }
 }
 
 void drawPlaylistPage()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("SPOTIFY", C_GREEN);
+  tft.fillScreen(SP_BG);
+  spotifyHeader(true);
   drawLibraryTabs();
-
   if (spotifyLibraryView == LIB_PLAYLISTS)
     drawPlaylistGrid();
   else
     drawQueueList();
-
-  // Questa funzione fa fillScreen(): ridisegna sempre la bottom bar.
   drawNavBar();
 }
 
 void playPlaylist(int idx)
 {
+#ifdef WOKWI
+  // Avvia il brano simulato e apri il player senza API.
+  demoTrackIndex = (idx + 5) % 5;
+  T.key = "";
+  T.playing = true;
+  switchPage(1);
+  return;
+#endif
   if (idx < 0 || idx >= (int)spotifyPlaylists.size())
     return;
 
@@ -2334,6 +2369,14 @@ void playPlaylist(int idx)
 // della coda appena letta.
 void playQueueFrom(int idx)
 {
+#ifdef WOKWI
+  // Avvia il brano simulato e apri il player senza API.
+  demoTrackIndex = (idx + 5) % 5;
+  T.key = "";
+  T.playing = true;
+  switchPage(1);
+  return;
+#endif
   if (idx < 0 || idx >= (int)spotifyQueue.size())
     return;
 
@@ -2407,9 +2450,9 @@ void openSpotifyQueue()
 
 void playlistTap(int x, int y)
 {
-  if (y >= 28 && y <= 56)
+  if (y >= 31 && y <= 58)
   {
-    if (x >= 8 && x <= 95)
+    if (x >= 12 && x <= 129)
     {
       if (spotifyLibraryView != LIB_PLAYLISTS)
       {
@@ -2421,8 +2464,7 @@ void playlistTap(int x, int y)
       }
       return;
     }
-
-    if (x >= 95 && x <= 165)
+    if (x > 129 && x <= 253)
     {
       if (spotifyLibraryView != LIB_QUEUE)
       {
@@ -2434,8 +2476,7 @@ void playlistTap(int x, int y)
       }
       return;
     }
-
-    if (x >= 274)
+    if (x >= 276)
     {
       if (spotifyLibraryView == LIB_PLAYLISTS)
         fetchPlaylists();
@@ -2445,13 +2486,11 @@ void playlistTap(int x, int y)
       return;
     }
   }
-
   if (spotifyLibraryView == LIB_PLAYLISTS)
   {
     if (spotifyPlaylists.empty())
       return;
-
-    for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
+    for (int slot = 0; slot < PLAYLISTS_PER_PAGE; ++slot)
     {
       int cx = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
       int cy = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
@@ -2463,30 +2502,26 @@ void playlistTap(int x, int y)
         return;
       }
     }
-
     int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
-    if (y >= 186 && y < NAV_Y)
+    if (y >= 196 && y < NAV_Y)
     {
-      if (x < 90 && playlistPage > 0)
+      if (x < 85 && playlistPage > 0)
       {
-        playlistPage--;
+        --playlistPage;
         drawPlaylistPage();
       }
-      else if (x > 230 && playlistPage + 1 < pagesCount)
+      else if (x > 235 && playlistPage + 1 < pagesCount)
       {
-        playlistPage++;
+        ++playlistPage;
         drawPlaylistPage();
       }
     }
     return;
   }
-
   if (spotifyQueue.empty())
     return;
-
-  // Tap su una riga della lista attualmente visibile.
   int visible = min(QUEUE_VISIBLE_ROWS, (int)spotifyQueue.size());
-  for (int slot = 0; slot < visible; slot++)
+  for (int slot = 0; slot < visible; ++slot)
   {
     int cy = Q_Y + slot * (Q_H + Q_GY);
     if (x >= Q_X && x < Q_X + Q_W && y >= cy && y < cy + Q_H)
@@ -2498,7 +2533,7 @@ void playlistTap(int x, int y)
     }
   }
 }
-// ########==================== PAGINA 3 - METEO ====================########
+// ===================== Meteo =====================
 struct Weather
 {
   float t = 0, feels = 0, wind = 0;
@@ -2807,7 +2842,7 @@ void weatherEnter()
 void weatherLoop() {}
 void weatherTap(int, int) {}
 
-// ########==================== PAGINA 5 - RADAR PIOGGIA ====================########
+// ===================== Radar pioggia (RainViewer) =====================
 struct RadarState
 {
   String host;
@@ -2849,7 +2884,6 @@ bool downloadBinary(const String &url, uint8_t *&data, size_t &len, size_t maxSi
     return false;
   }
 
-  http.addHeader("User-Agent", "CYD-Hub/6.0");
   int code = http.GET();
   radarState.lastHttpCode = code;
   Serial.printf("Radar GET %d: %s\n", code, url.c_str());
@@ -3019,54 +3053,7 @@ void drawRadarBase()
   tft.setTextDatum(TL_DATUM);
   roundCorners(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, 7, C_PANEL);
 }
-int radarMapPngDraw(PNGDRAW *pDraw)
-{
-  if (pDraw->y < RADAR_CROP_Y ||
-      pDraw->y >= RADAR_CROP_Y + RADAR_VIEW_H)
-    return 1;
 
-  if (pDraw->iWidth > 256)
-    return 0;
-
-  uint16_t pixels[256];
-
-  png.getLineAsRGB565(
-      pDraw,
-      pixels,
-      PNG_RGB565_BIG_ENDIAN,
-      0xffffffff);
-
-  // Cartina opaca: viene disegnata PRIMA del radar
-  tft.pushImage(
-      RADAR_VIEW_X,
-      RADAR_VIEW_Y + pDraw->y - RADAR_CROP_Y,
-      pDraw->iWidth,
-      1,
-      pixels);
-
-  return 1;
-}
-
-bool decodeRadarMapPng(uint8_t *data, size_t len)
-{
-  int rc = png.openRAM(data, (int)len, radarMapPngDraw);
-
-  if (rc != PNG_SUCCESS)
-  {
-    Serial.printf("Map PNG open error=%d\n", rc);
-    return false;
-  }
-
-  tft.startWrite();
-  rc = png.decode(nullptr, PNG_FAST_PALETTE);
-  tft.endWrite();
-
-  png.close();
-
-  Serial.printf("Map PNG decode=%d\n", rc);
-
-  return rc == PNG_SUCCESS;
-}
 int radarPngDraw(PNGDRAW *pDraw)
 {
   if (pDraw->y < RADAR_CROP_Y || pDraw->y >= RADAR_CROP_Y + RADAR_VIEW_H)
@@ -3206,6 +3193,22 @@ void drawRadarStamp()
 
 void radarEnter()
 {
+#ifdef WOKWI
+  drawRadarBase();
+  // Vista offline dimostrativa: la pagina rimane navigabile senza RainViewer.
+  const int cx = RADAR_VIEW_X + RADAR_VIEW_W / 2;
+  const int cy = RADAR_VIEW_Y + RADAR_VIEW_H / 2;
+  tft.drawCircle(cx, cy, 30, C_CYAN);
+  tft.drawCircle(cx, cy, 65, C_BLUE);
+  tft.fillCircle(cx - 65, cy - 40, 29, C_BLUE);
+  tft.fillCircle(cx + 64, cy + 32, 23, C_CYAN);
+  drawRadarOverlay();
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_FG, C_BG);
+  tft.drawString("RADAR DEMO - IMOLA", 160, 207, 1);
+  tft.setTextDatum(TL_DATUM);
+  return;
+#endif
   drawRadarBase();
   bool stale = !radarState.ok || (millis() - radarState.stamp > RADAR_REFRESH_MS);
   if (stale)
@@ -3255,7 +3258,7 @@ void radarTap(int, int)
   radarEnter();
 }
 
-// ########==================== PAGINA 6 - SPORT / FORMULA 1 ====================########
+// ===================== Calendario Formula 1 (Jolpica) =====================
 struct F1Race
 {
   int round = 0;
@@ -3409,14 +3412,109 @@ void f1CountdownParts(time_t epoch, String &num, String &unit)
   }
 }
 
-// La pagina con la bandiera raccoglie ora F1 + Juventus.
-// L'UI completa viene disegnata piu' avanti, dopo il parser del calendario Juve.
+void drawF1Calendar()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("FORMULA 1", C_RED);
+  if (!f1Ok)
+  {
+    panel(26, 76, 268, 88, 16, C_PANEL, mix565(C_LINE, C_RED, 70));
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString("Calendario non disponibile", 160, 108, 2);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("riprovo piu tardi", 160, 134, 2);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+  F1Race &r = f1Races[0];
+  uint16_t heroFill = mix565(C_PANEL, C_RED, 16);
+  panel(12, 32, 296, 92, 14, heroFill, mix565(C_LINE, C_RED, 110));
+  // countdown
+  String num, unit;
+  f1CountdownParts(r.raceEpoch, num, unit);
+  tft.setTextDatum(TC_DATUM);
+  tft.setTextColor(C_DIM, heroFill);
+  tft.drawString("TRA", 62, 41, 1);
+  tft.setTextColor(C_RED, heroFill);
+  tft.drawString(num, 62, 52, 6);
+  tft.setTextColor(C_FG, heroFill);
+  tft.drawString(unit, 62, 106, 1);
+  tft.drawFastVLine(114, 42, 72, mix565(C_LINE, C_RED, 60));
+  // dettagli
+  tft.setTextDatum(TL_DATUM);
+  char b[48];
+  snprintf(b, sizeof(b), "PROSSIMA GARA  R%02d", r.round);
+  tft.setTextColor(C_RED, heroFill);
+  tft.drawString(b, 128, 42, 1);
+  int titleFont = tft.textWidth(r.name, 4) <= 170 ? 4 : 2;
+  tft.setTextColor(C_FG, heroFill);
+  tft.drawString(r.name, 128, 56, titleFont);
+  String loc = r.locality + "  /  " + r.country;
+  if (tft.textWidth(loc, 2) > 172)
+    loc = r.locality;
+  tft.setTextColor(C_DIM, heroFill);
+  tft.drawString(loc, 128, 84, 2);
+  formatLocalRaceTime(r.raceEpoch, b, sizeof(b));
+  tft.setTextColor(C_FG, heroFill);
+  tft.drawString(b, 128, 104, 2);
+  if (r.sprint)
+    pill(246, 39, 52, 15, "SPRINT", C_FG, C565(120, 34, 40), 1, heroFill);
+  // prossime gare
+  for (int i = 1; i < f1Count; i++)
+  {
+    int y = 130 + (i - 1) * 40;
+    F1Race &n = f1Races[i];
+    panel(12, y, 296, 36, 11);
+    snprintf(b, sizeof(b), "R%02d", n.round);
+    rrect(20, y + 7, 34, 22, 7, mix565(C_PANEL, C_RED, 70), C_PANEL);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_RED, mix565(C_PANEL, C_RED, 70));
+    tft.drawString(b, 37, y + 19, 1);
+    tft.setTextDatum(ML_DATUM);
+    String nm = n.name;
+    if (nm.length() > 20)
+      nm = nm.substring(0, 19) + "...";
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(nm, 64, y + 12, 2);
+    formatLocalRaceTime(n.raceEpoch, b, sizeof(b));
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(b, 64, y + 28, 1);
+    if (n.sprint)
+      pill(258, y + 10, 40, 15, "SPR", C_FG, C565(120, 34, 40), 1, C_PANEL);
+  }
+  // scacchi decorativi
+  for (int rr = 0; rr < 2; rr++)
+    for (int k = 0; k < 8; k++)
+      tft.fillRect(268 + k * 3, 106 + rr * 3, 3, 3, ((rr + k) & 1) ? mix565(heroFill, C_FG, 60) : mix565(heroFill, C_RED, 200));
+  tft.setTextDatum(TL_DATUM);
+}
+
 bool ensureJuveCalendarFresh();
 void invalidateJuveCalendar();
 void drawSportsPage();
 
 void f1Enter()
 {
+#ifdef WOKWI
+  tft.fillScreen(C_BG);
+  drawTopBar("SPORT", C_RED);
+  tft.setTextColor(C_RED, C_BG);
+  tft.drawString("FORMULA 1", 12, 38, 2);
+  panel(12, 62, 296, 54, 11);
+  tft.setTextColor(C_FG, C_PANEL);
+  tft.drawString("Prossimo Gran Premio", 21, 73, 2);
+  tft.setTextColor(C_DIM, C_PANEL);
+  tft.drawString("Countdown / calendario: DEMO", 21, 97, 1);
+  tft.setTextColor(C_RED, C_BG);
+  tft.drawString("JUVENTUS", 12, 125, 2);
+  panel(12, 145, 296, 50, 11);
+  tft.setTextColor(C_FG, C_PANEL);
+  tft.drawString("Prossime partite", 21, 154, 2);
+  tft.setTextColor(C_DIM, C_PANEL);
+  tft.drawString("Demo offline - nessuna API", 21, 177, 1);
+  return;
+#endif
   bool f1Stale = !f1Ok || (millis() - f1Stamp > F1_REFRESH_MS);
 
   if (f1Stale)
@@ -3439,6 +3537,11 @@ void f1Loop() {}
 
 void f1Tap(int x, int y)
 {
+#ifdef WOKWI
+  f1Enter();
+  drawNavBar();
+  return;
+#endif
   // Refresh unico per entrambe le sorgenti sportive.
   if (x >= 274 && y >= 26 && y <= 56)
   {
@@ -3460,8 +3563,7 @@ void f1Tap(int x, int y)
   }
 }
 
-// ########==================== MENU IMPOSTAZIONI / CALIBRAZIONE TOUCH ====================########
-// La calibrazione viene eseguita su 4 punti e salvata nella NVS tramite Preferences.
+// ===================== Calibrazione touch persistente =====================
 // Se non esiste una calibrazione salvata, vengono usati i valori TS_MINX/TS_MAXX/TS_MINY/TS_MAXY
 // definiti in config.h.
 struct TouchCalibration
@@ -3740,45 +3842,31 @@ void drawTouchCalibrationMenu()
 {
   tft.fillScreen(C_BG);
   drawTopBar("IMPOSTAZIONI", C_AMBER);
-  tft.setTextDatum(TL_DATUM);
 
-  panel(18, 38, 284, 34, 10, C_PANEL, C_LINE);
+  panel(18, 38, 284, 34, 9);
   tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("CALIBRA TOUCH", 30, 49, 2);
+  tft.drawString("CALIBRA TOUCH", 30, 48, 2);
 
-  panel(18, 78, 284, 34, 10,
-        touchCal.valid ? C_PANEL : mix565(C_BG, C_PANEL, 120), C_LINE);
-  tft.setTextColor(touchCal.valid ? C_FG : C_FAINT,
-                   touchCal.valid ? C_PANEL : mix565(C_BG, C_PANEL, 120));
-  tft.drawString("RESET TOUCH", 30, 89, 2);
+  panel(18, 84, 284, 34, 9);
+  tft.setTextColor(touchCal.valid ? C_FG : C_FAINT, C_PANEL);
+  tft.drawString("RESET TOUCH", 30, 94, 2);
   tft.setTextDatum(MR_DATUM);
-  tft.setTextColor(touchCal.valid ? C_GREEN : C_FAINT,
-                   touchCal.valid ? C_PANEL : mix565(C_BG, C_PANEL, 120));
-  tft.drawString(touchCal.valid ? "SALVATA" : "DEFAULT", 286, 95, 1);
-
+  tft.setTextColor(touchCal.valid ? C_GREEN : C_FAINT, C_PANEL);
+  tft.drawString(touchCal.valid ? "SALVATA" : "DEFAULT", 285, 102, 1);
   tft.setTextDatum(TL_DATUM);
-  panel(18, 118, 284, 32, 10, C_PANEL, C_LINE);
-  tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("AMBIENT SPOTIFY", 30, 128, 2);
-  pill(244, 124, 44, 20,
-       ambientSpotifyEnabled ? "ON" : "OFF",
-       ambientSpotifyEnabled ? C_BG : C_DIM,
-       ambientSpotifyEnabled ? C_GREEN : C_PANEL2,
-       1, C_PANEL);
 
-  panel(18, 156, 284, 32, 10, C_PANEL, C_LINE);
+  panel(18, 130, 284, 34, 9);
   tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("LED RGB", 30, 166, 2);
-  pill(244, 162, 44, 20,
+  tft.drawString("LED RGB", 30, 140, 2);
+  pill(250, 139, 38, 17,
        rgbLedEnabled ? "ON" : "OFF",
        rgbLedEnabled ? C_BG : C_DIM,
        rgbLedEnabled ? C_GREEN : C_PANEL2,
        1, C_PANEL);
 
-  panel(18, 194, 284, 32, 10, C_PANEL2, C_LINE);
+  panel(18, 182, 284, 32, 9, C_PANEL2, C_LINE);
   tft.setTextColor(C_FG, C_PANEL2);
-  tft.drawString("CHIUDI", 30, 204, 2);
-  tft.setTextDatum(TL_DATUM);
+  tft.drawString("CHIUDI", 30, 191, 2);
 }
 
 void runTouchCalibrationMenu()
@@ -3787,51 +3875,37 @@ void runTouchCalibrationMenu()
   while (!done)
   {
     drawTouchCalibrationMenu();
-
     int x = 0, y = 0;
     if (!waitMappedTouchTap(x, y))
       continue;
 
     if (x >= 18 && x <= 302 && y >= 38 && y <= 72)
-    {
       runTouchCalibration();
-    }
-    else if (x >= 18 && x <= 302 && y >= 78 && y <= 112 && touchCal.valid)
+    else if (x >= 18 && x <= 302 && y >= 84 && y <= 118 && touchCal.valid)
     {
       resetTouchCalibration();
       tft.fillScreen(C_BG);
       drawTopBar("IMPOSTAZIONI", C_AMBER);
       tft.setTextDatum(MC_DATUM);
       tft.setTextColor(C_AMBER, C_BG);
-      tft.drawString("CALIBRAZIONE RESET", 160, 104, 2);
-      tft.setTextColor(C_DIM, C_BG);
-      tft.drawString("uso i valori di config.h", 160, 128, 1);
+      tft.drawString("CALIBRAZIONE RESET", 160, 114, 2);
       tft.setTextDatum(TL_DATUM);
-      delay(1000);
+      delay(750);
     }
-    else if (x >= 18 && x <= 302 && y >= 118 && y <= 150)
-    {
-      ambientSpotifyEnabled = !ambientSpotifyEnabled;
-      prefs.putBool("amb_on", ambientSpotifyEnabled);
-      lastUserInteractionMs = millis();
-    }
-    else if (x >= 18 && x <= 302 && y >= 156 && y <= 188)
+    else if (x >= 18 && x <= 302 && y >= 130 && y <= 164)
     {
       rgbLedEnabled = !rgbLedEnabled;
       prefs.putBool("led_on", rgbLedEnabled);
       updateRgbLed();
     }
-    else if (x >= 18 && x <= 302 && y >= 194 && y <= 226)
-    {
+    else if (x >= 18 && x <= 302 && y >= 182 && y <= 214)
       done = true;
-    }
   }
-
-  lastUserInteractionMs = millis();
   waitTouchReleased();
 }
 
-// ########==================== PAGINA 4 - OROLOGIO / HOME ====================########
+// ===================== Orologio =====================
+void drawNavBar();
 int lastMin = -1;
 
 // Cifre a sette segmenti "esagonali": segmenti spenti appena visibili, quelli accesi pieni.
@@ -3909,14 +3983,11 @@ void drawClockFull(const tm &ti)
   char b[80];
   tft.fillScreen(C_BG);
   drawTopBar("HOME", C_AMBER);
-
-  // Menu impostazioni / calibrazione touch.
   panel(194, 4, 38, 18, 8, C_PANEL2, C_LINE, C_BG);
   tft.setTextDatum(MC_DATUM);
   tft.setTextColor(C_AMBER, C_PANEL2);
   tft.drawString("SET", 213, 13, 1);
   tft.setTextDatum(TL_DATUM);
-
   // data: giorno in accento, resto attenuato
   String wd = upperStr(DAYS_L[ti.tm_wday]);
   snprintf(b, sizeof(b), "%d %s %d", ti.tm_mday, MONTHS[ti.tm_mon], ti.tm_year + 1900);
@@ -3983,16 +4054,14 @@ void clockLoop()
 
 void clockTap(int x, int y)
 {
-  // Pulsante SET nella top bar: apre il menu di calibrazione touch.
   if (x >= 188 && x <= 238 && y <= 28)
   {
     runTouchCalibrationMenu();
-    // Forza il ridisegno completo della HOME quando il menu viene chiuso.
     lastMin = -1;
     lastDay = -1;
   }
 }
-// ########==================== PAGINA 6 - SPORT / JUVENTUS + UI SPORT ====================########
+// ===================== Calendario Juventus (iCal) + Sport =====================
 static const char *JUVE_ICS_URL = "https://ics.fixtur.es/v2/juventus.ics";
 constexpr uint32_t JUVE_REFRESH_MS = 6UL * 60UL * 60UL * 1000UL;
 constexpr int JUVE_MAX_MATCHES = 6;
@@ -4364,7 +4433,8 @@ void drawSportsPage()
   drawNavBar();
 }
 
-// ########==================== PAGINA 7 - CALENDARIO MENSILE ====================########
+// ===================== Calendario mensile =====================
+
 int calendarYear = 0;
 int calendarMonth = 0; // 0 = gennaio
 int calendarToday = 0;
@@ -4386,15 +4456,24 @@ int daysInMonth(int year, int month)
   return days[month];
 }
 
-// Restituisce: 0 = lunedi ... 6 = domenica.
+// Restituisce:
+// 0 = lunedi
+// 1 = martedi
+// ...
+// 6 = domenica
 int firstWeekdayOfMonth(int year, int month)
 {
   struct tm t = {};
+
   t.tm_year = year - 1900;
   t.tm_mon = month;
   t.tm_mday = 1;
   t.tm_hour = 12;
+
   mktime(&t);
+
+  // tm_wday:
+  // 0 = domenica ... 6 = sabato
   return (t.tm_wday + 6) % 7;
 }
 
@@ -4402,18 +4481,18 @@ void drawCalendarPage()
 {
   tft.fillScreen(C_BG);
   drawTopBar("CALENDARIO", C_VIOLET);
-
+  // titolo mese + anno
   tft.setTextDatum(ML_DATUM);
   tft.setTextColor(C_FG);
   tft.drawString(MONTHS[calendarMonth], 14, 44, 4);
   tft.setTextColor(C_DIM);
   tft.drawString(String(calendarYear), 14 + tft.textWidth(MONTHS[calendarMonth], 4) + 8, 47, 2);
-
+  // frecce
   panel(242, 31, 30, 26, 10, C_PANEL2, C_LINE);
   drawChevron(257, 44, true, C_FG, C_PANEL2);
   panel(278, 31, 30, 26, 10, C_PANEL2, C_LINE);
   drawChevron(293, 44, false, C_FG, C_PANEL2);
-
+  // intestazione giorni
   static const char *weekDays[7] = {"L", "M", "M", "G", "V", "S", "D"};
   constexpr int GRID_X = 12, COL_W = 42;
   for (int col = 0; col < 7; col++)
@@ -4423,20 +4502,18 @@ void drawCalendarPage()
     tft.drawString(weekDays[col], GRID_X + col * COL_W + COL_W / 2, 68, 1);
   }
   tft.drawFastHLine(12, 76, 296, C_HAIR);
-
+  // giorni
   int firstDay = firstWeekdayOfMonth(calendarYear, calendarMonth);
   int count = daysInMonth(calendarYear, calendarMonth);
   int prevMonth = (calendarMonth + 11) % 12;
   int prevYear = calendarMonth == 0 ? calendarYear - 1 : calendarYear;
   int prevCount = daysInMonth(prevYear, prevMonth);
   constexpr int FIRST_ROW_Y = 90, ROW_H = 22;
-
   struct tm now;
   bool timeOk = getLocalTime(&now, 0);
   int realYear = timeOk ? now.tm_year + 1900 : -1;
   int realMonth = timeOk ? now.tm_mon : -1;
   int realDay = timeOk ? now.tm_mday : -1;
-
   int rows = (firstDay + count + 6) / 7;
   for (int cell = 0; cell < rows * 7; cell++)
   {
@@ -4445,12 +4522,10 @@ void drawCalendarPage()
     int y = FIRST_ROW_Y + row * ROW_H;
     int day = cell - firstDay + 1;
     bool inMonth = day >= 1 && day <= count;
-
     if (day < 1)
       day = prevCount + day;
     else if (day > count)
       day -= count;
-
     bool today = inMonth && calendarYear == realYear && calendarMonth == realMonth && day == realDay;
     uint16_t txt;
     if (today)
@@ -4462,7 +4537,6 @@ void drawCalendarPage()
       txt = C565(58, 64, 82);
     else
       txt = col >= 5 ? mix565(C_DIM, C_VIOLET, 120) : C_FG;
-
     char d[4];
     snprintf(d, sizeof(d), "%d", day);
     tft.setTextDatum(MC_DATUM);
@@ -4475,16 +4549,20 @@ void drawCalendarPage()
 void calendarEnter()
 {
   struct tm ti;
+
   if (getLocalTime(&ti, 0))
   {
     calendarYear = ti.tm_year + 1900;
     calendarMonth = ti.tm_mon;
     calendarToday = ti.tm_mday;
   }
+
   drawCalendarPage();
 }
 
-void calendarLoop() {}
+void calendarLoop()
+{
+}
 
 void calendarTap(int x, int y)
 {
@@ -4512,12 +4590,12 @@ void calendarTap(int x, int y)
     }
     else if (x < 200)
     {
+      // tocco sul titolo: torna al mese corrente
       calendarEnter();
     }
   }
 }
-
-// ########==================== NAVIGAZIONE / GESTIONE PAGINE ====================########
+// ===================== Gestione pagine =====================
 struct Page
 {
   void (*enter)();
@@ -4531,7 +4609,7 @@ const Page pages[] = {
     {weatherEnter, weatherLoop, weatherTap},    // 2
     {clockEnter, clockLoop, clockTap},          // 3 HOME
     {radarEnter, radarLoop, radarTap},          // 4
-    {f1Enter, f1Loop, f1Tap},                   // 5 SPORT: F1 + JUVENTUS
+    {f1Enter, f1Loop, f1Tap},                   // 5
     {calendarEnter, calendarLoop, calendarTap}  // 6 CALENDARIO
 };
 constexpr int NUM_PAGES = sizeof(pages) / sizeof(pages[0]);
@@ -4545,26 +4623,33 @@ int pageTabX(int i)
 
 void drawNavBar()
 {
-  uint16_t accent = pageAccent(curPage);
-  tft.fillRect(0, NAV_Y, 320, NAV_H, C_NAV);
-  tft.drawFastHLine(0, NAV_Y, 320, C_HAIR);
+  bool sp = (curPage == 0 || curPage == 1);
+  uint16_t accent = sp ? SP_GREEN : pageAccent(curPage);
+  uint16_t nav = sp ? SP_NAV : C_NAV;
+  uint16_t panelCol = sp ? SP_PANEL2 : C_PANEL2;
+  uint16_t lineCol = sp ? SP_LINE : C_HAIR;
+  uint16_t inactive = sp ? SP_FAINT : C_FAINT;
+  tft.fillRect(0, NAV_Y, 320, NAV_H, nav);
+  tft.drawFastHLine(0, NAV_Y, 320, lineCol);
   for (int i = 0; i < NUM_PAGES; i++)
   {
-    int cx = pageTabX(i);
-    int cy = NAV_Y + 14;
+    int cx = pageTabX(i), cy = NAV_Y + 14;
     if (i == curPage)
     {
-      rrect(cx - 17, NAV_Y + 3, 34, 21, 9, C_PANEL2, C_NAV);
-      drawTabIcon(i, cx, cy, accent, C_PANEL2);
-      rrect(cx - 7, NAV_Y, 14, 2, 1, accent, C_NAV);
+      rrect(cx - 17, NAV_Y + 3, 34, 21, 9, panelCol, nav);
+      drawTabIcon(i, cx, cy, accent, panelCol);
+      rrect(cx - 7, NAV_Y, 14, 2, 1, accent, nav);
     }
     else
-      drawTabIcon(i, cx, cy, C_FAINT, C_NAV);
+      drawTabIcon(i, cx, cy, inactive, nav);
   }
 }
 
 void switchPage(int n)
 {
+#ifdef WOKWI
+  Serial.printf("[WOKWI] Pagina -> %d\n", (n + NUM_PAGES) % NUM_PAGES);
+#endif
   curPage = (n + NUM_PAGES) % NUM_PAGES;
   tft.setTextPadding(0);
   tft.setTextDatum(TL_DATUM);
@@ -4576,6 +4661,9 @@ void switchPage(int n)
 // Aggiorna il meteo solo quando non si e' sulle pagine Spotify/Playlist.
 void maybeFetchWeather()
 {
+#ifdef WOKWI
+  return;
+#endif
   if (curPage == 0 || curPage == 1)
     return;
   uint32_t now = millis();
@@ -4588,17 +4676,10 @@ void maybeFetchWeather()
   }
 }
 
-// Nessuna sospensione automatica del display.
-// Se Spotify e' in riproduzione, dopo 30 s senza touch puo' entrare la modalita Ambient.
+// Nessuna sospensione/screensaver automatica.
+// Il display resta sulla pagina corrente finche l'utente non cambia pagina.
 
-// ########==================== AMBIENT MODE / LED RGB ====================########
-// Il LED RGB del CYD viene usato solo in due situazioni:
-//   1) durante il boot, seguendo i colori dell'animazione;
-//   2) in Spotify Ambient Mode, con un verde "breathing".
-// Fuori da questi stati il LED resta spento.
-//
-// Il LED onboard e' attivo basso. Usiamo il PWM hardware dell'ESP32
-// per ottenere variazioni morbide di luminosita'.
+// ===================== LED RGB CYD: avvio e riproduzione Spotify =====================
 constexpr int RGB_PWM_CH_R = 0;
 constexpr int RGB_PWM_CH_G = 1;
 constexpr int RGB_PWM_CH_B = 2;
@@ -4664,48 +4745,86 @@ void setBootRgbLed(int active)
 
 void updateRgbLed()
 {
+  // Atmosfera piu' luminosa e stabile: pulsazione lenta (9 s per ciclo),
+  // colori saturi e dissolvenza di circa 2-3 s fra le copertine.
+  static uint32_t lastUpdate = 0;
+  static uint8_t actualR = 0, actualG = 0, actualB = 0;
   if (!rgbLedEnabled)
   {
+    actualR = actualG = actualB = 0;
     writeRgbPwm(0, 0, 0);
     return;
   }
 
+  uint32_t now = millis();
+  if (now - lastUpdate < 40)
+    return;
+  lastUpdate = now;
+
+  uint8_t targetR = 0, targetG = 0, targetB = 0;
   if (T.playing)
   {
-    // Verde "breathing": circa 12% -> 70% -> 12%.
-    float wave = (sinf((float)millis() / 850.0f) + 1.0f) * 0.5f;
-    uint8_t green = (uint8_t)(30.0f + wave * 150.0f);
-    setRgbLed(0, green, 0);
-    return;
+    // Un respiro completo ogni 9 s, da 60% a 100%: molto piu' lento
+    // della vecchia onda (~2.2 s) ma con una variazione ben visibile.
+    const uint32_t CYCLE = 9000;
+    uint32_t phase = now % CYCLE;
+    uint32_t wave = phase <= CYCLE / 2 ? phase : CYCLE - phase;
+    uint16_t brightness = 155 + wave * 100 / (CYCLE / 2);
+    uint8_t baseR = artColorValid ? artColorR : 0;
+    uint8_t baseG = artColorValid ? artColorG : 255;
+    uint8_t baseB = artColorValid ? artColorB : 0;
+    targetR = (uint16_t)baseR * brightness / 255;
+    targetG = (uint16_t)baseG * brightness / 255;
+    targetB = (uint16_t)baseB * brightness / 255;
   }
 
-  // UI normale: LED spento.
-  writeRgbPwm(0, 0, 0);
+  // Una dissolvenza morbida; non salta di colore con i singoli campioni.
+  auto approach = [](uint8_t current, uint8_t target) -> uint8_t
+  {
+    if (current < target)
+      return (target - current > 4) ? current + 4 : target;
+    return (current - target > 4) ? current - 4 : target;
+  };
+  actualR = approach(actualR, targetR);
+  actualG = approach(actualG, targetG);
+  actualB = approach(actualB, targetB);
+  writeRgbPwm(actualR, actualG, actualB);
 }
 
-void maybePollSpotifyBackground()
+// ===================== Navigazione alternativa SOLO Wokwi =====================
+// Pulsanti virtuali nel diagram.json: tasti freccia sinistra/destra.
+// Non sono presenti ne' usati nel firmware ESP32 reale.
+#ifdef WOKWI
+constexpr uint8_t WOKWI_PREV_PIN = 27;
+constexpr uint8_t WOKWI_NEXT_PIN = 22;
+
+void handleWokwiNavigation()
 {
-  // Nella pagina Player il poll e' gia' eseguito da spLoop().
-  if (!spotifyAmbientMode && curPage == 1)
-    return;
+  static bool prevWasDown = false, nextWasDown = false;
+  static uint32_t lastPress = 0;
+  bool prevDown = digitalRead(WOKWI_PREV_PIN) == LOW;
+  bool nextDown = digitalRead(WOKWI_NEXT_PIN) == LOW;
+  uint32_t now = millis();
 
-  if (millis() >= nextPoll)
-    spotifyPoll();
+  if ((uint32_t)(now - lastPress) > 140)
+  {
+    if (prevDown && !prevWasDown)
+    {
+      lastPress = now;
+      switchPage(curPage - 1);
+    }
+    else if (nextDown && !nextWasDown)
+    {
+      lastPress = now;
+      switchPage(curPage + 1);
+    }
+  }
+  prevWasDown = prevDown;
+  nextWasDown = nextDown;
 }
+#endif
 
-void maybeEnterSpotifyAmbientMode()
-{
-  if (!ambientSpotifyEnabled || spotifyAmbientMode)
-    return;
-
-  if (!T.playing || !T.key.length())
-    return;
-
-  if (millis() - lastUserInteractionMs >= SPOTIFY_AMBIENT_DELAY_MS)
-    enterSpotifyAmbientMode();
-}
-
-// ########==================== TOUCH / GESTURE ====================########
+// ===================== Touch =====================
 bool tsDown = false;
 uint32_t tsLastSeen = 0, tsStartT = 0;
 int sx, sy, lx, ly;
@@ -4715,20 +4834,7 @@ void handleTouch()
 #ifdef WOKWI
   // Diagnostica Wokwi: ci serve capire se il click arriva davvero
   // all'XPT2046 simulato prima di modificare ancora la navigazione.
-  static uint32_t lastTouchDebug = 0;
-
-  bool irqActive = (digitalRead(TOUCH_IRQ) == LOW);
-  bool touchedNow = ts.touched();
-  bool now = touchedNow;
-
-  uint32_t dbgNow = millis();
-  if (dbgNow - lastTouchDebug >= 500)
-  {
-    Serial.printf("[WOKWI TOUCH] IRQ=%d touched=%d\n",
-                  irqActive ? 1 : 0,
-                  touchedNow ? 1 : 0);
-    lastTouchDebug = dbgNow;
-  }
+  bool now = ts.touched();
 #else
   bool now = ts.tirqTouched() && ts.touched();
 #endif
@@ -4739,23 +4845,18 @@ void handleTouch()
   {
     TS_Point p = ts.getPoint();
 
-#ifdef WOKWI
-    Serial.printf("[WOKWI TOUCH] RAW x=%d y=%d z=%d\n", p.x, p.y, p.z);
-#endif
-
     int x = calibratedTouchX(p.x);
     int y = calibratedTouchY(p.y);
 
-#ifdef WOKWI
-    Serial.printf("[WOKWI TOUCH] MAP x=%d y=%d\n", x, y);
-#endif
     if (!tsDown)
     {
-      lastUserInteractionMs = ms;
       tsDown = true;
       sx = x;
       sy = y;
       tsStartT = ms;
+#ifdef WOKWI
+      Serial.printf("[WOKWI TOUCH] down raw=(%d,%d) mapped=(%d,%d)\n", p.x, p.y, x, y);
+#endif
     }
     lx = x;
     ly = y;
@@ -4766,13 +4867,10 @@ void handleTouch()
     tsDown = false;
     int dx = lx - sx, dy = ly - sy;
     bool tap = abs(dx) < 20 && abs(dy) < 20 && ms - tsStartT < 800;
-
-    // In Ambient Mode qualsiasi gesto/tap serve solo a tornare alla UI normale.
-    if (spotifyAmbientMode)
-    {
-      exitSpotifyAmbientMode();
-      return;
-    }
+#ifdef WOKWI
+    Serial.printf("[WOKWI TOUCH] up mapped=(%d,%d) dx=%d dy=%d tap=%d\n",
+                  lx, ly, dx, dy, (int)tap);
+#endif
 
     if (tap && ly >= NAV_Y - 2)
     {
@@ -4781,22 +4879,21 @@ void handleTouch()
       if (best != curPage)
         switchPage(best);
     }
-    else if (curPage == 0 &&
-             spotifyLibraryView == LIB_QUEUE &&
-             abs(dy) > 24 &&
-             abs(dy) > abs(dx))
+    else if (curPage == 1 && sx >= 206 && sy >= 174 && sy <= 195 &&
+             ly >= 174 && ly <= 195 && abs(dx) > 12)
     {
-      // Coda Spotify: swipe verticale continuo per righe, non a pagine.
-      // Dito verso l'alto -> mostra elementi successivi.
+      spTap(lx, ly);
+    }
+    else if (curPage == 0 && spotifyLibraryView == LIB_QUEUE &&
+             abs(dy) > 24 && abs(dy) > abs(dx))
+    {
       int visible = min(QUEUE_VISIBLE_ROWS, (int)spotifyQueue.size());
       int maxFirst = max(0, (int)spotifyQueue.size() - visible);
       int rows = max(1, abs(dy) / (Q_H + Q_GY));
-
       if (dy < 0)
         queueScrollRow = min(maxFirst, queueScrollRow + rows);
       else
         queueScrollRow = max(0, queueScrollRow - rows);
-
       drawPlaylistPage();
     }
     else if (abs(dx) > 50 && abs(dx) > abs(dy) * 2)
@@ -4810,7 +4907,7 @@ void handleTouch()
   }
 }
 
-// ########==================== BOOT ANIMATION ====================########
+// ===================== Boot animation =====================
 
 static const uint16_t BOOT_DOTS[4] = {C_GREEN, C_CYAN, C_AMBER, C_RED};
 
@@ -4852,7 +4949,7 @@ void drawBootFrame(
     tft.setTextColor(C_FG, C_BG);
     tft.drawString("CYD HUB", 160, 146, 4);
     tft.setTextColor(C_FAINT, C_BG);
-    tft.drawString("v7", 160, 166, 1);
+    tft.drawString("v6", 160, 166, 1);
     bootStatic = true;
   }
   drawBootLogo(phase);
@@ -4874,7 +4971,7 @@ void bootIntro()
     delay(90);
   }
 }
-// ########==================== TEST CALIBRAZIONE COLORI ====================########
+// ===================== Test calibrazione colori =====================
 
 uint16_t testColor565(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -4956,12 +5053,14 @@ bool connectWiFi(const char *ssid, const char *password, uint32_t timeoutMs)
   return WiFi.status() == WL_CONNECTED;
 }
 
-// ########==================== SETUP / LOOP PRINCIPALE ====================########
+// ===================== Setup / loop =====================
 void setup()
 {
   Serial.begin(115200);
 
-  // LED RGB onboard: PWM per boot colorato e breathing Spotify Ambient.
+  // Preferenze caricate prima del boot per rispettare LED ON/OFF.
+  prefs.begin("cyddash", false);
+  rgbLedEnabled = prefs.getBool("led_on", true);
   initRgbLed();
 
   // Display
@@ -4975,25 +5074,59 @@ void setup()
   // Breve intro animata.
   bootIntro();
 
+  // Controlli alternativi di navigazione presenti solo in Wokwi.
+#ifdef WOKWI
+  pinMode(WOKWI_PREV_PIN, INPUT_PULLUP);
+  pinMode(WOKWI_NEXT_PIN, INPUT_PULLUP);
+#endif
+
   // Touch
   touchSPI.begin(TOUCH_CLK, TOUCH_MISO, TOUCH_MOSI, TOUCH_CS);
   ts.begin(touchSPI);
   ts.setRotation(ROTATION);
 
-  // Preferences: calibrazione touch persistente + reset Spotify tenendo premuto lo schermo all'avvio.
-  prefs.begin("cyddash", false);
+  // Carica calibrazione e gestisci reset Spotify tenendo premuto all'avvio.
   loadTouchCalibration();
-  ambientSpotifyEnabled = prefs.getBool("amb_on", true);
-  rgbLedEnabled = prefs.getBool("led_on", true);
-  updateRgbLed();
-
+#ifndef WOKWI
   if (ts.tirqTouched() && ts.touched())
   {
     prefs.remove("rt");
     centerMsg("Account Spotify", "dimenticato, rilascia lo schermo");
     delay(2000);
   }
+#endif
   refreshToken = prefs.getString("rt", "");
+
+#ifdef WOKWI
+  // In simulazione NON si usano credenziali, Internet o servizi esterni.
+  // Timestamp fisso per far funzionare orologio e calendario senza NTP.
+  timeval demoTime = {1791806400, 0};
+  settimeofday(&demoTime, nullptr);
+  setenv("TZ", TZ_INFO, 1);
+  tzset();
+  W.t = 21;
+  W.feels = 20;
+  W.wind = 8;
+  W.hum = 61;
+  W.code = 2;
+  W.isDay = 1;
+  for (int i = 0; i < 4; i++)
+  {
+    W.tmax[i] = 23 - i;
+    W.tmin[i] = 14 - i;
+    W.dcode[i] = i % 3;
+    W.wday[i] = (1 + i) % 7;
+  }
+  weatherOk = true;
+  weatherTs = millis();
+  initFilter();
+  T.playing = true;
+  T.key = "";
+  switchPage(HOME_PAGE);
+  updateRgbLed();
+  Serial.println("WOKWI DEMO: 7 pagine, tabs, swipe e coda pronti");
+  Serial.println("WOKWI NAV: frecce SX/DX o pulsanti PREV/NEXT nel diagramma");
+#else
 
   // ---------------------------------------------------------
   // WiFi
@@ -5001,11 +5134,11 @@ void setup()
   drawBootFrame(
       0.8f,
       0.15f,
-      "connecting to " WIFI_SSID_1);
+      (String("connecting to ") + WIFI_SSID_PRIMARY).c_str());
 
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-  WiFi.begin(WIFI_SSID_1, WIFI_PASS_1, WIFI_CHANNEL);
+  WiFi.begin(WIFI_SSID_PRIMARY, WIFI_PASS_PRIMARY, WIFI_CHANNEL);
 
   uint32_t wifiStart = millis();
   while (WiFi.status() != WL_CONNECTED &&
@@ -5017,7 +5150,7 @@ void setup()
   drawBootFrame(
       1.2f,
       0.30f,
-      "WiFi connected");
+      WiFi.status() == WL_CONNECTED ? "WiFi connected" : "WiFi offline");
 
   delay(180);
 
@@ -5097,44 +5230,26 @@ void setup()
   delay(300);
 
   switchPage(HOME_PAGE);
-  lastUserInteractionMs = millis();
   updateRgbLed();
+#endif // WOKWI: il blocco Wi-Fi reale non va compilato nel simulatore
 }
 
 void loop()
 {
+#ifdef WOKWI
+  handleWokwiNavigation();
+#endif
   handleTouch();
 
-  maybePollSpotifyBackground();
+  pages[curPage].loop();
 
-  if (spotifyAmbientMode)
-  {
-    spotifyAmbientLoop();
-  }
-  else
-  {
-    pages[curPage].loop();
-    updateTopBarClock();
-    maybeFetchWeather();
-    maybeEnterSpotifyAmbientMode();
-  }
+  updateTopBarClock();
+
+  maybeFetchWeather();
 
   updateRgbLed();
   delay(2);
 }
-</file>
-
-<file path="src/secret_example.h">
-#pragma once
-
-#define WIFI_SSID_BACKUP "..."
-#define WIFI_PASS_BACKUP "..."
-
-#define WIFI_SSID_PRIMARY "..."
-#define WIFI_PASS_PRIMARY "..."
-
-#define SPOTIFY_CLIENT_ID_VALUE "..."
-#define SPOTIFY_CLIENT_SECRET_VALUE "..."
 </file>
 
 <file path=".gitignore">

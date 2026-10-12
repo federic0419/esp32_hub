@@ -9,8 +9,61 @@
       "top": 0,
       "left": 0,
       "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnPrev",
+      "top": 175,
+      "left": -75,
+      "attrs": {
+        "color": "blue",
+        "label": "PREV",
+        "key": "ArrowLeft",
+        "bounce": "0"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btnNext",
+      "top": 175,
+      "left": 355,
+      "attrs": {
+        "color": "green",
+        "label": "NEXT",
+        "key": "ArrowRight",
+        "bounce": "0"
+      }
     }
   ],
-  "connections": [],
-  "dependencies": {}
+  "connections": [
+    [
+      "btnPrev:1.l",
+      "cyd:IO27",
+      "green",
+      []
+    ],
+    [
+      "btnPrev:2.l",
+      "cyd:GND.1",
+      "black",
+      []
+    ],
+    [
+      "btnNext:1.l",
+      "cyd:IO22",
+      "green",
+      []
+    ],
+    [
+      "btnNext:2.l",
+      "cyd:GND.1",
+      "black",
+      []
+    ]
+  ],
+  "dependencies": {},
+  "serialMonitor": {
+    "display": "always",
+    "newline": "lf"
+  }
 }
