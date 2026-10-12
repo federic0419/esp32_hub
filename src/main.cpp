@@ -1,4 +1,4 @@
-// CYD Hub v6 (grafica "Ink"): Spotify + Playlist + Orologio + Meteo + Radar pioggia + Formula 1
+// CYD Hub (base v6): Spotify + Playlist/Coda + Orologio + Meteo + Radar + F1/Juventus
 // Hardware: ESP32-2432S028R ("Cheap Yellow Display")
 // Home: orologio al centro; le altre pagine sono ai lati con swipe sinistra/destra.
 // Nessuno screensaver automatico: il display resta stabile sulla pagina corrente.
@@ -26,6 +26,14 @@
 #define TOUCH_CLK 25
 #define TOUCH_MISO 39
 #define TOUCH_MOSI 32
+
+// LED RGB del CYD, attivi bassi
+#define RGB_LED_R 4
+#define RGB_LED_G 16
+#define RGB_LED_B 17
+
+// Il LED si puo' disattivare dal menu SET della HOME.
+bool rgbLedEnabled = true;
 
 TFT_eSPI tft;
 SPIClass touchSPI(VSPI);
@@ -64,6 +72,12 @@ bool bootStatic = false;
 
 // dichiarazione anticipata
 extern int curPage;
+void switchPage(int n);
+void drawNavBar();
+void openSpotifyQueue();
+void updateRgbLed();
+void setBootRgbLed(int active);
+void runTouchCalibrationMenu();
 
 // ===================== Utility =====================// ===================== Utility =====================
 // I font integrati sono solo ASCII: converte accenti e caratteri UTF-8 comuni.
@@ -920,6 +934,11 @@ void spEnter()
 {
   tft.fillScreen(C_BG);
   drawTopBar("SPOTIFY", C_GREEN);
+  panel(188, 4, 44, 18, 8, C_PANEL2, C_LINE, C_BG);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_GREEN, C_PANEL2);
+  tft.drawString("CODA", 210, 13, 1);
+  tft.setTextDatum(TL_DATUM);
   needText = needArt = needCtl = progDirty = true;
   nextPoll = 0;
   lastProg = 0;
@@ -970,6 +989,11 @@ void spLoop()
 
 void spTap(int x, int y)
 {
+  if (x >= 184 && x <= 236 && y <= 28)
+  {
+    openSpotifyQueue();
+    return;
+  }
   if (y < 140 || y >= NAV_Y - 26 || x < 172)
     return;
   if (x < 216)
@@ -987,23 +1011,62 @@ void spTap(int x, int y)
     spotifyCommand("POST", "/v1/me/player/next");
 }
 
-// ===================== Spotify: playlist =====================
+// ########==================== PAGINA 1 - PLAYLIST / CODA SPOTIFY ====================########
 struct PlaylistItem
 {
   String name;
   String uri;
 };
 
+struct QueueItem
+{
+  String title;
+  String artist;
+  String uri;
+};
+
+enum SpotifyLibraryView
+{
+  LIB_PLAYLISTS,
+  LIB_QUEUE
+};
+
+SpotifyLibraryView spotifyLibraryView = LIB_PLAYLISTS;
+
 std::vector<PlaylistItem> spotifyPlaylists;
+std::vector<QueueItem> spotifyQueue;
+
 bool playlistsLoaded = false;
 bool playlistsLoading = false;
 String playlistsStatus;
 int playlistPage = 0;
+
+bool queueLoaded = false;
+bool queueLoading = false;
+String queueStatus;
+int queueScrollRow = 0;
+
 constexpr int PLAYLIST_COLS = 2;
 constexpr int PLAYLIST_ROWS = 3;
 constexpr int PLAYLISTS_PER_PAGE = PLAYLIST_COLS * PLAYLIST_ROWS;
 
+// La coda non e' paginata: mostra una finestra di righe e si scorre verticalmente.
+constexpr int QUEUE_VISIBLE_ROWS = 4;
+
+constexpr int PL_X = 12, PL_Y = 60, PL_W = 148, PL_H = 38, PL_GX = 4, PL_GY = 4;
+constexpr int Q_X = 12, Q_Y = 60, Q_W = 296, Q_H = 31, Q_GY = 3;
+
 void drawPlaylistPage();
+
+String spotifyArtistFromItem(JsonObject item)
+{
+  const char *artist = item["artists"][0]["name"] | "";
+  if (artist && *artist)
+    return fold(artist);
+
+  const char *show = item["show"]["name"] | "";
+  return fold(show);
+}
 
 bool fetchPlaylists()
 {
@@ -1041,15 +1104,68 @@ bool fetchPlaylists()
   if (code == 403)
     playlistsStatus = "Ricollega Spotify";
   else if (code == 429)
-    playlistsStatus = "Troppe richieste, riprova";
+    playlistsStatus = "Troppe richieste";
   else if (code < 0)
+  {
     playlistsStatus = "Errore di rete";
+  }
   else
     playlistsStatus = "Spotify HTTP " + String(code);
   return false;
 }
 
-constexpr int PL_X = 12, PL_Y = 52, PL_W = 148, PL_H = 40, PL_GX = 4, PL_GY = 5;
+bool fetchSpotifyQueue()
+{
+  queueLoading = true;
+  queueStatus = "Caricamento...";
+  drawPlaylistPage();
+
+  JsonDocument doc;
+  JsonDocument filter;
+  filter["queue"][0]["name"] = true;
+  filter["queue"][0]["uri"] = true;
+  filter["queue"][0]["artists"][0]["name"] = true;
+  filter["queue"][0]["show"]["name"] = true;
+
+  int code = spotifyCall("GET", "/v1/me/player/queue", &doc, &filter);
+  queueLoading = false;
+  spotifyQueue.clear();
+
+  if (code == 200)
+  {
+    JsonArray items = doc["queue"].as<JsonArray>();
+    for (JsonObject item : items)
+    {
+      String title = fold(item["name"] | "");
+      String uri = item["uri"] | "";
+      if (!title.length() || !uri.length())
+        continue;
+
+      String artist = spotifyArtistFromItem(item);
+      spotifyQueue.push_back({title, artist, uri});
+    }
+
+    queueLoaded = true;
+    queueScrollRow = 0;
+    queueStatus = spotifyQueue.empty() ? "Coda vuota" : "";
+    return true;
+  }
+
+  queueLoaded = false;
+  if (code == 403)
+    queueStatus = "Serve Spotify Premium";
+  else if (code == 429)
+    queueStatus = "Troppe richieste";
+  else if (code == 204)
+    queueStatus = "Nessun player attivo";
+  else if (code < 0)
+  {
+    queueStatus = "Errore di rete";
+  }
+  else
+    queueStatus = "Spotify HTTP " + String(code);
+  return false;
+}
 
 uint16_t monogramColor(const String &name)
 {
@@ -1060,36 +1176,43 @@ uint16_t monogramColor(const String &name)
   return P[h % 6];
 }
 
-void drawPlaylistPage()
+void drawLibraryTabs()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("PLAYLIST", C_GREEN);
-  tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(C_FG);
-  tft.drawString("Le tue playlist", 12, 40, 2);
-  if (spotifyPlaylists.size())
-  {
-    tft.setTextColor(C_FAINT);
-    tft.drawString(String((int)spotifyPlaylists.size()), 12 + tft.textWidth("Le tue playlist", 2) + 8, 40, 2);
-  }
-  // tasto aggiorna
-  panel(282, 30, 26, 22, 8, C_PANEL2, C_LINE);
-  drawRefreshIcon(295, 41, C_GREEN, C_PANEL2);
+  const bool pl = spotifyLibraryView == LIB_PLAYLISTS;
+
+  panel(12, 31, 80, 22, 9, pl ? C_GREEN : C_PANEL2, pl ? C_GREEN : C_LINE);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(pl ? C_BG : C_DIM, pl ? C_GREEN : C_PANEL2);
+  tft.drawString("PLAYLIST", 52, 42, 1);
+
+  panel(98, 31, 58, 22, 9, !pl ? C_GREEN : C_PANEL2, !pl ? C_GREEN : C_LINE);
+  tft.setTextColor(!pl ? C_BG : C_DIM, !pl ? C_GREEN : C_PANEL2);
+  tft.drawString("CODA", 127, 42, 1);
+
+  panel(282, 31, 26, 22, 8, C_PANEL2, C_LINE);
+  drawRefreshIcon(295, 42, C_GREEN, C_PANEL2);
+  tft.setTextDatum(TL_DATUM);
+}
+
+void drawPlaylistGrid()
+{
   if (playlistsLoading)
   {
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(C_DIM);
-    tft.drawString("Caricamento playlist...", 160, 120, 2);
+    tft.drawString("Caricamento playlist...", 160, 122, 2);
     tft.setTextDatum(TL_DATUM);
     return;
   }
+
   if (playlistsStatus.length())
   {
     tft.setTextDatum(MR_DATUM);
     tft.setTextColor(playlistsStatus == "In riproduzione" ? C_GREEN : C_RED);
-    tft.drawString(playlistsStatus, 274, 40, 1);
+    tft.drawString(playlistsStatus, 274, 42, 1);
+    tft.setTextDatum(TL_DATUM);
   }
-  tft.setTextDatum(TL_DATUM);
+
   if (spotifyPlaylists.empty())
   {
     panel(36, 84, 248, 76, 14);
@@ -1097,38 +1220,42 @@ void drawPlaylistPage()
     tft.setTextColor(C_FG, C_PANEL);
     tft.drawString("Nessuna playlist", 160, 108, 2);
     tft.setTextColor(C_GREEN, C_PANEL);
-    tft.drawString("tocca l'icona in alto per aggiornare", 160, 134, 1);
+    tft.drawString("tocca aggiorna", 160, 134, 1);
     tft.setTextDatum(TL_DATUM);
     return;
   }
+
   int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
-  if (playlistPage >= pagesCount)
-    playlistPage = pagesCount - 1;
-  if (playlistPage < 0)
-    playlistPage = 0;
+  playlistPage = constrain(playlistPage, 0, max(0, pagesCount - 1));
+
   int first = playlistPage * PLAYLISTS_PER_PAGE;
   for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
   {
     int idx = first + slot;
     if (idx >= (int)spotifyPlaylists.size())
       break;
+
     int x = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
     int y = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
     const String &name = spotifyPlaylists[idx].name;
     uint16_t col = monogramColor(name);
+
     panel(x, y, PL_W, PL_H, 9);
-    rrect(x + 6, y + 5, 30, 30, 8, mix565(C_PANEL, col, 235), C_PANEL);
+    rrect(x + 6, y + 4, 30, 30, 8, mix565(C_PANEL, col, 235), C_PANEL);
+
     char ini[2] = {name.length() ? name[0] : '?', 0};
     if (ini[0] >= 'a' && ini[0] <= 'z')
       ini[0] -= 32;
+
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(C_BG, mix565(C_PANEL, col, 235));
-    tft.drawString(ini, x + 21, y + 21, 4);
+    tft.drawString(ini, x + 21, y + 19, 4);
+
     auto lines = wrapText(name, 2, PL_W - 48);
     int n = min((int)lines.size(), 2);
     drawLines(lines, x + 42, y + (PL_H - n * 16) / 2, 2, 16, 2, C_FG, PL_W - 48);
   }
-  // paginazione
+
   if (pagesCount > 1)
   {
     bool canPrev = playlistPage > 0, canNext = playlistPage + 1 < pagesCount;
@@ -1136,17 +1263,124 @@ void drawPlaylistPage()
     drawChevron(34, 200, true, canPrev ? C_FG : C_FAINT, canPrev ? C_PANEL2 : C_PANEL);
     panel(264, 190, 44, 20, 10, canNext ? C_PANEL2 : C_PANEL, C_LINE);
     drawChevron(286, 200, false, canNext ? C_FG : C_FAINT, canNext ? C_PANEL2 : C_PANEL);
-    int total = min(pagesCount, 8);
-    int x0 = 160 - (total - 1) * 7;
-    for (int i = 0; i < total; i++)
-    {
-      if (i == playlistPage)
-        rrect(x0 + i * 14 - 5, 198, 10, 4, 2, C_GREEN);
-      else
-        disc(x0 + i * 14, 200, 2, C_LINE);
-    }
+
+    String pg = String(playlistPage + 1) + "/" + String(pagesCount);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FAINT);
+    tft.drawString(pg, 160, 200, 1);
+    tft.setTextDatum(TL_DATUM);
   }
 }
+
+void drawQueueList()
+{
+  if (queueLoading)
+  {
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM);
+    tft.drawString("Caricamento coda...", 160, 122, 2);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+
+  if (queueStatus.length())
+  {
+    tft.setTextDatum(MR_DATUM);
+    tft.setTextColor(queueStatus == "In riproduzione" ? C_GREEN : C_RED);
+    tft.drawString(queueStatus, 274, 42, 1);
+    tft.setTextDatum(TL_DATUM);
+  }
+
+  if (spotifyQueue.empty())
+  {
+    panel(36, 84, 248, 76, 14);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString("Coda vuota", 160, 108, 2);
+    tft.setTextColor(C_GREEN, C_PANEL);
+    tft.drawString("tocca aggiorna", 160, 134, 1);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+
+  const int total = (int)spotifyQueue.size();
+  const int visible = min(QUEUE_VISIBLE_ROWS, total);
+  const int maxFirst = max(0, total - visible);
+  queueScrollRow = constrain(queueScrollRow, 0, maxFirst);
+
+  // Lista verticale: nessuna pagina e nessuna freccia.
+  for (int slot = 0; slot < visible; slot++)
+  {
+    int idx = queueScrollRow + slot;
+    int y = Q_Y + slot * (Q_H + Q_GY);
+    const QueueItem &q = spotifyQueue[idx];
+
+    panel(Q_X, y, Q_W, Q_H, 8);
+
+    rrect(Q_X + 6, y + 5, 22, 21, 7, mix565(C_PANEL, C_GREEN, 70), C_PANEL);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_GREEN, mix565(C_PANEL, C_GREEN, 70));
+    tft.drawString(String(idx + 1), Q_X + 17, y + 16, 1);
+
+    String title = q.title;
+    while (title.length() > 1 && tft.textWidth(title, 2) > 210)
+      title.remove(title.length() - 1);
+    if (title != q.title && title.length() > 3)
+    {
+      title.remove(title.length() - 3);
+      title += "...";
+    }
+
+    String artist = q.artist;
+    while (artist.length() > 1 && tft.textWidth(artist, 1) > 210)
+      artist.remove(artist.length() - 1);
+    if (artist != q.artist && artist.length() > 3)
+    {
+      artist.remove(artist.length() - 3);
+      artist += "...";
+    }
+
+    tft.setTextDatum(TL_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString(title, Q_X + 36, y + 4, 2);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString(artist, Q_X + 36, y + 20, 1);
+
+    tft.fillTriangle(Q_X + Q_W - 18, y + 10,
+                     Q_X + Q_W - 18, y + 22,
+                     Q_X + Q_W - 9, y + 16, C_GREEN);
+  }
+
+  // Scrollbar verticale discreta: indica la posizione nella coda.
+  if (total > visible)
+  {
+    const int trackX = 312;
+    const int trackY = Q_Y;
+    const int trackH = visible * (Q_H + Q_GY) - Q_GY;
+    const int thumbH = max(14, trackH * visible / total);
+    const int travel = trackH - thumbH;
+    const int thumbY = trackY + (maxFirst ? (travel * queueScrollRow / maxFirst) : 0);
+
+    rrect(trackX, trackY, 3, trackH, 1, C_TRACK);
+    rrect(trackX, thumbY, 3, thumbH, 1, C_GREEN, C_TRACK);
+  }
+}
+
+void drawPlaylistPage()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("SPOTIFY", C_GREEN);
+  drawLibraryTabs();
+
+  if (spotifyLibraryView == LIB_PLAYLISTS)
+    drawPlaylistGrid();
+  else
+    drawQueueList();
+
+  // Questa funzione fa fillScreen(): ridisegna sempre la bottom bar.
+  drawNavBar();
+}
+
 void playPlaylist(int idx)
 {
   if (idx < 0 || idx >= (int)spotifyPlaylists.size())
@@ -1166,11 +1400,11 @@ void playPlaylist(int idx)
     nextPoll = 0;
   }
   else if (code == 404)
-    playlistsStatus = "Nessun dispositivo attivo";
+    playlistsStatus = "Nessun dispositivo";
   else if (code == 403)
     playlistsStatus = "Serve Spotify Premium";
   else if (code == 429)
-    playlistsStatus = "Troppe richieste, riprova";
+    playlistsStatus = "Troppe richieste";
   else if (code < 0)
     playlistsStatus = "Errore di rete";
   else
@@ -1178,52 +1412,173 @@ void playPlaylist(int idx)
   drawPlaylistPage();
 }
 
+// Spotify non espone un endpoint ufficiale per riordinare/rimuovere liberamente
+// gli elementi della queue. Il tap su una riga implementa quindi "riproduci da qui":
+// avvia il brano scelto e passa a Spotify gli elementi successivi della fotografia
+// della coda appena letta.
+void playQueueFrom(int idx)
+{
+  if (idx < 0 || idx >= (int)spotifyQueue.size())
+    return;
+
+  JsonDocument bodyDoc;
+  JsonArray uris = bodyDoc["uris"].to<JsonArray>();
+
+  int stop = min((int)spotifyQueue.size(), idx + 40);
+  for (int i = idx; i < stop; i++)
+  {
+    if (spotifyQueue[i].uri.length())
+      uris.add(spotifyQueue[i].uri);
+  }
+
+  String body;
+  serializeJson(bodyDoc, body);
+
+  queueStatus = "Avvio...";
+  drawPlaylistPage();
+  int code = spotifyCallJson("PUT", "/v1/me/player/play", body);
+
+  if (code == 204)
+  {
+    queueStatus = "In riproduzione";
+    nextPoll = 0;
+    queueLoaded = false;
+  }
+  else if (code == 404)
+    queueStatus = "Nessun dispositivo";
+  else if (code == 403)
+    queueStatus = "Serve Spotify Premium";
+  else if (code == 429)
+    queueStatus = "Troppe richieste";
+  else if (code < 0)
+    queueStatus = "Errore di rete";
+  else
+    queueStatus = "Spotify HTTP " + String(code);
+
+  drawPlaylistPage();
+}
+
 void playlistEnter()
 {
   drawPlaylistPage();
-  if (!playlistsLoaded && !playlistsLoading)
+
+  if (spotifyLibraryView == LIB_PLAYLISTS)
   {
-    fetchPlaylists();
-    drawPlaylistPage();
+    if (!playlistsLoaded && !playlistsLoading)
+    {
+      fetchPlaylists();
+      drawPlaylistPage();
+    }
+  }
+  else
+  {
+    if (!queueLoaded && !queueLoading)
+    {
+      fetchSpotifyQueue();
+      drawPlaylistPage();
+    }
   }
 }
 
 void playlistLoop() {}
 
+void openSpotifyQueue()
+{
+  spotifyLibraryView = LIB_QUEUE;
+  queueLoaded = false;
+  switchPage(0);
+}
+
 void playlistTap(int x, int y)
 {
-  if (x >= 274 && y >= 26 && y <= 56)
+  if (y >= 28 && y <= 56)
   {
-    fetchPlaylists();
-    drawPlaylistPage();
-    return;
-  }
-  if (spotifyPlaylists.empty())
-    return;
-  for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
-  {
-    int cx = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
-    int cy = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
-    if (x >= cx && x < cx + PL_W && y >= cy && y < cy + PL_H)
+    if (x >= 8 && x <= 95)
     {
-      int idx = playlistPage * PLAYLISTS_PER_PAGE + slot;
-      if (idx < (int)spotifyPlaylists.size())
-        playPlaylist(idx);
+      if (spotifyLibraryView != LIB_PLAYLISTS)
+      {
+        spotifyLibraryView = LIB_PLAYLISTS;
+        drawPlaylistPage();
+        if (!playlistsLoaded && !playlistsLoading)
+          fetchPlaylists();
+        drawPlaylistPage();
+      }
+      return;
+    }
+
+    if (x >= 95 && x <= 165)
+    {
+      if (spotifyLibraryView != LIB_QUEUE)
+      {
+        spotifyLibraryView = LIB_QUEUE;
+        drawPlaylistPage();
+        if (!queueLoaded && !queueLoading)
+          fetchSpotifyQueue();
+        drawPlaylistPage();
+      }
+      return;
+    }
+
+    if (x >= 274)
+    {
+      if (spotifyLibraryView == LIB_PLAYLISTS)
+        fetchPlaylists();
+      else
+        fetchSpotifyQueue();
+      drawPlaylistPage();
       return;
     }
   }
-  int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
-  if (y >= 186 && y < NAV_Y)
+
+  if (spotifyLibraryView == LIB_PLAYLISTS)
   {
-    if (x < 90 && playlistPage > 0)
+    if (spotifyPlaylists.empty())
+      return;
+
+    for (int slot = 0; slot < PLAYLISTS_PER_PAGE; slot++)
     {
-      playlistPage--;
-      drawPlaylistPage();
+      int cx = PL_X + (slot % PLAYLIST_COLS) * (PL_W + PL_GX);
+      int cy = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
+      if (x >= cx && x < cx + PL_W && y >= cy && y < cy + PL_H)
+      {
+        int idx = playlistPage * PLAYLISTS_PER_PAGE + slot;
+        if (idx < (int)spotifyPlaylists.size())
+          playPlaylist(idx);
+        return;
+      }
     }
-    else if (x > 230 && playlistPage + 1 < pagesCount)
+
+    int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
+    if (y >= 186 && y < NAV_Y)
     {
-      playlistPage++;
-      drawPlaylistPage();
+      if (x < 90 && playlistPage > 0)
+      {
+        playlistPage--;
+        drawPlaylistPage();
+      }
+      else if (x > 230 && playlistPage + 1 < pagesCount)
+      {
+        playlistPage++;
+        drawPlaylistPage();
+      }
+    }
+    return;
+  }
+
+  if (spotifyQueue.empty())
+    return;
+
+  // Tap su una riga della lista attualmente visibile.
+  int visible = min(QUEUE_VISIBLE_ROWS, (int)spotifyQueue.size());
+  for (int slot = 0; slot < visible; slot++)
+  {
+    int cy = Q_Y + slot * (Q_H + Q_GY);
+    if (x >= Q_X && x < Q_X + Q_W && y >= cy && y < cy + Q_H)
+    {
+      int idx = queueScrollRow + slot;
+      if (idx < (int)spotifyQueue.size())
+        playQueueFrom(idx);
+      return;
     }
   }
 }
@@ -2168,24 +2523,396 @@ void drawF1Calendar()
   tft.setTextDatum(TL_DATUM);
 }
 
+bool ensureJuveCalendarFresh();
+void invalidateJuveCalendar();
+void drawSportsPage();
+
 void f1Enter()
 {
-  bool stale = !f1Ok || (millis() - f1Stamp > F1_REFRESH_MS);
-  if (stale)
+  bool f1Stale = !f1Ok || (millis() - f1Stamp > F1_REFRESH_MS);
+
+  if (f1Stale)
   {
     tft.fillScreen(C_BG);
-    drawTopBar("FORMULA 1", C_RED);
+    drawTopBar("SPORT", C_RED);
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(C_DIM, C_BG);
-    tft.drawString("scarico il calendario...", 160, 116, 2);
+    tft.drawString("aggiorno F1 e Juventus...", 160, 116, 2);
     tft.setTextDatum(TL_DATUM);
+    drawNavBar();
     fetchF1Calendar();
   }
-  drawF1Calendar();
+
+  ensureJuveCalendarFresh();
+  drawSportsPage();
 }
 
 void f1Loop() {}
-void f1Tap(int, int) {}
+
+void f1Tap(int x, int y)
+{
+  // Refresh unico per entrambe le sorgenti sportive.
+  if (x >= 274 && y >= 26 && y <= 56)
+  {
+    f1Ok = false;
+    f1Stamp = 0;
+    invalidateJuveCalendar();
+
+    tft.fillScreen(C_BG);
+    drawTopBar("SPORT", C_RED);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_BG);
+    tft.drawString("aggiorno F1 e Juventus...", 160, 116, 2);
+    tft.setTextDatum(TL_DATUM);
+    drawNavBar();
+
+    fetchF1Calendar();
+    ensureJuveCalendarFresh();
+    drawSportsPage();
+  }
+}
+
+
+// ===================== Calibrazione touch persistente =====================
+// Se non esiste una calibrazione salvata, vengono usati i valori TS_MINX/TS_MAXX/TS_MINY/TS_MAXY
+// definiti in config.h.
+struct TouchCalibration
+{
+  bool valid = false;
+  int rawLeft = TS_MINX;
+  int rawRight = TS_MAXX;
+  int rawTop = TS_MINY;
+  int rawBottom = TS_MAXY;
+};
+
+TouchCalibration touchCal;
+
+// I target non sono esattamente sui bordi: in questo modo sono facili da toccare con il dito.
+// La trasformazione viene poi estrapolata anche fino ai bordi reali 0..319 / 0..239.
+constexpr int TOUCH_CAL_X0 = 24;
+constexpr int TOUCH_CAL_X1 = 295;
+constexpr int TOUCH_CAL_Y0 = 36;
+constexpr int TOUCH_CAL_Y1 = 204;
+
+bool touchCalibrationLooksValid(int left, int right, int top, int bottom)
+{
+  return abs(right - left) > 900 && abs(bottom - top) > 700;
+}
+
+void loadTouchCalibration()
+{
+  bool ok = prefs.getBool("tc_ok", false);
+  int left = prefs.getInt("tc_l", TS_MINX);
+  int right = prefs.getInt("tc_r", TS_MAXX);
+  int top = prefs.getInt("tc_t", TS_MINY);
+  int bottom = prefs.getInt("tc_b", TS_MAXY);
+
+  touchCal.valid = ok && touchCalibrationLooksValid(left, right, top, bottom);
+  if (touchCal.valid)
+  {
+    touchCal.rawLeft = left;
+    touchCal.rawRight = right;
+    touchCal.rawTop = top;
+    touchCal.rawBottom = bottom;
+    Serial.printf("Touch calibration loaded: L=%d R=%d T=%d B=%d\n",
+                  left, right, top, bottom);
+  }
+  else
+  {
+    touchCal.rawLeft = TS_MINX;
+    touchCal.rawRight = TS_MAXX;
+    touchCal.rawTop = TS_MINY;
+    touchCal.rawBottom = TS_MAXY;
+    Serial.println("Touch calibration: using config.h defaults");
+  }
+}
+
+void saveTouchCalibration()
+{
+  prefs.putInt("tc_l", touchCal.rawLeft);
+  prefs.putInt("tc_r", touchCal.rawRight);
+  prefs.putInt("tc_t", touchCal.rawTop);
+  prefs.putInt("tc_b", touchCal.rawBottom);
+  prefs.putBool("tc_ok", true);
+  touchCal.valid = true;
+}
+
+void resetTouchCalibration()
+{
+  prefs.remove("tc_ok");
+  prefs.remove("tc_l");
+  prefs.remove("tc_r");
+  prefs.remove("tc_t");
+  prefs.remove("tc_b");
+  touchCal.valid = false;
+  touchCal.rawLeft = TS_MINX;
+  touchCal.rawRight = TS_MAXX;
+  touchCal.rawTop = TS_MINY;
+  touchCal.rawBottom = TS_MAXY;
+}
+
+int calibratedTouchX(int rawX)
+{
+  if (touchCal.valid)
+    return constrain(map(rawX,
+                         touchCal.rawLeft, touchCal.rawRight,
+                         TOUCH_CAL_X0, TOUCH_CAL_X1),
+                     0, 319);
+
+  return constrain(map(rawX, TS_MINX, TS_MAXX, 0, 319), 0, 319);
+}
+
+int calibratedTouchY(int rawY)
+{
+  if (touchCal.valid)
+    return constrain(map(rawY,
+                         touchCal.rawTop, touchCal.rawBottom,
+                         TOUCH_CAL_Y0, TOUCH_CAL_Y1),
+                     0, 239);
+
+  return constrain(map(rawY, TS_MINY, TS_MAXY, 0, 239), 0, 239);
+}
+
+void waitTouchReleased(uint32_t timeoutMs = 4000)
+{
+  uint32_t start = millis();
+  while (ts.touched() && millis() - start < timeoutMs)
+    delay(10);
+  delay(70);
+}
+
+bool waitMappedTouchTap(int &x, int &y, uint32_t timeoutMs = 0)
+{
+  waitTouchReleased();
+  uint32_t start = millis();
+
+  while (!ts.touched())
+  {
+    if (timeoutMs && millis() - start > timeoutMs)
+      return false;
+    delay(10);
+  }
+
+  long sumX = 0, sumY = 0;
+  int count = 0;
+  uint32_t pressedAt = millis();
+  while (ts.touched() && millis() - pressedAt < 700)
+  {
+    TS_Point p = ts.getPoint();
+    sumX += p.x;
+    sumY += p.y;
+    count++;
+    delay(10);
+  }
+
+  waitTouchReleased();
+  if (count <= 0)
+    return false;
+
+  x = calibratedTouchX((int)(sumX / count));
+  y = calibratedTouchY((int)(sumY / count));
+  return true;
+}
+
+void drawCalibrationTarget(int x, int y, int step)
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("CALIBRA TOUCH", C_AMBER);
+
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_FG, C_BG);
+  tft.drawString("Tocca e tieni premuto", 160, 93, 2);
+  tft.setTextColor(C_DIM, C_BG);
+  tft.drawString(String("punto ") + String(step) + "/4", 160, 113, 1);
+
+  tft.drawSmoothCircle(x, y, 11, C_AMBER, C_BG);
+  tft.drawFastHLine(x - 17, y, 35, C_AMBER);
+  tft.drawFastVLine(x, y - 17, 35, C_AMBER);
+  disc(x, y, 3, C_FG, C_BG);
+  tft.setTextDatum(TL_DATUM);
+}
+
+struct RawTouchPoint
+{
+  int x = 0;
+  int y = 0;
+};
+
+bool captureRawCalibrationPoint(int screenX, int screenY, int step, RawTouchPoint &out)
+{
+  drawCalibrationTarget(screenX, screenY, step);
+  waitTouchReleased();
+
+  while (!ts.touched())
+    delay(10);
+
+  // Ignora l'assestamento iniziale del dito.
+  delay(90);
+
+  long sumX = 0, sumY = 0;
+  int minX = 32767, maxX = -32768;
+  int minY = 32767, maxY = -32768;
+  int count = 0;
+  uint32_t start = millis();
+
+  while (ts.touched() && millis() - start < 1000 && count < 32)
+  {
+    TS_Point p = ts.getPoint();
+    sumX += p.x;
+    sumY += p.y;
+    minX = min(minX, (int)p.x);
+    maxX = max(maxX, (int)p.x);
+    minY = min(minY, (int)p.y);
+    maxY = max(maxY, (int)p.y);
+    count++;
+    delay(12);
+  }
+
+  waitTouchReleased();
+
+  if (count < 6)
+  {
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_RED, C_BG);
+    tft.drawString("Tocco troppo breve", 160, 150, 2);
+    tft.setTextColor(C_DIM, C_BG);
+    tft.drawString("riprova", 160, 170, 1);
+    tft.setTextDatum(TL_DATUM);
+    delay(900);
+    return false;
+  }
+
+  // Media scartando un minimo e un massimo per ridurre i picchi del resistivo.
+  if (count > 2)
+  {
+    sumX -= minX + maxX;
+    sumY -= minY + maxY;
+    count -= 2;
+  }
+
+  out.x = (int)(sumX / count);
+  out.y = (int)(sumY / count);
+  return true;
+}
+
+bool runTouchCalibration()
+{
+  const int sx[4] = {TOUCH_CAL_X0, TOUCH_CAL_X1, TOUCH_CAL_X1, TOUCH_CAL_X0};
+  const int sy[4] = {TOUCH_CAL_Y0, TOUCH_CAL_Y0, TOUCH_CAL_Y1, TOUCH_CAL_Y1};
+  RawTouchPoint p[4];
+
+  for (int i = 0; i < 4; i++)
+  {
+    while (!captureRawCalibrationPoint(sx[i], sy[i], i + 1, p[i]))
+      ;
+  }
+
+  int left = (p[0].x + p[3].x) / 2;
+  int right = (p[1].x + p[2].x) / 2;
+  int top = (p[0].y + p[1].y) / 2;
+  int bottom = (p[3].y + p[2].y) / 2;
+
+  if (!touchCalibrationLooksValid(left, right, top, bottom))
+  {
+    tft.fillScreen(C_BG);
+    drawTopBar("CALIBRA TOUCH", C_RED);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_RED, C_BG);
+    tft.drawString("Calibrazione non valida", 160, 102, 2);
+    tft.setTextColor(C_DIM, C_BG);
+    tft.drawString("nessun dato salvato", 160, 126, 1);
+    tft.setTextDatum(TL_DATUM);
+    delay(1800);
+    return false;
+  }
+
+  touchCal.rawLeft = left;
+  touchCal.rawRight = right;
+  touchCal.rawTop = top;
+  touchCal.rawBottom = bottom;
+  saveTouchCalibration();
+
+  tft.fillScreen(C_BG);
+  drawTopBar("CALIBRA TOUCH", C_GREEN);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_GREEN, C_BG);
+  tft.drawString("CALIBRAZIONE SALVATA", 160, 92, 2);
+  tft.setTextColor(C_DIM, C_BG);
+  tft.drawString("rimane in memoria", 160, 116, 1);
+  tft.drawString("anche dopo il riavvio", 160, 132, 1);
+  tft.setTextDatum(TL_DATUM);
+
+  Serial.printf("Touch calibration saved: L=%d R=%d T=%d B=%d\n",
+                left, right, top, bottom);
+  delay(1800);
+  return true;
+}
+
+void drawTouchCalibrationMenu()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("IMPOSTAZIONI", C_AMBER);
+
+  panel(18, 38, 284, 34, 9);
+  tft.setTextColor(C_FG, C_PANEL);
+  tft.drawString("CALIBRA TOUCH", 30, 48, 2);
+
+  panel(18, 84, 284, 34, 9);
+  tft.setTextColor(touchCal.valid ? C_FG : C_FAINT, C_PANEL);
+  tft.drawString("RESET TOUCH", 30, 94, 2);
+  tft.setTextDatum(MR_DATUM);
+  tft.setTextColor(touchCal.valid ? C_GREEN : C_FAINT, C_PANEL);
+  tft.drawString(touchCal.valid ? "SALVATA" : "DEFAULT", 285, 102, 1);
+  tft.setTextDatum(TL_DATUM);
+
+  panel(18, 130, 284, 34, 9);
+  tft.setTextColor(C_FG, C_PANEL);
+  tft.drawString("LED RGB", 30, 140, 2);
+  pill(250, 139, 38, 17,
+       rgbLedEnabled ? "ON" : "OFF",
+       rgbLedEnabled ? C_BG : C_DIM,
+       rgbLedEnabled ? C_GREEN : C_PANEL2,
+       1, C_PANEL);
+
+  panel(18, 182, 284, 32, 9, C_PANEL2, C_LINE);
+  tft.setTextColor(C_FG, C_PANEL2);
+  tft.drawString("CHIUDI", 30, 191, 2);
+}
+
+void runTouchCalibrationMenu()
+{
+  bool done = false;
+  while (!done)
+  {
+    drawTouchCalibrationMenu();
+    int x = 0, y = 0;
+    if (!waitMappedTouchTap(x, y))
+      continue;
+
+    if (x >= 18 && x <= 302 && y >= 38 && y <= 72)
+      runTouchCalibration();
+    else if (x >= 18 && x <= 302 && y >= 84 && y <= 118 && touchCal.valid)
+    {
+      resetTouchCalibration();
+      tft.fillScreen(C_BG);
+      drawTopBar("IMPOSTAZIONI", C_AMBER);
+      tft.setTextDatum(MC_DATUM);
+      tft.setTextColor(C_AMBER, C_BG);
+      tft.drawString("CALIBRAZIONE RESET", 160, 114, 2);
+      tft.setTextDatum(TL_DATUM);
+      delay(750);
+    }
+    else if (x >= 18 && x <= 302 && y >= 130 && y <= 164)
+    {
+      rgbLedEnabled = !rgbLedEnabled;
+      prefs.putBool("led_on", rgbLedEnabled);
+      updateRgbLed();
+    }
+    else if (x >= 18 && x <= 302 && y >= 182 && y <= 214)
+      done = true;
+  }
+  waitTouchReleased();
+}
 
 // ===================== Orologio =====================
 void drawNavBar();
@@ -2266,6 +2993,11 @@ void drawClockFull(const tm &ti)
   char b[80];
   tft.fillScreen(C_BG);
   drawTopBar("HOME", C_AMBER);
+  panel(194, 4, 38, 18, 8, C_PANEL2, C_LINE, C_BG);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_AMBER, C_PANEL2);
+  tft.drawString("SET", 213, 13, 1);
+  tft.setTextDatum(TL_DATUM);
   // data: giorno in accento, resto attenuato
   String wd = upperStr(DAYS_L[ti.tm_wday]);
   snprintf(b, sizeof(b), "%d %s %d", ti.tm_mday, MONTHS[ti.tm_mon], ti.tm_year + 1900);
@@ -2330,7 +3062,387 @@ void clockLoop()
   }
 }
 
-void clockTap(int, int) {}
+void clockTap(int x, int y)
+{
+  if (x >= 188 && x <= 238 && y <= 28)
+  {
+    runTouchCalibrationMenu();
+    lastMin = -1;
+    lastDay = -1;
+  }
+}
+// ===================== Calendario Juventus (iCal) + Sport =====================
+static const char *JUVE_ICS_URL = "https://ics.fixtur.es/v2/juventus.ics";
+constexpr uint32_t JUVE_REFRESH_MS = 6UL * 60UL * 60UL * 1000UL;
+constexpr int JUVE_MAX_MATCHES = 6;
+constexpr int JUVE_ROW_H = 32;
+constexpr int JUVE_ROW_GAP = 3;
+
+struct JuveMatch
+{
+  time_t epoch = 0;
+  bool hasTime = true;
+  String title;
+};
+
+JuveMatch juveMatches[JUVE_MAX_MATCHES];
+int juveCount = 0;
+bool juveOk = false;
+bool juveLoading = false;
+uint32_t juveStamp = 0;
+String juveStatus;
+
+String decodeIcsText(String s)
+{
+  s.replace("\\n", " ");
+  s.replace("\\N", " ");
+  s.replace("\\,", ",");
+  s.replace("\\;", ";");
+  s.replace("\\\\", "\\");
+  return fold(s.c_str());
+}
+
+time_t parseIcsDateTime(const String &raw, bool &hasTime)
+{
+  String v = raw;
+  v.trim();
+
+  if (v.length() < 8)
+    return 0;
+
+  int y = v.substring(0, 4).toInt();
+  int mo = v.substring(4, 6).toInt();
+  int d = v.substring(6, 8).toInt();
+
+  hasTime = v.length() >= 13 && v.charAt(8) == 'T';
+  int hh = 12, mm = 0, ss = 0;
+
+  if (hasTime)
+  {
+    hh = v.substring(9, 11).toInt();
+    mm = v.substring(11, 13).toInt();
+    if (v.length() >= 15)
+      ss = v.substring(13, 15).toInt();
+  }
+
+  bool utc = v.endsWith("Z");
+  if (utc)
+  {
+    int64_t epoch = daysFromCivil(y, (unsigned)mo, (unsigned)d) * 86400LL +
+                    hh * 3600LL + mm * 60LL + ss;
+    return (time_t)epoch;
+  }
+
+  struct tm ti = {};
+  ti.tm_year = y - 1900;
+  ti.tm_mon = mo - 1;
+  ti.tm_mday = d;
+  ti.tm_hour = hh;
+  ti.tm_min = mm;
+  ti.tm_sec = ss;
+  ti.tm_isdst = -1;
+  return mktime(&ti);
+}
+
+void storeJuveEvent(time_t epoch, bool hasTime, const String &summary)
+{
+  if (!epoch || !summary.length() || juveCount >= JUVE_MAX_MATCHES)
+    return;
+
+  time_t now = time(nullptr);
+  if (epoch + 4 * 3600 < now)
+    return;
+
+  juveMatches[juveCount].epoch = epoch;
+  juveMatches[juveCount].hasTime = hasTime;
+  juveMatches[juveCount].title = decodeIcsText(summary);
+  juveCount++;
+}
+
+bool fetchJuveCalendar()
+{
+  juveLoading = true;
+  juveStatus = "Scarico calendario...";
+  juveCount = 0;
+
+  WiFiClientSecure client;
+  client.setInsecure();
+
+  HTTPClient http;
+  http.setTimeout(10000);
+  http.useHTTP10(true);
+
+  if (!http.begin(client, JUVE_ICS_URL))
+  {
+    juveLoading = false;
+    juveStatus = "Connessione fallita";
+    juveOk = false;
+    return false;
+  }
+
+  http.addHeader("User-Agent", "CYD-Hub/6.0");
+  int code = http.GET();
+  if (code != HTTP_CODE_OK)
+  {
+    juveLoading = false;
+    juveStatus = "Fixtur.es HTTP " + String(code);
+    juveOk = false;
+    http.end();
+    return false;
+  }
+
+  WiFiClient *stream = http.getStreamPtr();
+  stream->setTimeout(4000);
+
+  bool inEvent = false;
+  time_t eventEpoch = 0;
+  bool eventHasTime = true;
+  String eventSummary;
+  String pending;
+
+  auto processIcsLine = [&](String line)
+  {
+    line.trim();
+    if (!line.length())
+      return;
+
+    if (line == "BEGIN:VEVENT")
+    {
+      inEvent = true;
+      eventEpoch = 0;
+      eventHasTime = true;
+      eventSummary = "";
+      return;
+    }
+
+    if (line == "END:VEVENT")
+    {
+      if (inEvent)
+        storeJuveEvent(eventEpoch, eventHasTime, eventSummary);
+      inEvent = false;
+      return;
+    }
+
+    if (!inEvent)
+      return;
+
+    int colon = line.indexOf(':');
+    if (colon < 0)
+      return;
+
+    String key = line.substring(0, colon);
+    String val = line.substring(colon + 1);
+
+    if (key.startsWith("DTSTART"))
+      eventEpoch = parseIcsDateTime(val, eventHasTime);
+    else if (key.startsWith("SUMMARY"))
+      eventSummary = val;
+  };
+
+  while ((stream->connected() || stream->available()) && juveCount < JUVE_MAX_MATCHES)
+  {
+    String line = stream->readStringUntil('\n');
+    if (line.endsWith("\r"))
+      line.remove(line.length() - 1);
+
+    if ((line.startsWith(" ") || line.startsWith("\t")) && pending.length())
+    {
+      line.remove(0, 1);
+      pending += line;
+      continue;
+    }
+
+    if (pending.length())
+      processIcsLine(pending);
+
+    pending = line;
+  }
+
+  if (pending.length() && juveCount < JUVE_MAX_MATCHES)
+    processIcsLine(pending);
+
+  http.end();
+
+  // Il feed e' normalmente gia' cronologico, ma ordiniamo comunque
+  // le partite future per rendere il parser indipendente dall'ordine degli eventi.
+  for (int i = 0; i < juveCount - 1; i++)
+    for (int j = i + 1; j < juveCount; j++)
+      if (juveMatches[j].epoch < juveMatches[i].epoch)
+      {
+        JuveMatch tmp = juveMatches[i];
+        juveMatches[i] = juveMatches[j];
+        juveMatches[j] = tmp;
+      }
+
+  juveLoading = false;
+  juveOk = juveCount > 0;
+  juveStamp = millis();
+  juveStatus = juveOk ? "" : "Nessuna partita trovata";
+  return juveOk;
+}
+
+void formatJuveDate(const JuveMatch &m, char *dateBuf, size_t dateLen, char *timeBuf, size_t timeLen)
+{
+  struct tm ti;
+  localtime_r(&m.epoch, &ti);
+
+  static const char *MON_S[] = {"GEN", "FEB", "MAR", "APR", "MAG", "GIU", "LUG", "AGO", "SET", "OTT", "NOV", "DIC"};
+  snprintf(dateBuf, dateLen, "%s %d %s", DAYS_S[ti.tm_wday], ti.tm_mday, MON_S[ti.tm_mon]);
+
+  if (m.hasTime)
+    snprintf(timeBuf, timeLen, "%02d:%02d", ti.tm_hour, ti.tm_min);
+  else
+    snprintf(timeBuf, timeLen, "ORA TBD");
+}
+
+bool ensureJuveCalendarFresh()
+{
+  bool stale = !juveOk || (millis() - juveStamp > JUVE_REFRESH_MS);
+  if (stale && !juveLoading)
+    fetchJuveCalendar();
+  return juveOk;
+}
+
+void invalidateJuveCalendar()
+{
+  juveOk = false;
+  juveStamp = 0;
+}
+
+String fitTextToWidth(String text, int font, int maxW)
+{
+  if (tft.textWidth(text, font) <= maxW)
+    return text;
+
+  while (text.length() > 3 && tft.textWidth(text + "...", font) > maxW)
+    text.remove(text.length() - 1);
+
+  return text + "...";
+}
+
+void drawSportsJuveRow(int index, int y)
+{
+  if (index < 0 || index >= juveCount)
+    return;
+
+  const JuveMatch &m = juveMatches[index];
+  const bool next = index == 0;
+  uint16_t fill = next ? mix565(C_PANEL, C_FG, 14) : C_PANEL;
+  uint16_t border = next ? mix565(C_LINE, C_FG, 95) : C_LINE;
+
+  // v7: con due soli eventi sfruttiamo meglio lo spazio disponibile.
+  // Data/ora su una riga piccola e partita piu' grande sotto.
+  panel(12, y, 296, JUVE_ROW_H, 8, fill, border);
+
+  char dateBuf[24], timeBuf[12];
+  formatJuveDate(m, dateBuf, sizeof(dateBuf), timeBuf, sizeof(timeBuf));
+
+  String when = String(dateBuf) + " " + String(timeBuf);
+  when = fitTextToWidth(when, 1, 270);
+  String match = fitTextToWidth(m.title, 2, 270);
+
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(next ? C_AMBER : C_DIM, fill);
+  tft.drawString(when, 18, y + 4, 1);
+
+  tft.setTextColor(C_FG, fill);
+  tft.drawString(match, 18, y + 16, 2);
+}
+
+void drawSportsPage()
+{
+  tft.fillScreen(C_BG);
+  drawTopBar("SPORT", C_RED);
+
+  // Refresh comune F1 + Juventus.
+  panel(282, 31, 26, 22, 8, C_PANEL2, C_LINE);
+  drawRefreshIcon(295, 42, C_FG, C_PANEL2);
+
+  // --------------------- Formula 1 ---------------------
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_RED);
+  tft.drawString("FORMULA 1", 12, 41, 1);
+  tft.setTextDatum(TL_DATUM);
+
+  if (f1Ok && f1Count > 0)
+  {
+    F1Race &r = f1Races[0];
+    uint16_t heroFill = mix565(C_PANEL, C_RED, 16);
+    panel(12, 51, 296, 62, 12, heroFill, mix565(C_LINE, C_RED, 95));
+
+    String num, unit;
+    f1CountdownParts(r.raceEpoch, num, unit);
+
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_RED, heroFill);
+    tft.drawString(num, 43, 73, 4);
+    tft.setTextColor(C_DIM, heroFill);
+    tft.drawString(unit, 43, 96, 1);
+    tft.drawFastVLine(75, 60, 44, mix565(C_LINE, C_RED, 55));
+
+    char b[48];
+    snprintf(b, sizeof(b), "R%02d  PROSSIMO GP", r.round);
+    tft.setTextDatum(TL_DATUM);
+    tft.setTextColor(C_RED, heroFill);
+    tft.drawString(b, 88, 59, 1);
+
+    String raceName = fitTextToWidth(r.name, 2, 202);
+    tft.setTextColor(C_FG, heroFill);
+    tft.drawString(raceName, 88, 73, 2);
+
+    formatLocalRaceTime(r.raceEpoch, b, sizeof(b));
+    tft.setTextColor(C_DIM, heroFill);
+    tft.drawString(b, 88, 96, 1);
+
+    if (r.sprint)
+      pill(255, 57, 44, 13, "SPR", C_FG, C565(120, 34, 40), 1, heroFill);
+  }
+  else
+  {
+    panel(12, 51, 296, 62, 12);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("F1 non disponibile", 160, 82, 2);
+    tft.setTextDatum(TL_DATUM);
+  }
+
+  // --------------------- Juventus ---------------------
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_FG);
+  tft.drawString("JUVENTUS", 12, 124, 1);
+  tft.setTextColor(C_FAINT);
+  tft.drawString("PROSSIME PARTITE", 77, 124, 1);
+  tft.setTextDatum(TL_DATUM);
+
+  if (juveLoading)
+  {
+    panel(12, 135, 296, 69, 10);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("scarico calendario Juve...", 160, 169, 1);
+    tft.setTextDatum(TL_DATUM);
+  }
+  else if (!juveOk || juveCount == 0)
+  {
+    panel(12, 135, 296, 69, 10);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("Juve non disponibile", 160, 162, 2);
+    tft.setTextColor(C_FAINT, C_PANEL);
+    tft.drawString(juveStatus.length() ? juveStatus : "tocca aggiorna", 160, 181, 1);
+    tft.setTextDatum(TL_DATUM);
+  }
+  else
+  {
+    int shown = min(juveCount, 2);
+    for (int i = 0; i < shown; i++)
+      drawSportsJuveRow(i, 135 + i * (JUVE_ROW_H + JUVE_ROW_GAP));
+  }
+
+  // Anche SPORT usa fillScreen(): la barra inferiore va sempre ridisegnata.
+  drawNavBar();
+}
+
 // ===================== Calendario mensile =====================
 
 int calendarYear = 0;
@@ -2567,6 +3679,91 @@ void maybeFetchWeather()
 // Nessuna sospensione/screensaver automatica.
 // Il display resta sulla pagina corrente finche l'utente non cambia pagina.
 
+// ===================== LED RGB CYD: avvio e riproduzione Spotify =====================
+constexpr int RGB_PWM_CH_R = 0;
+constexpr int RGB_PWM_CH_G = 1;
+constexpr int RGB_PWM_CH_B = 2;
+constexpr int RGB_PWM_FREQ = 5000;
+constexpr int RGB_PWM_BITS = 8;
+
+void writeRgbPwm(uint8_t red, uint8_t green, uint8_t blue)
+{
+  // Active-low: 255 significa spento sul pin, 0 significa piena luminosita'.
+  ledcWrite(RGB_PWM_CH_R, 255 - red);
+  ledcWrite(RGB_PWM_CH_G, 255 - green);
+  ledcWrite(RGB_PWM_CH_B, 255 - blue);
+}
+
+void setRgbLed(uint8_t red, uint8_t green, uint8_t blue)
+{
+  if (!rgbLedEnabled)
+  {
+    writeRgbPwm(0, 0, 0);
+    return;
+  }
+
+  writeRgbPwm(red, green, blue);
+}
+
+void initRgbLed()
+{
+  ledcSetup(RGB_PWM_CH_R, RGB_PWM_FREQ, RGB_PWM_BITS);
+  ledcSetup(RGB_PWM_CH_G, RGB_PWM_FREQ, RGB_PWM_BITS);
+  ledcSetup(RGB_PWM_CH_B, RGB_PWM_FREQ, RGB_PWM_BITS);
+
+  ledcAttachPin(RGB_LED_R, RGB_PWM_CH_R);
+  ledcAttachPin(RGB_LED_G, RGB_PWM_CH_G);
+  ledcAttachPin(RGB_LED_B, RGB_PWM_CH_B);
+
+  writeRgbPwm(0, 0, 0);
+}
+
+void setBootRgbLed(int active)
+{
+  if (!rgbLedEnabled)
+  {
+    writeRgbPwm(0, 0, 0);
+    return;
+  }
+
+  switch (active & 3)
+  {
+  case 0:
+    setRgbLed(30, 220, 60); // verde
+    break;
+  case 1:
+    setRgbLed(64, 200, 255); // ciano
+    break;
+  case 2:
+    setRgbLed(255, 210, 0); // ambra
+    break;
+  default:
+    setRgbLed(255, 25, 25); // rosso
+    break;
+  }
+}
+
+void updateRgbLed()
+{
+  if (!rgbLedEnabled)
+  {
+    writeRgbPwm(0, 0, 0);
+    return;
+  }
+
+  if (T.playing)
+  {
+    // Verde a intensita' variabile durante la riproduzione Spotify.
+    float wave = (sinf((float)millis() / 850.0f) + 1.0f) * 0.5f;
+    uint8_t green = (uint8_t)(30.0f + wave * 150.0f);
+    setRgbLed(0, green, 0);
+    return;
+  }
+
+  // UI normale: LED spento.
+  writeRgbPwm(0, 0, 0);
+}
+
 // ===================== Touch =====================
 bool tsDown = false;
 uint32_t tsLastSeen = 0, tsStartT = 0;
@@ -2605,8 +3802,8 @@ void handleTouch()
     Serial.printf("[WOKWI TOUCH] RAW x=%d y=%d z=%d\n", p.x, p.y, p.z);
 #endif
 
-    int x = constrain(map(p.x, TS_MINX, TS_MAXX, 0, 319), 0, 319);
-    int y = constrain(map(p.y, TS_MINY, TS_MAXY, 0, 239), 0, 239);
+    int x = calibratedTouchX(p.x);
+    int y = calibratedTouchY(p.y);
 
 #ifdef WOKWI
     Serial.printf("[WOKWI TOUCH] MAP x=%d y=%d\n", x, y);
@@ -2635,6 +3832,18 @@ void handleTouch()
       if (best != curPage)
         switchPage(best);
     }
+    else if (curPage == 0 && spotifyLibraryView == LIB_QUEUE &&
+             abs(dy) > 24 && abs(dy) > abs(dx))
+    {
+      int visible = min(QUEUE_VISIBLE_ROWS, (int)spotifyQueue.size());
+      int maxFirst = max(0, (int)spotifyQueue.size() - visible);
+      int rows = max(1, abs(dy) / (Q_H + Q_GY));
+      if (dy < 0)
+        queueScrollRow = min(maxFirst, queueScrollRow + rows);
+      else
+        queueScrollRow = max(0, queueScrollRow - rows);
+      drawPlaylistPage();
+    }
     else if (abs(dx) > 50 && abs(dx) > abs(dy) * 2)
     {
       switchPage(curPage + (dx < 0 ? 1 : -1));
@@ -2654,6 +3863,7 @@ void drawBootLogo(float phase)
 {
   // marchio: quattro nodi (le sezioni dell'hub) attorno a un centro
   int active = ((int)(phase * 2.5f)) % 4;
+  setBootRgbLed(active);
   const int cx = 160, cy = 84;
   panel(cx - 34, cy - 34, 68, 68, 18, C_PANEL, C_LINE);
   static const int8_t ox[4] = {-15, 15, 15, -15}, oy[4] = {-15, -15, 15, 15};
@@ -2796,13 +4006,10 @@ void setup()
 {
   Serial.begin(115200);
 
-  // LED RGB della scheda spento (attivo basso)
-  pinMode(4, OUTPUT);
-  pinMode(16, OUTPUT);
-  pinMode(17, OUTPUT);
-  digitalWrite(4, HIGH);
-  digitalWrite(16, HIGH);
-  digitalWrite(17, HIGH);
+  // Preferenze caricate prima del boot per rispettare LED ON/OFF.
+  prefs.begin("cyddash", false);
+  rgbLedEnabled = prefs.getBool("led_on", true);
+  initRgbLed();
 
   // Display
   tft.init();
@@ -2820,8 +4027,8 @@ void setup()
   ts.begin(touchSPI);
   ts.setRotation(ROTATION);
 
-  // Preferences / reset Spotify tenendo premuto lo schermo all'avvio.
-  prefs.begin("cyddash", false);
+  // Carica calibrazione e gestisci reset Spotify tenendo premuto all'avvio.
+  loadTouchCalibration();
   if (ts.tirqTouched() && ts.touched())
   {
     prefs.remove("rt");
@@ -2840,9 +4047,6 @@ void setup()
 
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-
-  WiFi.mode(WIFI_STA);
-  WiFi.setAutoReconnect(true);
   WiFi.begin(WIFI_SSID_PRIMARY, WIFI_PASS_PRIMARY, WIFI_CHANNEL);
 
   uint32_t wifiStart = millis();
@@ -2855,7 +4059,7 @@ void setup()
   drawBootFrame(
       1.2f,
       0.30f,
-      "WiFi connected");
+      WiFi.status() == WL_CONNECTED ? "WiFi connected" : "WiFi offline");
 
   delay(180);
 
@@ -2935,6 +4139,7 @@ void setup()
   delay(300);
 
   switchPage(HOME_PAGE);
+  updateRgbLed();
 }
 
 void loop()
@@ -2947,5 +4152,6 @@ void loop()
 
   maybeFetchWeather();
 
+  updateRgbLed();
   delay(2);
 }

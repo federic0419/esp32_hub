@@ -12,9 +12,9 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "/home/federico/Documenti/progetti/esp32_hub/.pio/build/cyd/firmware.elf",
+            "executable": "D:/progettini/esp32_hub/.pio/build/cyd/firmware.elf",
             "projectEnvName": "cyd",
-            "toolchainBinDir": "/home/federico/.platformio/packages/toolchain-xtensa-esp32/bin",
+            "toolchainBinDir": "C:/Users/Federico/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
@@ -25,18 +25,18 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "/home/federico/Documenti/progetti/esp32_hub/.pio/build/cyd/firmware.elf",
+            "executable": "D:/progettini/esp32_hub/.pio/build/cyd/firmware.elf",
             "projectEnvName": "cyd",
-            "toolchainBinDir": "/home/federico/.platformio/packages/toolchain-xtensa-esp32/bin",
+            "toolchainBinDir": "C:/Users/Federico/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "/home/federico/Documenti/progetti/esp32_hub/.pio/build/cyd/firmware.elf",
+            "executable": "D:/progettini/esp32_hub/.pio/build/cyd/firmware.elf",
             "projectEnvName": "cyd",
-            "toolchainBinDir": "/home/federico/.platformio/packages/toolchain-xtensa-esp32/bin",
+            "toolchainBinDir": "C:/Users/Federico/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
         }

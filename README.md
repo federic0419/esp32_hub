@@ -1,68 +1,39 @@
-# CYD Hub v6
+# CYD Hub v7
 
-Dashboard touchscreen per **ESP32-2432S028R (Cheap Yellow Display / CYD)** sviluppata con **PlatformIO + Arduino Framework**.
+Dashboard touchscreen per **ESP32-2432S028R (Cheap Yellow Display / CYD)**, sviluppata con **PlatformIO + Arduino Framework** e interfaccia grafica scura **Ink**.
 
-Il progetto è pensato per funzionare sia su **hardware reale** sia in **simulazione con Wokwi**, usando due environment PlatformIO separati ma lo stesso codice sorgente.
+La Home è l'orologio; le altre funzioni sono distribuite su sette pagine raggiungibili tramite **swipe orizzontale** o dalla **barra di navigazione inferiore**.
 
-## Funzionalità
+## Novità della v7
 
-CYD Hub include diverse pagine navigabili tramite swipe orizzontale o barra di navigazione inferiore:
+La v7 consolida le modifiche introdotte nelle ultime revisioni del progetto:
 
-- **Playlist Spotify**
-  - visualizzazione delle playlist dell'account
-  - griglia 2×3, fino a 6 playlist per pagina
-  - cambio pagina interno
-  - refresh manuale
-  - avvio diretto di una playlist
+- nuova pagina **SPORT** che raccoglie nello stesso schermo:
+  - prossimo GP di Formula 1;
+  - prossime partite della Juventus;
+- calendario Juventus letto dal feed iCalendar di **Fixtur.es**;
+- **Calendario mensile** mantenuto come pagina indipendente;
+- sezione Spotify **Playlist / Coda** con due tab;
+- **Coda Spotify scrollabile verticalmente**, senza paginazione;
+- pulsante **CODA** direttamente nel player Spotify;
+- barra inferiore ridisegnata anche dopo refresh o redraw completi delle pagine;
+- sorgente `main.cpp` riorganizzato visivamente con separatori espliciti per ogni pagina;
+- numero versione aggiornato a **v7** anche nella schermata di boot.
 
-- **Spotify Player**
-  - brano in riproduzione
-  - artista
-  - copertina album
-  - barra di avanzamento
-  - play / pausa
-  - traccia precedente / successiva
+---
 
-- **Meteo**
-  - temperatura attuale
-  - temperatura percepita
-  - umidità
-  - vento
-  - minima / massima giornaliera
-  - previsioni dei giorni successivi
-  - dati forniti da Open-Meteo, senza API key
+## Hardware
 
-- **Home / Orologio**
-  - orologio digitale a grandi cifre
-  - data corrente
-  - riepilogo meteo compatto
-
-- **Radar pioggia**
-  - immagini radar RainViewer
-  - aggiornamento periodico
-
-- **Formula 1**
-  - informazioni F1 tramite API Jolpica / Ergast
-  - aggiornamento automatico
-
-- **Calendario mensile**
-  - mese corrente
-  - giorno corrente evidenziato
-  - navigazione tra i mesi
-
-## Hardware supportato
-
-Hardware principale:
+Target principale:
 
 ```text
 ESP32-2432S028R
-"Cheap Yellow Display"
-320×240
-ILI9341 / compatibile
+Cheap Yellow Display (CYD)
+Display 320 x 240
 Touch resistivo XPT2046
 ```
 
-Pin touch utilizzati:
+Pin touch utilizzati dal firmware:
 
 ```text
 CS   = 33
@@ -72,73 +43,299 @@ MISO = 39
 MOSI = 32
 ```
 
-## Ambiente di sviluppo
+Il progetto contiene configurazioni PlatformIO per:
 
-Il progetto utilizza:
+- `cyd` - CYD standard con driver ILI9341;
+- `cyd2usb` - variante CYD con driver ST7789;
+- `cyd-wokwi` - simulazione Wokwi.
 
-- Visual Studio Code
-- PlatformIO
-- Arduino Framework
-- ESP32 platform
-- TFT_eSPI
-- XPT2046_Touchscreen
-- ArduinoJson
-- JPEGDEC
-- PNGdec
+---
+
+
+## Anteprima delle pagine
+
+Le immagini seguenti sono **mockup tecnici 320×240** ricostruiti dal layout del `main.cpp`.
+I dati mostrati sono dimostrativi; disposizione, palette e controlli riprendono la UI **Ink** della v7.
+
+| Pagina | Anteprima |
+|---|---|
+| Playlist / Coda Spotify | ![Playlist e coda Spotify](docs/images/01_playlist_coda.png) |
+| Spotify Player | ![Spotify Player](docs/images/02_spotify_player.png) |
+| Meteo | ![Meteo](docs/images/03_meteo.png) |
+| Orologio / Home | ![Orologio Home](docs/images/04_orologio_home.png) |
+| Radar pioggia | ![Radar pioggia](docs/images/05_radar_pioggia.png) |
+| Sport - F1 + Juventus | ![Sport F1 e Juventus](docs/images/06_sport_f1_juventus.png) |
+| Calendario mensile | ![Calendario mensile](docs/images/07_calendario_mensile.png) |
+
+
+## Pagine dell'interfaccia
+
+L'ordine delle pagine è:
+
+```text
+0  Playlist / Coda Spotify
+1  Spotify Player
+2  Meteo
+3  Orologio / HOME
+4  Radar pioggia
+5  Sport - Formula 1 + Juventus
+6  Calendario mensile
+```
+
+La **Home** corrisponde alla pagina 3 ed è quindi al centro della navigazione.
+
+### Pagina 1 - Playlist / Coda Spotify
+
+La schermata Spotify Library contiene due tab.
+
+**PLAYLIST**
+
+- visualizzazione delle playlist dell'account;
+- griglia 2 x 3;
+- 6 playlist per pagina;
+- navigazione tra le pagine;
+- refresh manuale;
+- tap su una playlist per avviarne la riproduzione.
+
+**CODA**
+
+- lettura della coda corrente di Spotify;
+- elenco verticale dei brani;
+- visualizzazione di titolo e artista;
+- swipe verticale per scorrere avanti e indietro;
+- scrollbar laterale che indica la posizione nella lista;
+- tap su un brano per riprodurre a partire da quel punto della coda.
+
+La coda **non è paginata**.
+
+### Pagina 2 - Spotify Player
+
+Mostra lo stato del player Spotify:
+
+- copertina del brano;
+- titolo;
+- artista;
+- stato play / pausa;
+- barra di avanzamento;
+- tempo trascorso e durata;
+- brano precedente;
+- play / pausa;
+- brano successivo;
+- pulsante **CODA** nella barra superiore per aprire direttamente la coda.
+
+> Alcune operazioni di controllo del playback richiedono un account Spotify Premium e un dispositivo Spotify attivo.
+
+### Pagina 3 - Meteo
+
+I dati vengono letti da **Open-Meteo** e non richiedono API key.
+
+La pagina mostra, in base ai dati disponibili:
+
+- temperatura attuale;
+- temperatura percepita;
+- umidità;
+- vento;
+- min/max giornaliera;
+- descrizione e icona meteo;
+- previsione dei giorni successivi.
+
+La località è impostata in `src/config.h` tramite latitudine e longitudine.
+
+### Pagina 4 - Orologio / HOME
+
+È la pagina principale del dispositivo.
+
+Contiene:
+
+- orologio digitale a grandi cifre;
+- data corrente;
+- indicazione del giorno della settimana;
+- riepilogo meteo compatto;
+- temperatura minima e massima.
+
+Non è presente uno screensaver automatico: il display rimane sulla pagina selezionata.
+
+### Pagina 5 - Radar pioggia
+
+Il radar usa i dati pubblici di **RainViewer**.
+
+Funzioni principali:
+
+- recupero della mappa radar più recente;
+- download delle tile necessarie;
+- visualizzazione dell'area configurata;
+- refresh periodico;
+- refresh manuale dall'interfaccia.
+
+### Pagina 6 - SPORT
+
+La pagina SPORT unisce **Formula 1** e **Juventus**.
+
+#### Formula 1
+
+I dati vengono recuperati tramite API **Jolpica / Ergast compatible**.
+
+La schermata mostra il prossimo GP disponibile, con informazioni come:
+
+- round;
+- nome del GP;
+- data e ora locale;
+- countdown all'evento;
+- eventuale indicazione Sprint.
+
+#### Juventus
+
+Le partite vengono lette dal feed iCalendar:
+
+```text
+https://ics.fixtur.es/v2/juventus.ics
+```
+
+La pagina mostra le prossime partite disponibili con:
+
+- data;
+- ora locale;
+- squadre / titolo dell'evento.
+
+Il pulsante refresh della pagina SPORT aggiorna sia Formula 1 sia Juventus.
+
+### Pagina 7 - Calendario mensile
+
+Il calendario mensile è indipendente dal calendario Juventus.
+
+Permette di:
+
+- vedere il mese corrente;
+- evidenziare il giorno corrente;
+- passare al mese precedente;
+- passare al mese successivo;
+- tornare rapidamente al mese corrente.
+
+---
+
+## Navigazione touchscreen
+
+Sono disponibili due modalità principali di navigazione:
+
+- **swipe orizzontale** per passare da una pagina all'altra;
+- **barra inferiore** per aprire direttamente una delle sette pagine.
+
+Alcune pagine gestiscono gesture interne:
+
+- nella **Coda Spotify**, lo swipe verticale scorre la lista;
+- nel **Calendario**, i controlli laterali cambiano mese;
+- nelle **Playlist Spotify**, le frecce cambiano pagina.
+
+La barra inferiore viene ridisegnata anche dopo gli aggiornamenti completi delle pagine Spotify e SPORT, così rimane sempre disponibile.
+
+---
+
+## Servizi Internet utilizzati
+
+| Funzione | Servizio | API key esterna |
+|---|---|---|
+| Spotify | Spotify Web API | OAuth Spotify |
+| Meteo | Open-Meteo | No |
+| Radar | RainViewer | No |
+| Formula 1 | Jolpica / Ergast | No |
+| Juventus | Fixtur.es iCalendar | No |
+| Ora | NTP | No |
+
+Il dispositivo deve avere accesso a Internet per aggiornare questi servizi.
+
+---
 
 ## Struttura del progetto
 
 ```text
 CYD-Hub/
-│
-├── src/
-│   ├── main.cpp
-│   ├── config.h
-│   ├── secrets.h
-│   └── secrets.example.h
-│
-├── platformio.ini
-├── diagram.json
-├── wokwi.toml
-├── .gitignore
-└── README.md
+|
+|-- src/
+|   |-- main.cpp
+|   |-- config.h
+|   |-- secret.h              # credenziali locali, NON versionare
+|   `-- secret_example.h
+|
+|-- platformio.ini
+|-- diagram.json
+|-- wokwi.toml
+|-- .gitignore
+`-- README.md
 ```
 
-`secrets.h` contiene le credenziali personali e **non deve essere pubblicato nel repository**.
+`secret.h` è escluso dal repository tramite `.gitignore`.
 
-## Configurazione delle credenziali
+---
+
+## Organizzazione di `main.cpp` in v7
+
+Per rendere più leggibile il sorgente, i blocchi principali sono identificati da separatori del tipo:
+
+```cpp
+// ########==================== PAGINA 4 - OROLOGIO / HOME ====================########
+```
+
+Le sezioni principali sono:
+
+```text
+HARDWARE / PALETTE / DISPLAY
+UTILITY / UI COMUNE
+SERVIZIO SPOTIFY - AUTH + API COMUNE
+PAGINA 1 - PLAYLIST / CODA SPOTIFY
+PAGINA 2 - SPOTIFY PLAYER
+PAGINA 3 - METEO
+PAGINA 4 - OROLOGIO / HOME
+PAGINA 5 - RADAR PIOGGIA
+PAGINA 6 - SPORT / FORMULA 1
+PAGINA 6 - SPORT / JUVENTUS + UI SPORT
+PAGINA 7 - CALENDARIO MENSILE
+NAVIGAZIONE / GESTIONE PAGINE
+TOUCH / GESTURE
+BOOT ANIMATION
+TEST CALIBRAZIONE COLORI
+SETUP / LOOP PRINCIPALE
+```
+
+La parte SPORT è divisa internamente in due blocchi perché Formula 1 e Juventus usano sorgenti dati e parser differenti, ma costituiscono un'unica pagina dell'interfaccia.
+
+---
+
+## Configurazione WiFi e credenziali
 
 Copia:
 
 ```text
-src/secrets.example.h
+src/secret_example.h
 ```
 
 in:
 
 ```text
-src/secrets.h
+src/secret.h
 ```
 
-e inserisci le tue credenziali:
+e inserisci i dati reali.
+
+Esempio:
 
 ```cpp
 #pragma once
 
-#define REAL_WIFI_SSID "YOUR_WIFI_SSID"
-#define REAL_WIFI_PASS "YOUR_WIFI_PASSWORD"
+#define WIFI_SSID_BACKUP "..."
+#define WIFI_PASS_BACKUP "..."
 
-#define SPOTIFY_CLIENT_ID_VALUE "YOUR_SPOTIFY_CLIENT_ID"
-#define SPOTIFY_CLIENT_SECRET_VALUE "YOUR_SPOTIFY_CLIENT_SECRET"
+#define WIFI_SSID_PRIMARY "..."
+#define WIFI_PASS_PRIMARY "..."
+
+#define SPOTIFY_CLIENT_ID_VALUE "..."
+#define SPOTIFY_CLIENT_SECRET_VALUE "..."
 ```
 
-Assicurati che `.gitignore` contenga:
+Il firmware usa `secret.h` solo sull'hardware reale.
 
-```gitignore
-src/secrets.h
-```
+Non inserire mai `secret.h` in Git.
 
-In questo modo il file con le credenziali resta solo sul PC locale.
+---
 
 ## Configurazione generale
 
@@ -148,7 +345,7 @@ Le impostazioni non sensibili sono in:
 src/config.h
 ```
 
-Esempio:
+Tra queste:
 
 ```cpp
 #define WEATHER_CITY "Imola"
@@ -160,29 +357,19 @@ Esempio:
 #define ROTATION 3
 ```
 
-Per l'hardware reale vengono usate le credenziali presenti in `secrets.h`.
+La stringa `TZ_INFO` gestisce automaticamente CET/CEST per l'Italia.
 
-Per Wokwi viene invece utilizzata automaticamente la rete virtuale:
+---
 
-```cpp
-Wokwi-GUEST
-```
+## Spotify - configurazione OAuth
 
-senza password.
-
-## Spotify
-
-Per utilizzare Spotify devi creare una app da:
-
-https://developer.spotify.com/dashboard
-
-Configura come Redirect URI:
+Crea un'app dalla dashboard sviluppatori Spotify e registra questo Redirect URI:
 
 ```text
 http://127.0.0.1:8888/callback
 ```
 
-Il firmware utilizza gli scope necessari per:
+Il firmware richiede gli scope:
 
 ```text
 user-read-playback-state
@@ -192,76 +379,32 @@ playlist-read-private
 playlist-read-collaborative
 ```
 
-Al primo avvio sul CYD reale, se non è ancora presente un refresh token, il dispositivo entra nella procedura di associazione Spotify.
+Al primo avvio su hardware reale, se non è presente un refresh token, il CYD avvia la procedura di associazione dell'account Spotify.
 
-Il refresh token viene salvato nella memoria Preferences dell'ESP32.
+Il refresh token viene memorizzato tramite `Preferences` dell'ESP32.
 
-Per dimenticare l'account Spotify è possibile tenere premuto il touchscreen durante l'avvio.
+Per dimenticare l'account Spotify è possibile tenere premuto il touchscreen durante l'avvio: il firmware cancella il refresh token salvato.
 
-> Nota: alcune funzioni di controllo playback richiedono Spotify Premium e un dispositivo Spotify attivo.
+---
 
-## Meteo
+## Intervalli di aggiornamento
 
-Il progetto utilizza:
-
-```text
-Open-Meteo
-```
-
-Non è necessaria alcuna API key.
-
-La posizione è configurata in `config.h` tramite:
+I principali intervalli sono definiti in `src/config.h`:
 
 ```cpp
-#define WEATHER_CITY "Imola"
-#define WEATHER_LAT "44.3592"
-#define WEATHER_LON "11.7132"
-```
-
-L'aggiornamento predefinito è:
-
-```cpp
+#define SPOTIFY_POLL_MS 4000UL
 #define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
+#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
+#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
 ```
 
-ovvero ogni 15 minuti.
+Il calendario Juventus mantiene inoltre una propria logica di cache/refresh nel `main.cpp`.
 
-## Navigazione
+---
 
-Ordine delle pagine:
+## Build con PlatformIO
 
-```text
-Playlist
-   ←
-Spotify Player
-   ←
-Meteo
-   ←
-HOME
-   →
-Radar
-   →
-Formula 1
-   →
-Calendario
-```
-
-La Home è la pagina centrale.
-
-È possibile cambiare pagina tramite:
-
-- swipe orizzontale sul touchscreen
-- pallini di navigazione nella parte inferiore dello schermo
-
-## Build per CYD reale
-
-Environment PlatformIO:
-
-```text
-cyd
-```
-
-Build:
+### CYD standard
 
 ```bash
 pio run -e cyd
@@ -273,290 +416,94 @@ Upload:
 pio run -e cyd -t upload
 ```
 
-Il firmware compilato viene generato in:
+### CYD 2 USB / ST7789
 
-```text
-.pio/build/cyd/firmware.bin
+```bash
+pio run -e cyd2usb
 ```
 
-## Simulazione con Wokwi
+Upload:
 
-Il progetto è già configurato per essere eseguito anche nel simulatore **Wokwi**.
-
-Environment PlatformIO:
-
-```text
-cyd-wokwi
+```bash
+pio run -e cyd2usb -t upload
 ```
 
-Build:
+### Wokwi
 
 ```bash
 pio run -e cyd-wokwi
 ```
 
-Il firmware simulato viene generato in:
-
-```text
-.pio/build/cyd-wokwi/firmware.bin
-```
-
-Il file:
-
-```text
-wokwi.toml
-```
-
-punta automaticamente a:
-
-```toml
-[wokwi]
-version = 1
-firmware = ".pio/build/cyd-wokwi/firmware.bin"
-elf = ".pio/build/cyd-wokwi/firmware.elf"
-```
-
-La board simulata è definita in:
+Il progetto contiene:
 
 ```text
 diagram.json
+wokwi.toml
 ```
 
-ed utilizza:
+per la simulazione del CYD in Wokwi.
 
-```json
-{
-  "type": "board-esp32-2432s028r"
-}
-```
+> La v7 qui documentata descrive il sorgente e la configurazione del progetto; la build Wokwi va verificata quando si modificano le macro WiFi o le differenze tra ambiente reale e simulato.
 
-### Differenze automatiche tra hardware reale e Wokwi
+---
 
-Quando viene compilato l'environment:
+## Librerie principali
 
-```text
-cyd-wokwi
-```
+Configurate in `platformio.ini`:
 
-PlatformIO definisce:
+- `TFT_eSPI`
+- `XPT2046_Touchscreen`
+- `ArduinoJson`
+- `JPEGDEC`
+- `PNGdec`
 
-```cpp
-WOKWI
-```
+Il framework utilizzato è **Arduino** su piattaforma **Espressif32**.
 
-Il codice può quindi applicare automaticamente configurazioni differenti.
-
-In simulazione:
-
-- WiFi: `Wokwi-GUEST`
-- password WiFi vuota
-- canale WiFi 6
-- autenticazione Spotify iniziale disabilitata
-- inversione colori display disabilitata
-
-Sul CYD reale:
-
-- vengono usate le credenziali presenti in `secrets.h`
-- il canale WiFi viene cercato automaticamente
-- autenticazione Spotify abilitata
-- configurazione display reale
-
-## Avviare Wokwi da Visual Studio Code
-
-Installa l'estensione Wokwi per Visual Studio Code.
-
-Poi:
-
-1. compila l'environment:
-
-```bash
-pio run -e cyd-wokwi
-```
-
-2. avvia la simulazione Wokwi
-
-3. dopo una nuova build usa **Restart Simulation** per caricare il firmware aggiornato
-
-Non utilizzare `Upload` per Wokwi.
-
-`Upload` serve solo per scrivere il firmware sul CYD fisico.
-
-## Build di entrambi gli environment
-
-Per compilare entrambe le versioni:
-
-```bash
-pio run -e cyd -e cyd-wokwi
-```
-
-In alternativa puoi configurare:
-
-```ini
-[platformio]
-default_envs = cyd, cyd-wokwi
-```
-
-e poi eseguire:
-
-```bash
-pio run
-```
-
-## platformio.ini
-
-Il progetto contiene environment separati.
-
-Esempio:
-
-```ini
-[platformio]
-default_envs = cyd
-
-[env]
-platform = espressif32@^6.9.0
-board = esp32dev
-framework = arduino
-monitor_speed = 115200
-
-[env:cyd]
-; configurazione hardware reale
-
-[env:cyd-wokwi]
-extends = env:cyd
-build_flags =
-    ${env:cyd.build_flags}
-    -DWOKWI
-```
-
-L'environment predefinito resta `cyd`, in modo che il normale pulsante Build di PlatformIO compili il firmware destinato all'hardware reale.
-
-## Aggiornamenti periodici
-
-Gli intervalli principali sono configurabili in `config.h`.
-
-Valori predefiniti:
-
-```cpp
-#define SPOTIFY_POLL_MS 4000UL
-#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
-#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
-#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
-```
-
-## Interfaccia grafica
-
-La UI utilizza una palette scura chiamata internamente **Midnight Glass**.
-
-Colori principali:
-
-- fondo blu / nero
-- viola e rosa per Home e Calendario
-- verde per Spotify
-- ciano per Meteo
-- blu per Radar
-- rosso per Formula 1
-
-L'interfaccia è progettata specificamente per il display CYD da 320×240 pixel.
+---
 
 ## Boot
 
-All'avvio viene mostrata una schermata grafica dedicata invece di semplici messaggi testuali.
-
-Durante l'inizializzazione vengono gestiti:
+Durante l'avvio il display mostra la schermata **CYD HUB v7** e lo stato delle principali inizializzazioni:
 
 ```text
 WiFi
-NTP / ora
+NTP / sincronizzazione ora
 Meteo
 Spotify
+Ready
 ```
 
-La logica può essere resa ulteriormente asincrona per mostrare la Home ancora prima e completare gli aggiornamenti di rete in background.
+Al termine viene aperta la pagina **HOME / Orologio**.
 
-## Wokwi e servizi Internet
-
-Wokwi è principalmente utilizzato per:
-
-- test grafici
-- layout
-- navigazione
-- sviluppo senza collegare continuamente il CYD fisico
-
-Alcune funzionalità che dipendono da autenticazioni esterne possono essere volutamente disabilitate o limitate durante la simulazione.
-
-In particolare la procedura OAuth Spotify viene saltata nell'environment `cyd-wokwi`, così il simulatore non rimane bloccato in attesa dell'autenticazione.
+---
 
 ## Sicurezza
 
-Non pubblicare mai:
+Non pubblicare mai nel repository:
 
 ```text
 password WiFi
 Spotify Client Secret
 token Spotify
 refresh token
+src/secret.h
 ```
 
-Il repository deve contenere solo:
+Il repository deve contenere soltanto un file di esempio, ad esempio:
 
 ```text
-secrets.example.h
+src/secret_example.h
 ```
 
-e non:
-
-```text
-secrets.h
-```
-
-Se una credenziale è stata accidentalmente pubblicata su Git, rimuoverla dal file non è sufficiente: deve essere considerata compromessa e rigenerata.
-
-## Pulizia della build
-
-In caso di errori strani di linker o file `.pio` corrotti:
-
-Windows PowerShell:
-
-```powershell
-Remove-Item -Recurse -Force .pio
-pio run -e cyd -j 1
-```
-
-Per Wokwi:
-
-```powershell
-Remove-Item -Recurse -Force .pio
-pio run -e cyd-wokwi -j 1
-```
-
-## Stato del progetto
-
-Il progetto è in sviluppo attivo.
-
-Attualmente include:
-
-```text
-[✓] Home / Clock
-[✓] Meteo
-[✓] Spotify Player
-[✓] Playlist Spotify
-[✓] Radar pioggia
-[✓] Formula 1
-[✓] Calendario
-[✓] Navigazione touchscreen
-[✓] Build CYD reale
-[✓] Build Wokwi
-[✓] Configurazione separata delle credenziali
-```
-
-## Licenza
-
-Aggiungi qui la licenza che vuoi utilizzare per il repository.
-
-Per un progetto open source semplice puoi ad esempio utilizzare la licenza MIT.
+Se una credenziale è già stata pubblicata su Git, rimuoverla dal file non è sufficiente: deve essere considerata compromessa e rigenerata.
 
 ---
 
-**CYD Hub v6**
+## Versione
 
-ESP32-2432S028R dashboard for home, weather, music and more.
+```text
+CYD Hub v7
+```
+
+Interfaccia: **Ink**  
+Target principale: **ESP32-2432S028R / CYD 320x240**
