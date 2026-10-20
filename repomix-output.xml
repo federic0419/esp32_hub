@@ -40,10 +40,24 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
+docs/
+  images/
+    00_boot.svg
+    01_playlist.svg
+    02_spotify_player.svg
+    03_meteo.svg
+    04_home.svg
+    05_radar.svg
+    06_sport.svg
+    07_calendario.svg
+    08_pc_riunione.svg
+    09_notifiche.svg
 src/
   config.h
   main.cpp
   secret_example.h
+tools/
+  cyd_sync.py
 .gitignore
 diagram.json
 esp32_hub.zip
@@ -54,6 +68,209 @@ wokwi.toml
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="docs/images/00_boot.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><radialGradient id="glow" cx="50%" cy="50%" r="40%"><stop offset="0%" stop-color="#FFFF00" stop-opacity="0.15"/><stop offset="100%" stop-color="#080A0F" stop-opacity="0"/></radialGradient><rect width="320" height="240" fill="url(#glow)"/><text x="160" y="90" font-size="38" fill="#FFFF00" font-weight="bold" text-anchor="middle" letter-spacing="4">CYD HUB</text><text x="160" y="112" font-size="14" fill="#B9BED7" text-anchor="middle" letter-spacing="2">v 7</text><rect x="60" y="148" width="200" height="4" rx="2" fill="#242542"/><rect x="60" y="148" width="160" height="4" rx="2" fill="#FFFF00"/><text x="100" y="168" font-size="9" fill="#1EE66E">✓  WiFi</text><text x="100" y="184" font-size="9" fill="#1EE66E">✓  NTP</text><text x="100" y="200" font-size="9" fill="#1EE66E">✓  Meteo</text><text x="100" y="216" font-size="9" fill="#64688E">○  Spotify</text></svg>
+</file>
+
+<file path="docs/images/01_playlist.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#061116"/><rect x="0" y="0" width="320" height="28" fill="#061116"/><circle cx="17" cy="14" r="3" fill="#1BE8A3"/><text x="27" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">LIBRERIA SPOTIFY</text><text x="312" y="19" font-size="10" fill="#96AFC0" text-anchor="end">14:32</text><rect x="0" y="28" width="160" height="22" fill="#18343A"/><rect x="160" y="28" width="160" height="22" fill="#10242A"/><text x="80" y="42" font-size="10" fill="#1BE8A3" font-weight="bold" text-anchor="middle">PLAYLIST</text><text x="240" y="42" font-size="10" fill="#96AFC0" text-anchor="middle">CODA</text><rect x="0" y="49" width="160" height="2" fill="#1BE8A3"/><rect x="8" y="56" width="148" height="46" rx="8" fill="#10242A" stroke="#2C5256" stroke-width="1"/><rect x="12" y="61" width="36" height="36" rx="5" fill="#18343A" stroke="#2C5256"/><text x="30" y="83" font-size="18" text-anchor="middle">🎵</text><text x="54" y="80" font-size="9" fill="#FAFAFF">Chill Vibes</text><text x="54" y="92" font-size="8" fill="#96AFC0">12 brani</text><rect x="162" y="56" width="148" height="46" rx="8" fill="#10242A" stroke="#2C5256" stroke-width="1"/><rect x="166" y="61" width="36" height="36" rx="5" fill="#18343A" stroke="#2C5256"/><text x="184" y="83" font-size="18" text-anchor="middle">🎵</text><text x="208" y="80" font-size="9" fill="#FAFAFF">Workout Mix</text><text x="208" y="92" font-size="8" fill="#96AFC0">12 brani</text><rect x="8" y="108" width="148" height="46" rx="8" fill="#10242A" stroke="#2C5256" stroke-width="1"/><rect x="12" y="113" width="36" height="36" rx="5" fill="#18343A" stroke="#2C5256"/><text x="30" y="135" font-size="18" text-anchor="middle">🎵</text><text x="54" y="132" font-size="9" fill="#FAFAFF">Evening Jazz</text><text x="54" y="144" font-size="8" fill="#96AFC0">12 brani</text><rect x="162" y="108" width="148" height="46" rx="8" fill="#10242A" stroke="#2C5256" stroke-width="1"/><rect x="166" y="113" width="36" height="36" rx="5" fill="#18343A" stroke="#2C5256"/><text x="184" y="135" font-size="18" text-anchor="middle">🎵</text><text x="208" y="132" font-size="9" fill="#FAFAFF">Top Hits</text><text x="208" y="144" font-size="8" fill="#96AFC0">12 brani</text><rect x="8" y="160" width="148" height="46" rx="8" fill="#10242A" stroke="#2C5256" stroke-width="1"/><rect x="12" y="165" width="36" height="36" rx="5" fill="#18343A" stroke="#2C5256"/><text x="30" y="187" font-size="18" text-anchor="middle">🎵</text><text x="54" y="184" font-size="9" fill="#FAFAFF">Road Trip</text><text x="54" y="196" font-size="8" fill="#96AFC0">12 brani</text><rect x="162" y="160" width="148" height="46" rx="8" fill="#10242A" stroke="#2C5256" stroke-width="1"/><rect x="166" y="165" width="36" height="36" rx="5" fill="#18343A" stroke="#2C5256"/><text x="184" y="187" font-size="18" text-anchor="middle">🎵</text><text x="208" y="184" font-size="9" fill="#FAFAFF">Focus Flow</text><text x="208" y="196" font-size="8" fill="#96AFC0">12 brani</text><rect x="0" y="208" width="320" height="32" fill="#0C1E22"/><text x="17" y="229" font-size="14" fill="#1BE8A3" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#587880" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#587880" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#587880" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#587880" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#587880" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#587880" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#587880" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#587880" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/02_spotify_player.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#061116"/><rect x="0" y="0" width="320" height="28" fill="#061116"/><circle cx="17" cy="14" r="3" fill="#1BE8A3"/><text x="27" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">SPOTIFY</text><rect x="175" y="4" width="51" height="20" rx="10" fill="#18343A" stroke="#2C5256"/><text x="200" y="17" font-size="9" fill="#FAFAFF" text-anchor="middle">☰ CODA</text><text x="312" y="19" font-size="10" fill="#96AFC0" text-anchor="end">14:32</text><rect x="12" y="32" width="150" height="150" rx="8" fill="#10242A" stroke="#2C5256"/><text x="87" y="115" font-size="36" text-anchor="middle">🎵</text><text x="174" y="50" font-size="10" fill="#96AFC0">BRANO</text><text x="174" y="66" font-size="13" fill="#FAFAFF" font-weight="bold">Bohemian Rhapsody</text><text x="174" y="83" font-size="11" fill="#1BE8A3">Queen</text><rect x="174" y="95" width="130" height="4" rx="2" fill="#2C5256"/><rect x="174" y="95" width="74" height="4" rx="2" fill="#1BE8A3"/><circle cx="248" cy="97" r="5" fill="#1BE8A3"/><text x="174" y="112" font-size="9" fill="#96AFC0">2:38</text><text x="304" y="112" font-size="9" fill="#96AFC0" text-anchor="end">5:55</text><text x="174" y="148" font-size="22">⏮</text><rect x="206" y="130" width="30" height="30" rx="15" fill="#1BE8A3"/><text x="221" y="150" font-size="16" text-anchor="middle" fill="#061116">⏸</text><text x="252" y="148" font-size="22">⏭</text><rect x="0" y="208" width="320" height="32" fill="#0C1E22"/><text x="17" y="229" font-size="14" fill="#587880" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#1BE8A3" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#587880" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#587880" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#587880" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#587880" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#587880" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#587880" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#587880" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/03_meteo.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">METEO</text><circle cx="256" cy="14" r="3" fill="#40D2FF"/><circle cx="268" cy="14" r="3" fill="#40D2FF"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#40D2FF" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#40D2FF" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#40D2FF" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><rect x="8" y="32" width="200" height="90" rx="12" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="62" y="85" font-size="52" text-anchor="middle">⛅</text><text x="140" y="70" font-size="36" fill="#FAFAFF" font-weight="bold">21°</text><text x="172" y="70" font-size="14" fill="#FAFAFF">C</text><text x="118" y="90" font-size="10" fill="#40D2FF">Parzialmente nuvoloso</text><text x="118" y="108" font-size="9" fill="#B9BED7">Percepita 19°  Umidità 61%</text><rect x="214" y="32" width="98" height="90" rx="12" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="263" y="52" font-size="9" fill="#64688E" text-anchor="middle">VENTO</text><text x="263" y="78" font-size="24" fill="#FAFAFF" font-weight="bold" text-anchor="middle">8</text><text x="263" y="92" font-size="9" fill="#B9BED7" text-anchor="middle">km/h</text><text x="263" y="108" font-size="9" fill="#64688E" text-anchor="middle">↗ NE</text><rect x="8" y="128" width="200" height="36" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="20" y="143" font-size="9" fill="#64688E">OGGI</text><text x="60" y="152" font-size="14" fill="#5C8EFF" font-weight="bold">14°</text><text x="100" y="152" font-size="11" fill="#B9BED7">—</text><text x="120" y="152" font-size="14" fill="#FF283C" font-weight="bold">24°</text><rect x="214" y="128" width="98" height="76" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="222" y="140" font-size="8" fill="#B9BED7">MER</text><text x="248" y="141" font-size="12">⛈</text><text x="270" y="140" font-size="8" fill="#5C8EFF">12°</text><text x="292" y="140" font-size="8" fill="#FF283C">22°</text><text x="222" y="162" font-size="8" fill="#B9BED7">GIO</text><text x="248" y="163" font-size="12">☀</text><text x="270" y="162" font-size="8" fill="#5C8EFF">13°</text><text x="292" y="162" font-size="8" fill="#FF283C">26°</text><text x="222" y="184" font-size="8" fill="#B9BED7">VEN</text><text x="248" y="185" font-size="12">🌤</text><text x="270" y="184" font-size="8" fill="#5C8EFF">11°</text><text x="292" y="184" font-size="8" fill="#FF283C">23°</text><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#64688E" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#40D2FF" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#64688E" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#64688E" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#64688E" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#64688E" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#64688E" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/04_home.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">HOME</text><circle cx="256" cy="14" r="3" fill="#FFFF00"/><circle cx="268" cy="14" r="3" fill="#FFFF00"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#FFFF00" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#FFFF00" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#FFFF00" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><rect x="140" y="4" width="48" height="18" rx="9" fill="#242542" stroke="#383A60"/><circle cx="152" cy="13" r="2" fill="#FF50BE"/><text x="175" y="17" font-size="8" fill="#FAFAFF" text-anchor="middle">MIC</text><rect x="194" y="4" width="38" height="18" rx="9" fill="#242542" stroke="#383A60"/><text x="213" y="17" font-size="8" fill="#FFFF00" text-anchor="middle">SET</text><text x="64" y="42" font-size="11" fill="#FFFF00" font-weight="bold">MARTEDÌ</text><text x="134" y="42" font-size="11" fill="#B9BED7">21 OTTOBRE 2025</text><text x="160" y="115" font-size="68" fill="#FAFAFF" font-weight="bold" text-anchor="middle" letter-spacing="-2">14:32</text><rect x="12" y="156" width="296" height="52" rx="14" fill="#16172C" stroke="#383A60" stroke-width="1"/><circle cx="42" cy="182" r="23" fill="#40D2FF22" opacity="0.15"/><circle cx="42" cy="182" r="18" fill="#40D2FF22"/><text x="42" y="175" font-size="22" text-anchor="middle">⛅</text><text x="72" y="190" font-size="22" fill="#FAFAFF" font-weight="bold">21°</text><line x1="148" y1="166" x2="148" y2="198" stroke="#383A60" stroke-width="1"/><text x="160" y="178" font-size="10" fill="#FAFAFF">Parz. nuvoloso</text><text x="160" y="194" font-size="9" fill="#B9BED7">MIN 14°  MAX 24°</text><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#64688E" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#64688E" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#FFFF00" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#64688E" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#64688E" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#64688E" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#64688E" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/05_radar.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">RADAR PIOGGIA</text><circle cx="256" cy="14" r="3" fill="#5C8EFF"/><circle cx="268" cy="14" r="3" fill="#5C8EFF"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#5C8EFF" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#5C8EFF" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#5C8EFF" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><rect x="0" y="28" width="320" height="180" fill="#0A1020"/><rect x="128" y="76" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="144" y="76" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="160" y="76" width="16" height="12" fill="#40D2FF" opacity="0.24"/><rect x="176" y="76" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="192" y="76" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="112" y="88" width="16" height="12" fill="#40D2FF" opacity="0.18"/><rect x="128" y="88" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="144" y="88" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="160" y="88" width="16" height="12" fill="#40D2FF" opacity="0.47"/><rect x="176" y="88" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="192" y="88" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="208" y="88" width="16" height="12" fill="#40D2FF" opacity="0.18"/><rect x="96" y="100" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="112" y="100" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="128" y="100" width="16" height="12" fill="#40D2FF" opacity="0.51"/><rect x="144" y="100" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="176" y="100" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="192" y="100" width="16" height="12" fill="#40D2FF" opacity="0.51"/><rect x="208" y="100" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="224" y="100" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="96" y="112" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="112" y="112" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="128" y="112" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="144" y="112" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="160" y="112" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="176" y="112" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="192" y="112" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="208" y="112" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="224" y="112" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="96" y="124" width="16" height="12" fill="#40D2FF" opacity="0.24"/><rect x="112" y="124" width="16" height="12" fill="#40D2FF" opacity="0.47"/><rect x="144" y="124" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="160" y="124" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="176" y="124" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="208" y="124" width="16" height="12" fill="#40D2FF" opacity="0.47"/><rect x="224" y="124" width="16" height="12" fill="#40D2FF" opacity="0.24"/><rect x="96" y="136" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="112" y="136" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="128" y="136" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="144" y="136" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="160" y="136" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="176" y="136" width="16" height="12" fill="#5C8EFF" opacity="0.7"/><rect x="192" y="136" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="208" y="136" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="224" y="136" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="96" y="148" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="112" y="148" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="128" y="148" width="16" height="12" fill="#40D2FF" opacity="0.51"/><rect x="144" y="148" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="176" y="148" width="16" height="12" fill="#40D2FF" opacity="0.65"/><rect x="192" y="148" width="16" height="12" fill="#40D2FF" opacity="0.51"/><rect x="208" y="148" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="224" y="148" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="112" y="160" width="16" height="12" fill="#40D2FF" opacity="0.18"/><rect x="128" y="160" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="144" y="160" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="160" y="160" width="16" height="12" fill="#40D2FF" opacity="0.47"/><rect x="176" y="160" width="16" height="12" fill="#40D2FF" opacity="0.43"/><rect x="192" y="160" width="16" height="12" fill="#40D2FF" opacity="0.33"/><rect x="208" y="160" width="16" height="12" fill="#40D2FF" opacity="0.18"/><rect x="128" y="172" width="16" height="12" fill="#40D2FF" opacity="0.12"/><rect x="144" y="172" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="160" y="172" width="16" height="12" fill="#40D2FF" opacity="0.24"/><rect x="176" y="172" width="16" height="12" fill="#40D2FF" opacity="0.20"/><rect x="192" y="172" width="16" height="12" fill="#40D2FF" opacity="0.12"/><line x1="160" y1="28" x2="160" y2="208" stroke="#FAFAFF" stroke-width="0.5" opacity="0.3"/><line x1="0" y1="118" x2="320" y2="118" stroke="#FAFAFF" stroke-width="0.5" opacity="0.3"/><circle cx="160" cy="118" r="6" fill="none" stroke="#FF283C" stroke-width="1.5"/><circle cx="160" cy="118" r="2" fill="#FF283C"/><text x="312" y="204" font-size="8" fill="#B9BED7" text-anchor="end">14:20 UTC</text><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#64688E" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#64688E" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#64688E" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#5C8EFF" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#64688E" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#64688E" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#64688E" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/06_sport.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">SPORT</text><circle cx="256" cy="14" r="3" fill="#FF7828"/><circle cx="268" cy="14" r="3" fill="#FF7828"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#FF7828" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#FF7828" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#FF7828" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><rect x="8" y="32" width="304" height="80" rx="12" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="20" y="47" font-size="8" fill="#FF7828" font-weight="bold">FORMULA 1</text><text x="20" y="63" font-size="13" fill="#FAFAFF" font-weight="bold">Gran Premio del Brasile</text><text x="20" y="77" font-size="9" fill="#B9BED7">02 NOV 2025  20:00</text><rect x="214" y="38" width="90" height="34" rx="8" fill="#242542" stroke="#383A60"/><text x="259" y="50" font-size="8" fill="#64688E" text-anchor="middle">MANCANO</text><text x="259" y="64" font-size="14" fill="#FF7828" font-weight="bold" text-anchor="middle">12g 05h</text><text x="20" y="95" font-size="8" fill="#B9BED7">Round 21/24  ·  Interlagos</text><rect x="200" y="87" width="38" height="12" rx="4" fill="#FF782830" stroke="#FF7828" stroke-width="1"/><text x="219" y="96" font-size="7" fill="#FF7828" text-anchor="middle">SPRINT</text><rect x="8" y="118" width="304" height="84" rx="12" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="20" y="133" font-size="8" fill="#5C8EFF" font-weight="bold">JUVENTUS</text><text x="20" y="143" font-size="8" fill="#B9BED7">SAB 26 OTT  17:00</text><text x="110" y="143" font-size="8" fill="#FAFAFF" font-weight="bold">Juventus</text><text x="188" y="143" font-size="8" fill="#64688E">vs</text><text x="208" y="143" font-size="8" fill="#FAFAFF" font-weight="bold">Milan</text><text x="20" y="163" font-size="8" fill="#B9BED7">MAR 29 OTT  21:00</text><text x="110" y="163" font-size="8" fill="#FAFAFF" font-weight="bold">Lille</text><text x="188" y="163" font-size="8" fill="#64688E">vs</text><text x="208" y="163" font-size="8" fill="#FAFAFF" font-weight="bold">Juventus</text><text x="20" y="183" font-size="8" fill="#B9BED7">DOM 03 NOV  15:00</text><text x="110" y="183" font-size="8" fill="#FAFAFF" font-weight="bold">Juventus</text><text x="188" y="183" font-size="8" fill="#64688E">vs</text><text x="208" y="183" font-size="8" fill="#FAFAFF" font-weight="bold">Torino</text><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#64688E" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#64688E" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#64688E" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#64688E" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#FF7828" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#64688E" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#64688E" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/07_calendario.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">CALENDARIO</text><circle cx="256" cy="14" r="3" fill="#AC78FF"/><circle cx="268" cy="14" r="3" fill="#AC78FF"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#AC78FF" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#AC78FF" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#AC78FF" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><text x="30" y="46" font-size="18" fill="#AC78FF">‹</text><text x="160" y="46" font-size="13" fill="#FAFAFF" font-weight="bold" text-anchor="middle">OTTOBRE 2025</text><text x="290" y="46" font-size="18" fill="#AC78FF" text-anchor="end">›</text><text x="22" y="62" font-size="9" fill="#B9BED7" text-anchor="middle">L</text><text x="67" y="62" font-size="9" fill="#B9BED7" text-anchor="middle">M</text><text x="112" y="62" font-size="9" fill="#B9BED7" text-anchor="middle">M</text><text x="157" y="62" font-size="9" fill="#B9BED7" text-anchor="middle">G</text><text x="202" y="62" font-size="9" fill="#B9BED7" text-anchor="middle">V</text><text x="247" y="62" font-size="9" fill="#64688E" text-anchor="middle">S</text><text x="292" y="62" font-size="9" fill="#FF283C" text-anchor="middle">D</text><text x="112" y="88" font-size="10" fill="#B9BED7" text-anchor="middle">1</text><text x="157" y="88" font-size="10" fill="#B9BED7" text-anchor="middle">2</text><text x="202" y="88" font-size="10" fill="#B9BED7" text-anchor="middle">3</text><text x="247" y="88" font-size="10" fill="#64688E" text-anchor="middle">4</text><text x="292" y="88" font-size="10" fill="#FF283C" text-anchor="middle">5</text><text x="22" y="113" font-size="10" fill="#B9BED7" text-anchor="middle">6</text><text x="67" y="113" font-size="10" fill="#B9BED7" text-anchor="middle">7</text><text x="112" y="113" font-size="10" fill="#B9BED7" text-anchor="middle">8</text><text x="157" y="113" font-size="10" fill="#B9BED7" text-anchor="middle">9</text><text x="202" y="113" font-size="10" fill="#B9BED7" text-anchor="middle">10</text><text x="247" y="113" font-size="10" fill="#64688E" text-anchor="middle">11</text><text x="292" y="113" font-size="10" fill="#FF283C" text-anchor="middle">12</text><text x="22" y="138" font-size="10" fill="#B9BED7" text-anchor="middle">13</text><text x="67" y="138" font-size="10" fill="#B9BED7" text-anchor="middle">14</text><text x="112" y="138" font-size="10" fill="#B9BED7" text-anchor="middle">15</text><text x="157" y="138" font-size="10" fill="#B9BED7" text-anchor="middle">16</text><text x="202" y="138" font-size="10" fill="#B9BED7" text-anchor="middle">17</text><text x="247" y="138" font-size="10" fill="#64688E" text-anchor="middle">18</text><text x="292" y="138" font-size="10" fill="#FF283C" text-anchor="middle">19</text><text x="22" y="163" font-size="10" fill="#B9BED7" text-anchor="middle">20</text><circle cx="67" cy="159" r="10" fill="#AC78FF"/><text x="67" y="163" font-size="10" fill="#080A0F" font-weight="bold" text-anchor="middle">21</text><text x="112" y="163" font-size="10" fill="#B9BED7" text-anchor="middle">22</text><text x="157" y="163" font-size="10" fill="#B9BED7" text-anchor="middle">23</text><text x="202" y="163" font-size="10" fill="#B9BED7" text-anchor="middle">24</text><text x="247" y="163" font-size="10" fill="#64688E" text-anchor="middle">25</text><text x="292" y="163" font-size="10" fill="#FF283C" text-anchor="middle">26</text><text x="22" y="188" font-size="10" fill="#B9BED7" text-anchor="middle">27</text><text x="67" y="188" font-size="10" fill="#B9BED7" text-anchor="middle">28</text><text x="112" y="188" font-size="10" fill="#B9BED7" text-anchor="middle">29</text><text x="157" y="188" font-size="10" fill="#B9BED7" text-anchor="middle">30</text><text x="202" y="188" font-size="10" fill="#B9BED7" text-anchor="middle">31</text><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#64688E" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#64688E" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#64688E" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#64688E" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#64688E" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#AC78FF" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#64688E" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/08_pc_riunione.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">PC / RIUNIONE</text><circle cx="256" cy="14" r="3" fill="#FF50BE"/><circle cx="268" cy="14" r="3" fill="#FF50BE"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#FF50BE" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#FF50BE" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#FF50BE" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><rect x="0" y="28" width="320" height="26" fill="#080A0F"/><circle cx="19" cy="41" r="3" fill="#1EE66E"/><text x="29" y="45" font-size="9" fill="#B9BED7">Connesso al PC</text><rect x="12" y="58" width="140" height="150" rx="14" fill="#16172C" stroke="#FF283C" stroke-width="1"/><circle cx="82" cy="110" r="32" fill="#FF283C22"/><rect x="72" y="86" width="20" height="28" rx="10" fill="#FF283C"/><path d="M 64 110 Q 64 130 82 130 Q 100 130 100 110" fill="none" stroke="#FF283C" stroke-width="2"/><line x1="82" y1="130" x2="82" y2="140" stroke="#FF283C" stroke-width="2"/><line x1="72" y1="140" x2="92" y2="140" stroke="#FF283C" stroke-width="2"/><line x1="62" y1="90" x2="102" y2="170" stroke="#FF283C" stroke-width="3.5"/><text x="82" y="184" font-size="8" fill="#B9BED7" text-anchor="middle">MICROFONO</text><text x="82" y="196" font-size="13" fill="#FF283C" font-weight="bold" text-anchor="middle">MUTO</text><rect x="160" y="108" width="72" height="46" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="196" y="130" font-size="16" fill="#FFFF00" text-anchor="middle">▲</text><text x="196" y="146" font-size="8" fill="#64688E" text-anchor="middle">VOL +</text><rect x="160" y="162" width="72" height="46" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="196" y="184" font-size="16" fill="#FFFF00" text-anchor="middle">▼</text><text x="196" y="200" font-size="8" fill="#64688E" text-anchor="middle">VOL −</text><rect x="238" y="108" width="72" height="46" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="274" y="130" font-size="16" fill="#B9BED7" text-anchor="middle">🔇</text><text x="274" y="146" font-size="8" fill="#64688E" text-anchor="middle">MUTO</text><rect x="238" y="162" width="72" height="46" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><text x="274" y="184" font-size="16" fill="#B9BED7" text-anchor="middle">▶</text><text x="274" y="200" font-size="8" fill="#64688E" text-anchor="middle">PLAY</text><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#64688E" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#64688E" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#64688E" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#64688E" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#64688E" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#64688E" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#FF50BE" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="docs/images/09_notifiche.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" style="font-family:monospace,sans-serif"><rect width="320" height="240" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#080A0F"/><rect x="0" y="0" width="320" height="28" fill="#ffffff08"/><text x="16" y="19" font-size="11" fill="#FAFAFF" font-weight="bold">NOTIFICHE</text><circle cx="256" cy="14" r="3" fill="#FF7828"/><circle cx="268" cy="14" r="3" fill="#FF7828"/><!-- BT icon placeholder --><rect x="277" y="8" width="7" height="12" rx="1" fill="none" stroke="#FF7828" stroke-width="1.2"/><line x1="280" y1="9" x2="283" y2="12" stroke="#FF7828" stroke-width="1.2"/><line x1="280" y1="19" x2="283" y2="16" stroke="#FF7828" stroke-width="1.2"/><!-- time --><text x="312" y="19" font-size="10" fill="#B9BED7" text-anchor="end">14:32</text><rect x="160" y="5" width="66" height="17" rx="8" fill="#242542"/><text x="193" y="17" font-size="8" fill="#FF7828" text-anchor="middle">CANCELLA</text><rect x="12" y="32" width="290" height="42" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><rect x="12" y="40" width="3" height="26" rx="1" fill="#AC78FF"/><circle cx="26" cy="39" r="2" fill="#AC78FF"/><text x="34" y="42" font-size="8" fill="#AC78FF" font-weight="bold">TEAMS</text><text x="294" y="42" font-size="8" fill="#64688E" text-anchor="end">14:31</text><text x="24" y="58" font-size="11" fill="#FAFAFF">Mario Rossi</text><text x="24" y="70" font-size="8" fill="#B9BED7">Ci sentiamo alle 15 per la demo?</text><rect x="12" y="76" width="290" height="42" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><rect x="12" y="84" width="3" height="26" rx="1" fill="#FAFAFF"/><circle cx="26" cy="83" r="2" fill="#FAFAFF"/><text x="34" y="86" font-size="8" fill="#FAFAFF" font-weight="bold">SLACK</text><text x="294" y="86" font-size="8" fill="#64688E" text-anchor="end">14:12</text><text x="24" y="102" font-size="11" fill="#FAFAFF">#progetto-hub</text><text x="24" y="114" font-size="8" fill="#B9BED7">Laura: ho caricato il nuovo firmware</text><rect x="12" y="120" width="290" height="42" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><rect x="12" y="128" width="3" height="26" rx="1" fill="#1BE8A3"/><circle cx="26" cy="127" r="2" fill="#1BE8A3"/><text x="34" y="130" font-size="8" fill="#1BE8A3" font-weight="bold">WEBEX</text><text x="294" y="130" font-size="8" fill="#64688E" text-anchor="end">13:55</text><text x="24" y="146" font-size="11" fill="#FAFAFF">Riunione tra 5 minuti</text><text x="24" y="158" font-size="8" fill="#B9BED7">Sprint review - stanza personale</text><rect x="12" y="164" width="290" height="42" rx="10" fill="#16172C" stroke="#383A60" stroke-width="1"/><rect x="12" y="172" width="3" height="26" rx="1" fill="#FAFAFF"/><circle cx="26" cy="171" r="2" fill="#FAFAFF"/><text x="34" y="174" font-size="8" fill="#FAFAFF" font-weight="bold">SLACK</text><text x="294" y="174" font-size="8" fill="#64688E" text-anchor="end">12:40</text><text x="24" y="190" font-size="11" fill="#FAFAFF">Giulia Bianchi</text><text x="24" y="202" font-size="8" fill="#B9BED7">Grazie, ci vediamo domani!</text><rect x="307" y="32" width="3" height="174" rx="1" fill="#2A2C4A"/><rect x="307" y="32" width="3" height="70" rx="1" fill="#FF7828"/><rect x="0" y="208" width="320" height="32" fill="#141426"/><text x="17" y="229" font-size="14" fill="#64688E" text-anchor="middle">♪</text><text x="52" y="229" font-size="14" fill="#64688E" text-anchor="middle">▶</text><text x="87" y="229" font-size="14" fill="#FF7828" text-anchor="middle">🔔</text><text x="122" y="229" font-size="14" fill="#64688E" text-anchor="middle">☁</text><text x="157" y="229" font-size="14" fill="#64688E" text-anchor="middle">⌂</text><text x="192" y="229" font-size="14" fill="#64688E" text-anchor="middle">🌧</text><text x="227" y="229" font-size="14" fill="#64688E" text-anchor="middle">⚽</text><text x="262" y="229" font-size="14" fill="#64688E" text-anchor="middle">📅</text><text x="297" y="229" font-size="14" fill="#64688E" text-anchor="middle">💻</text></svg>
+</file>
+
+<file path="tools/cyd_sync.py">
+"""Collega il PC al CYD Hub via Bluetooth, sullo stesso abbinamento della tastiera "CYD Hub":
+- sincronizza il muto del microfono predefinito di Windows (tocco su MIC = muto di sistema);
+- inoltra le notifiche di Teams, Webex e Slack.
+
+Uso:  pip install pycaw winrt-runtime winrt-Windows.Devices.Bluetooth ^
+          winrt-Windows.Devices.Bluetooth.GenericAttributeProfile winrt-Windows.Devices.Enumeration ^
+          winrt-Windows.Storage.Streams winrt-Windows.UI.Notifications winrt-Windows.UI.Notifications.Management ^
+          winrt-Windows.Foundation winrt-Windows.Foundation.Collections winrt-Windows.ApplicationModel
+      pythonw cyd_sync.py      (senza finestra; nessun indirizzo da configurare)
+
+Per le notifiche serve l'accesso: Impostazioni > Privacy e sicurezza > Notifiche.
+"""
+import asyncio
+import datetime
+import sys
+import time
+import uuid
+from ctypes import POINTER, cast
+
+sys.coinit_flags = 0  # COM multithread: in STA (default di comtypes) le chiamate Bluetooth WinRT non terminano mai
+from comtypes import CLSCTX_ALL
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from winrt.windows.devices.bluetooth import BluetoothCacheMode, BluetoothLEDevice
+from winrt.windows.devices.bluetooth.genericattributeprofile import (
+    GattClientCharacteristicConfigurationDescriptorValue, GattCommunicationStatus)
+from winrt.windows.devices.enumeration import DeviceInformation
+from winrt.windows.storage.streams import DataWriter
+from winrt.windows.ui.notifications import KnownNotificationBindings, NotificationKinds
+from winrt.windows.ui.notifications.management import UserNotificationListener, UserNotificationListenerAccessStatus
+
+# Devono coincidere con SYNC_*_UUID in src/main.cpp.
+SVC = uuid.UUID("c7d10000-5f6e-4b8a-9a2d-3c1e0f6b7a90")
+MIC = uuid.UUID("c7d10001-5f6e-4b8a-9a2d-3c1e0f6b7a90")
+NOTIF = uuid.UUID("c7d10002-5f6e-4b8a-9a2d-3c1e0f6b7a90")
+APPS = ("teams", "webex", "slack")
+OK = GattCommunicationStatus.SUCCESS
+
+
+def mic():
+    # Riletto a ogni giro: segue il cambio del microfono predefinito.
+    dev = AudioUtilities.GetMicrophone()
+    vol = getattr(dev, "EndpointVolume", None)  # pycaw recenti
+    return vol or cast(dev.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None), POINTER(IAudioEndpointVolume))
+
+
+async def connect():
+    """Trova il CYD tra i dispositivi abbinati (per nome) e ritorna (device, car. microfono, car. notifiche)."""
+    infos = await DeviceInformation.find_all_async_aqs_filter(
+        BluetoothLEDevice.get_device_selector_from_device_name("CYD Hub"))
+    if not infos:
+        raise ConnectionError("CYD Hub non abbinato al PC")
+    dev = await BluetoothLEDevice.from_id_async(infos[0].id)
+    svcs = await dev.get_gatt_services_for_uuid_with_cache_mode_async(SVC, BluetoothCacheMode.UNCACHED)
+    if svcs.status != OK or not svcs.services:
+        raise ConnectionError("servizio non trovato (CYD spento, Bluetooth disattivato o firmware vecchio)")
+    svc = svcs.services[0]
+    chars = [(await svc.get_characteristics_for_uuid_async(u)).characteristics[0] for u in (MIC, NOTIF)]
+    return dev, *chars
+
+
+async def write(ch, data: bytes):
+    w = DataWriter()
+    w.write_bytes(data)
+    if (await ch.write_value_with_result_async(w.detach_buffer())).status != OK:
+        raise ConnectionError("scrittura Bluetooth fallita")
+
+
+def notif_payload(n, start):
+    """Campi separati da 0x1F: id, old, ora, app, titolo, testo. None se l'app non e' seguita."""
+    app = n.app_info.display_info.display_name
+    if not any(a in app.lower() for a in APPS):
+        return None
+    b = n.notification.visual.get_binding(KnownNotificationBindings.toast_generic)
+    texts = [t.text for t in b.get_text_elements()] if b else []
+    fields = [str(n.id), "1" if n.creation_time < start else "0",
+              n.creation_time.astimezone().strftime("%H:%M"), app[:24],
+              texts[0][:60] if texts else "", " ".join(texts[1:])[:100]]
+    # Sta in un solo pacchetto BLE; il taglio puo' spezzare un carattere UTF-8, che viene scartato.
+    return "\x1f".join(f.replace("\x1f", " ") for f in fields).encode()[:240].decode(errors="ignore").encode()
+
+
+async def session(listener):
+    dev, mic_ch, notif_ch = await connect()
+    # A ogni collegamento si reinvia tutto: le notifiche gia' presenti vanno nello storico senza popup.
+    start = datetime.datetime.now(datetime.timezone.utc)
+    sent = set()
+    loop = asyncio.get_running_loop()
+    toggle = asyncio.Event()
+    mic_ch.add_value_changed(lambda c, a: loop.call_soon_threadsafe(toggle.set))  # 't' = tocco su MIC
+    status = await mic_ch.write_client_characteristic_configuration_descriptor_async(
+        GattClientCharacteristicConfigurationDescriptorValue.NOTIFY)
+    if status != OK:
+        raise ConnectionError("iscrizione alle notifiche del CYD fallita")
+    print("Collegato al CYD Hub")
+    last_mute, last_beat, next_notif = None, 0.0, 0.0
+    while True:
+        vol = mic()
+        if toggle.is_set():
+            toggle.clear()
+            vol.SetMute(not vol.GetMute(), None)
+        muted = bool(vol.GetMute())
+        # Anche se non cambia, lo stato si riscrive ogni secondo: il CYD lo usa per sapere che lo script e' attivo.
+        if muted != last_mute or time.monotonic() - last_beat > 1:
+            await write(mic_ch, b"1" if muted else b"0")
+            last_mute, last_beat = muted, time.monotonic()
+        if listener and time.monotonic() >= next_notif:
+            next_notif = time.monotonic() + 1
+            notifs = await listener.get_notifications_async(NotificationKinds.TOAST)
+            for n in sorted(notifs, key=lambda n: n.creation_time):
+                if n.id in sent:
+                    continue
+                try:
+                    payload = notif_payload(n, start)
+                except Exception as e:
+                    print("Notifica ignorata:", e)
+                    payload = None
+                if payload:
+                    await write(notif_ch, payload)
+                sent.add(n.id)
+            sent &= {n.id for n in notifs}  # dimentica le notifiche chiuse sul PC
+        try:
+            await asyncio.wait_for(toggle.wait(), 0.2)
+        except TimeoutError:
+            pass
+
+
+async def main():
+    listener = UserNotificationListener.current
+    if await listener.request_access_async() != UserNotificationListenerAccessStatus.ALLOWED:
+        print("Accesso alle notifiche negato: solo sincronizzazione del microfono")
+        listener = None
+    while True:
+        try:
+            await session(listener)
+        except Exception as e:
+            print("CYD non raggiungibile:", e)
+        await asyncio.sleep(5)
+
+
+asyncio.run(main())
+</file>
+
+<file path="wokwi.toml">
+[wokwi]
+version = 1
+firmware = ".pio/build/cyd-wokwi/firmware.bin"
+elf = ".pio/build/cyd-wokwi/firmware.elf"
+</file>
+
+<file path="src/secret_example.h">
+#pragma once
+
+#define WIFI_SSID_BACKUP "..."
+#define WIFI_PASS_BACKUP "..."
+
+#define WIFI_SSID_PRIMARY "..."
+#define WIFI_PASS_PRIMARY "..."
+
+#define SPOTIFY_CLIENT_ID_VALUE "..."
+#define SPOTIFY_CLIENT_SECRET_VALUE "..."
+</file>
 
 <file path="diagram.json">
 {
@@ -127,11 +344,312 @@ This section contains the contents of the repository's files.
 }
 </file>
 
-<file path="wokwi.toml">
-[wokwi]
-version = 1
-firmware = ".pio/build/cyd-wokwi/firmware.bin"
-elf = ".pio/build/cyd-wokwi/firmware.elf"
+<file path="README.md">
+# CYD Hub
+
+**Firmware v7.0** · Dashboard touchscreen per **ESP32-2432S028R** (Cheap Yellow Display) con tema scuro **Nebula**.
+
+Spotify, meteo, radar pioggia, sport, calendario, notifiche del PC e controllo del PC via Bluetooth, tutto su un display 320×240. La pagina iniziale è l'orologio.
+
+---
+
+## Anteprima
+
+> Mockup ricostruiti dal layout di `src/main.cpp` con dati dimostrativi, non screenshot.
+
+| Avvio | Home / Orologio | Spotify Player |
+|:---:|:---:|:---:|
+| ![Avvio](docs/images/00_boot.svg) | ![Home](docs/images/04_home.svg) | ![Spotify Player](docs/images/02_spotify_player.svg) |
+
+| Playlist / Coda | Notifiche PC | Meteo |
+|:---:|:---:|:---:|
+| ![Playlist](docs/images/01_playlist.svg) | ![Notifiche](docs/images/09_notifiche.svg) | ![Meteo](docs/images/03_meteo.svg) |
+
+| Radar pioggia | Sport — F1 + Juventus | Calendario |
+|:---:|:---:|:---:|
+| ![Radar](docs/images/05_radar.svg) | ![Sport](docs/images/06_sport.svg) | ![Calendario](docs/images/07_calendario.svg) |
+
+| PC / Riunione |
+|:---:|
+| ![PC](docs/images/08_pc_riunione.svg) |
+
+---
+
+## Pagine
+
+| # | Pagina | Cosa fa |
+|---|---|---|
+| 0 | Playlist / Coda | playlist dell'account (griglia 2×3) e coda di riproduzione scrollabile |
+| 1 | Spotify Player | copertina, brano, avanzamento, prev / play-pausa / next, pulsante CODA |
+| 2 | Notifiche PC | storico delle notifiche di Teams, Webex e Slack |
+| 3 | Meteo | condizioni attuali e previsione dei prossimi giorni |
+| 4 | **Home** | orologio, data, meteo compatto, pulsanti MIC e SET |
+| 5 | Radar pioggia | mappa radar RainViewer dell'area configurata |
+| 6 | Sport | prossimo GP di Formula 1 e prossime partite della Juventus |
+| 7 | Calendario | mese corrente e navigazione tra i mesi |
+| 8 | PC / Riunione | microfono, volume, muto e play/pausa del PC via Bluetooth |
+
+### Navigazione
+
+- **swipe orizzontale** → pagina precedente / successiva;
+- **barra in basso** → apre direttamente qualsiasi pagina;
+- **swipe verticale** → scorre la coda Spotify e le notifiche;
+- nella pagina PC i pulsanti del volume si ripetono tenendo premuto.
+
+### Home
+
+- orologio a grandi cifre, giorno e data, meteo con min/max;
+- **MIC**: silenzia o riattiva il microfono del PC con un tocco (rosso = muto);
+- **SET**: menu impostazioni (vedi [Menu SET](#menu-set)).
+
+### Spotify — Playlist / Coda e Player
+
+- **PLAYLIST**: 6 playlist per pagina, frecce per sfogliare, tap per avviarne una;
+- **CODA**: elenco verticale con swipe e scrollbar, tap su un brano per riprodurre da lì;
+- **Player**: copertina, titolo, artista, barra di avanzamento e controlli; il colore d'accento segue la copertina.
+
+> Serve un dispositivo Spotify attivo; i comandi di riproduzione richiedono Spotify Premium.
+
+### Notifiche PC
+
+Notifiche di **Teams**, **Webex** e **Slack** lette dal centro notifiche di Windows e inviate al CYD via Bluetooth da [`tools/cyd_sync.py`](#script-per-il-pc--toolscyd_syncpy).
+
+- ogni notifica nuova appare in un **popup** sotto la barra superiore, **su qualsiasi pagina**, per **10 secondi**; tocco sul popup → apre la pagina Notifiche, tocco altrove → lo chiude;
+- il **LED RGB** lampeggia per 10 secondi col colore dell'app: **Teams viola**, **Webex verde acqua**, **Slack bianco** (gli stessi colori usati a schermo);
+- la pagina conserva le **ultime 30**, le più recenti in alto: swipe verticale per scorrere, **CANCELLA** per svuotarla;
+- quando lo script si collega invia anche le notifiche già presenti su Windows, che vanno nello storico senza popup;
+- popup e LED si spengono da **SET → NOTIFICHE PC**; le notifiche continuano comunque ad arrivare nello storico.
+
+Lo storico è in RAM: si azzera al riavvio del CYD e viene ricaricato quando lo script si ricollega.
+
+### Meteo
+
+Temperatura attuale e percepita, umidità, vento, min/max e previsione dei giorni successivi. Dati **Open-Meteo**, senza API key; la località si imposta in `src/config.h`.
+
+### Radar pioggia
+
+Ultima mappa radar di **RainViewer** sull'area configurata, aggiornata ogni 10 minuti o a mano.
+
+### Sport
+
+- **Formula 1** (API Jolpica / Ergast): prossimo GP con round, data e ora locale, countdown ed eventuale Sprint;
+- **Juventus** (feed iCalendar `https://ics.fixtur.es/v2/juventus.ics`): prossime partite con data, ora e avversario.
+
+Il pulsante di refresh aggiorna entrambe le sezioni.
+
+### Calendario
+
+Mese corrente con il giorno di oggi evidenziato; frecce per mese precedente e successivo.
+
+### PC / Riunione
+
+Il CYD si abbina a Windows come **tastiera Bluetooth LE** chiamata `CYD Hub`.
+
+| Pulsante | Azione sul PC |
+|---|---|
+| MICROFONO | muto del microfono di sistema (con `cyd_sync.py`), altrimenti `Win+Alt+K` |
+| VOLUME + / − | volume di sistema; tenendo premuto si ripete |
+| MUTO | muto dell'audio di sistema |
+| PLAY | play / pausa |
+
+- **con `cyd_sync.py` attivo** lo stato ATTIVO / MUTO è quello reale del microfono predefinito di Windows, anche se lo cambi dal PC, e il tocco vale per tutte le app;
+- **senza lo script** il tocco invia `Win+Alt+K` (muto nelle chiamate di Windows 11: Teams, Zoom, …) e lo stato mostrato è solo *presunto*;
+- il volume è quello globale del PC, non quello di Spotify.
+
+**Abbinamento:** *Impostazioni → Bluetooth e dispositivi → Aggiungi dispositivo → Bluetooth* → `CYD Hub`. Non serve PIN e l'abbinamento resta memorizzato.
+
+---
+
+## Script per il PC — `tools/cyd_sync.py`
+
+Un solo script Python che parla con il CYD sullo **stesso collegamento Bluetooth della tastiera**: trova `CYD Hub` per nome tra i dispositivi abbinati, quindi **non servono IP né WiFi**.
+
+- ogni 200 ms legge il muto del microfono predefinito e lo manda al CYD; quando tocchi MIC sul CYD, silenzia o riattiva il microfono di Windows;
+- ogni secondo legge il centro notifiche di Windows e inoltra quelle di Teams, Webex e Slack.
+
+### Installazione
+
+```bash
+pip install pycaw winrt-runtime winrt-Windows.Devices.Bluetooth winrt-Windows.Devices.Bluetooth.GenericAttributeProfile winrt-Windows.Devices.Enumeration winrt-Windows.Storage.Streams winrt-Windows.UI.Notifications winrt-Windows.UI.Notifications.Management winrt-Windows.Foundation winrt-Windows.Foundation.Collections winrt-Windows.ApplicationModel
+
+python tools/cyd_sync.py
+```
+
+Quando è collegato scrive `Collegato al CYD Hub`.
+
+- per le notifiche Windows deve concedere l'accesso: *Impostazioni → Privacy e sicurezza → Notifiche*; senza accesso lo script sincronizza solo il microfono;
+- il primo collegamento può richiedere **circa 30 secondi** (ricerca Bluetooth di Windows); se il CYD è spento lo script riprova ogni 5 secondi;
+- per seguire altre app basta aggiungerle alla lista `APPS` nello script.
+
+### Avvio automatico con Windows
+
+Apri la cartella Esecuzione automatica (`Win+R` → `shell:startup`) e crea un collegamento con destinazione:
+
+```text
+pythonw D:\progettini\esp32_hub\tools\cyd_sync.py
+```
+
+`pythonw` avvia lo script senza finestra. Per disattivarlo basta eliminare il collegamento.
+
+### Risoluzione problemi
+
+| Messaggio / sintomo | Cosa fare |
+|---|---|
+| `CYD Hub non abbinato al PC` | abbina il CYD da *Impostazioni → Bluetooth* |
+| `servizio non trovato` | controlla in **SET** che il firmware sia v7.0 o successivo e che **BLUETOOTH PC** sia acceso; se è tutto a posto, **rimuovi `CYD Hub` dai dispositivi Bluetooth di Windows e abbinalo di nuovo** (Windows ricorda i servizi del firmware precedente) |
+| il microfono sul CYD non segue il PC | lo script non è in esecuzione o non è collegato; dopo 3 secondi senza dati il CYD torna a `Win+Alt+K` |
+
+---
+
+## Menu SET
+
+Si apre dal pulsante **SET** nella Home; in alto mostra la **versione del firmware**.
+
+| Voce | Funzione |
+|---|---|
+| CALIBRA TOUCH | calibrazione guidata del touchscreen |
+| RESET TOUCH | torna alla calibrazione predefinita |
+| LED RGB | accende/spegne il LED (luce Spotify e lampeggio notifiche) |
+| BLUETOOTH PC | attiva/disattiva tastiera e script PC (riavvia il CYD) |
+| NOTIFICHE PC | attiva/disattiva popup e LED delle notifiche |
+
+Le impostazioni restano salvate anche dopo il riavvio.
+
+---
+
+## LED RGB
+
+- durante l'avvio cambia colore a ogni fase;
+- con Spotify in riproduzione "respira" lentamente col colore della copertina, anche fuori dalle pagine Spotify;
+- all'arrivo di una notifica lampeggia per 10 secondi col colore dell'app, poi torna allo stato precedente.
+
+---
+
+## Hardware
+
+```text
+ESP32-2432S028R · Cheap Yellow Display (CYD)
+Display 320 × 240 · touch resistivo XPT2046 · LED RGB
+```
+
+Pin del touch: `CS=33  IRQ=36  CLK=25  MISO=39  MOSI=32`
+
+| Ambiente PlatformIO | Target |
+|---|---|
+| `cyd` | CYD standard, driver ILI9341 |
+| `cyd2usb` | variante con driver ST7789 |
+| `cyd-wokwi` | simulazione Wokwi |
+
+---
+
+## Configurazione
+
+### 1. Credenziali — `src/secret.h`
+
+Copia `src/secret_example.h` in `src/secret.h` e inserisci i dati reali:
+
+```cpp
+#pragma once
+
+#define WIFI_SSID_PRIMARY "..."
+#define WIFI_PASS_PRIMARY "..."
+
+#define WIFI_SSID_BACKUP "..."
+#define WIFI_PASS_BACKUP "..."
+
+#define SPOTIFY_CLIENT_ID_VALUE "..."
+#define SPOTIFY_CLIENT_SECRET_VALUE "..."
+```
+
+All'avvio il CYD prova la rete **PRIMARY** per 15 secondi, poi la **BACKUP**. Senza WiFi parte comunque: orologio, calendario e controllo del PC via Bluetooth funzionano lo stesso.
+
+`secret.h` è in `.gitignore`: non va mai messo su Git.
+
+### 2. Impostazioni — `src/config.h`
+
+```cpp
+#define WEATHER_CITY "Imola"
+#define WEATHER_LAT  "44.3592"
+#define WEATHER_LON  "11.7132"
+#define TZ_INFO      "CET-1CEST,M3.5.0,M10.5.0/3"   // ora legale automatica
+#define ROTATION     3
+
+#define SPOTIFY_POLL_MS    4000UL
+#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
+#define RADAR_REFRESH_MS   (10UL * 60UL * 1000UL)
+#define F1_REFRESH_MS      (6UL * 60UL * 60UL * 1000UL)
+```
+
+### 3. Spotify
+
+1. Crea un'app nella dashboard sviluppatori di Spotify e aggiungi il Redirect URI `http://127.0.0.1:8888/callback`.
+2. Al primo avvio il CYD mostra un indirizzo da aprire dal telefono (stessa rete WiFi) e guida il collegamento dell'account.
+3. Il refresh token resta salvato nel CYD. Per scollegare l'account tieni premuto lo schermo durante l'avvio.
+
+Scope usati: `user-read-playback-state`, `user-modify-playback-state`, `user-read-currently-playing`, `playlist-read-private`, `playlist-read-collaborative`.
+
+---
+
+## Build e upload
+
+```bash
+pio run -e cyd -t upload        # CYD standard
+pio run -e cyd2usb -t upload    # variante ST7789
+pio run -e cyd-wokwi            # build per la simulazione
+```
+
+In Wokwi non ci sono WiFi né Bluetooth: i dati sono dimostrativi e i comandi del PC vengono solo stampati sul monitor seriale.
+
+Librerie: `TFT_eSPI`, `XPT2046_Touchscreen`, `ArduinoJson`, `JPEGDEC`, `PNGdec`, `NimBLE-Arduino`.
+
+---
+
+## Servizi utilizzati
+
+| Funzione | Servizio | Credenziali |
+|---|---|---|
+| Spotify | Spotify Web API | OAuth (una volta) |
+| Meteo | Open-Meteo | nessuna |
+| Radar | RainViewer | nessuna |
+| Formula 1 | Jolpica / Ergast | nessuna |
+| Juventus | Fixtur.es (iCalendar) | nessuna |
+| Ora | NTP | nessuna |
+| PC (microfono, notifiche, tasti) | Bluetooth LE | abbinamento |
+
+---
+
+## Struttura del progetto
+
+```text
+esp32_hub/
+├── src/
+│   ├── main.cpp            firmware (una sezione per pagina/servizio)
+│   ├── config.h            località, fuso, intervalli
+│   ├── secret.h            credenziali — NON versionare
+│   └── secret_example.h
+├── tools/
+│   └── cyd_sync.py         script PC: microfono + notifiche via Bluetooth
+├── docs/images/            mockup delle pagine
+├── platformio.ini
+├── diagram.json            schema Wokwi
+└── wokwi.toml
+```
+
+---
+
+## Versioni
+
+La versione è definita da `HUB_VERSION` in `src/main.cpp`, compare nel menu SET e all'avvio e aumenta a ogni modifica del firmware.
+
+| Versione | Novità |
+|---|---|
+| **7.0** | pagina Notifiche PC con popup e LED per app; script unico `cyd_sync.py` via Bluetooth (microfono reale + notifiche); voce NOTIFICHE PC e versione firmware nel menu SET |
+
+---
+
+## Sicurezza
+
+Non pubblicare mai password WiFi, Client Secret o token Spotify. Se una credenziale è finita su Git, rimuoverla dal file non basta: va considerata compromessa e rigenerata.
 </file>
 
 <file path="src/config.h">
@@ -185,19 +703,6 @@ elf = ".pio/build/cyd-wokwi/firmware.elf"
 #define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
 </file>
 
-<file path="src/secret_example.h">
-#pragma once
-
-#define WIFI_SSID_BACKUP "..."
-#define WIFI_PASS_BACKUP "..."
-
-#define WIFI_SSID_PRIMARY "..."
-#define WIFI_PASS_PRIMARY "..."
-
-#define SPOTIFY_CLIENT_ID_VALUE "..."
-#define SPOTIFY_CLIENT_SECRET_VALUE "..."
-</file>
-
 <file path="platformio.ini">
 ; Default = hardware reale. Wokwi usa esplicitamente env:cyd-wokwi.
 [platformio]
@@ -239,6 +744,10 @@ build_flags =
     -DSPI_READ_FREQUENCY=20000000
     -DSPI_TOUCH_FREQUENCY=2500000
     -DCORE_DEBUG_LEVEL=0
+    ; NimBLE: solo periferica (tastiera HID verso il PC), una connessione
+    -DCONFIG_BT_NIMBLE_ROLE_CENTRAL_DISABLED
+    -DCONFIG_BT_NIMBLE_ROLE_OBSERVER_DISABLED
+    -DCONFIG_BT_NIMBLE_MAX_CONNECTIONS=1
 
 ; CYD standard (1 porta USB micro, driver ILI9341)
 [env:cyd]
@@ -259,525 +768,18 @@ build_flags =
     -DWOKWI
 </file>
 
-<file path="README.md">
-# CYD Hub v7
-
-Dashboard touchscreen per **ESP32-2432S028R (Cheap Yellow Display / CYD)**, sviluppata con **PlatformIO + Arduino Framework** e interfaccia grafica scura **Ink**.
-
-La Home è l'orologio; le altre funzioni sono distribuite su sette pagine raggiungibili tramite **swipe orizzontale** o dalla **barra di navigazione inferiore**.
-
-## Novità della v7
-
-La v7 consolida le modifiche introdotte nelle ultime revisioni del progetto:
-
-- nuova pagina **SPORT** che raccoglie nello stesso schermo:
-  - prossimo GP di Formula 1;
-  - prossime partite della Juventus;
-- calendario Juventus letto dal feed iCalendar di **Fixtur.es**;
-- **Calendario mensile** mantenuto come pagina indipendente;
-- sezione Spotify **Playlist / Coda** con due tab;
-- **Coda Spotify scrollabile verticalmente**, senza paginazione;
-- pulsante **CODA** direttamente nel player Spotify;
-- barra inferiore ridisegnata anche dopo refresh o redraw completi delle pagine;
-- sorgente `main.cpp` riorganizzato visivamente con separatori espliciti per ogni pagina;
-- numero versione aggiornato a **v7** anche nella schermata di boot.
-
----
-
-## Hardware
-
-Target principale:
-
-```text
-ESP32-2432S028R
-Cheap Yellow Display (CYD)
-Display 320 x 240
-Touch resistivo XPT2046
-```
-
-Pin touch utilizzati dal firmware:
-
-```text
-CS   = 33
-IRQ  = 36
-CLK  = 25
-MISO = 39
-MOSI = 32
-```
-
-Il progetto contiene configurazioni PlatformIO per:
-
-- `cyd` - CYD standard con driver ILI9341;
-- `cyd2usb` - variante CYD con driver ST7789;
-- `cyd-wokwi` - simulazione Wokwi.
-
----
-
-
-## Anteprima delle pagine
-
-Le immagini seguenti sono **mockup tecnici 320×240** ricostruiti dal layout del `main.cpp`.
-I dati mostrati sono dimostrativi; disposizione, palette e controlli riprendono la UI **Ink** della v7.
-
-| Pagina | Anteprima |
-|---|---|
-| Playlist / Coda Spotify | ![Playlist e coda Spotify](docs/images/01_playlist_coda.png) |
-| Spotify Player | ![Spotify Player](docs/images/02_spotify_player.png) |
-| Meteo | ![Meteo](docs/images/03_meteo.png) |
-| Orologio / Home | ![Orologio Home](docs/images/04_orologio_home.png) |
-| Radar pioggia | ![Radar pioggia](docs/images/05_radar_pioggia.png) |
-| Sport - F1 + Juventus | ![Sport F1 e Juventus](docs/images/06_sport_f1_juventus.png) |
-| Calendario mensile | ![Calendario mensile](docs/images/07_calendario_mensile.png) |
-
-
-## Pagine dell'interfaccia
-
-L'ordine delle pagine è:
-
-```text
-0  Playlist / Coda Spotify
-1  Spotify Player
-2  Meteo
-3  Orologio / HOME
-4  Radar pioggia
-5  Sport - Formula 1 + Juventus
-6  Calendario mensile
-```
-
-La **Home** corrisponde alla pagina 3 ed è quindi al centro della navigazione.
-
-### Pagina 1 - Playlist / Coda Spotify
-
-La schermata Spotify Library contiene due tab.
-
-**PLAYLIST**
-
-- visualizzazione delle playlist dell'account;
-- griglia 2 x 3;
-- 6 playlist per pagina;
-- navigazione tra le pagine;
-- refresh manuale;
-- tap su una playlist per avviarne la riproduzione.
-
-**CODA**
-
-- lettura della coda corrente di Spotify;
-- elenco verticale dei brani;
-- visualizzazione di titolo e artista;
-- swipe verticale per scorrere avanti e indietro;
-- scrollbar laterale che indica la posizione nella lista;
-- tap su un brano per riprodurre a partire da quel punto della coda.
-
-La coda **non è paginata**.
-
-### Pagina 2 - Spotify Player
-
-Mostra lo stato del player Spotify:
-
-- copertina del brano;
-- titolo;
-- artista;
-- stato play / pausa;
-- barra di avanzamento;
-- tempo trascorso e durata;
-- brano precedente;
-- play / pausa;
-- brano successivo;
-- pulsante **CODA** nella barra superiore per aprire direttamente la coda.
-
-> Alcune operazioni di controllo del playback richiedono un account Spotify Premium e un dispositivo Spotify attivo.
-
-### Pagina 3 - Meteo
-
-I dati vengono letti da **Open-Meteo** e non richiedono API key.
-
-La pagina mostra, in base ai dati disponibili:
-
-- temperatura attuale;
-- temperatura percepita;
-- umidità;
-- vento;
-- min/max giornaliera;
-- descrizione e icona meteo;
-- previsione dei giorni successivi.
-
-La località è impostata in `src/config.h` tramite latitudine e longitudine.
-
-### Pagina 4 - Orologio / HOME
-
-È la pagina principale del dispositivo.
-
-Contiene:
-
-- orologio digitale a grandi cifre;
-- data corrente;
-- indicazione del giorno della settimana;
-- riepilogo meteo compatto;
-- temperatura minima e massima.
-
-Non è presente uno screensaver automatico: il display rimane sulla pagina selezionata.
-
-### Pagina 5 - Radar pioggia
-
-Il radar usa i dati pubblici di **RainViewer**.
-
-Funzioni principali:
-
-- recupero della mappa radar più recente;
-- download delle tile necessarie;
-- visualizzazione dell'area configurata;
-- refresh periodico;
-- refresh manuale dall'interfaccia.
-
-### Pagina 6 - SPORT
-
-La pagina SPORT unisce **Formula 1** e **Juventus**.
-
-#### Formula 1
-
-I dati vengono recuperati tramite API **Jolpica / Ergast compatible**.
-
-La schermata mostra il prossimo GP disponibile, con informazioni come:
-
-- round;
-- nome del GP;
-- data e ora locale;
-- countdown all'evento;
-- eventuale indicazione Sprint.
-
-#### Juventus
-
-Le partite vengono lette dal feed iCalendar:
-
-```text
-https://ics.fixtur.es/v2/juventus.ics
-```
-
-La pagina mostra le prossime partite disponibili con:
-
-- data;
-- ora locale;
-- squadre / titolo dell'evento.
-
-Il pulsante refresh della pagina SPORT aggiorna sia Formula 1 sia Juventus.
-
-### Pagina 7 - Calendario mensile
-
-Il calendario mensile è indipendente dal calendario Juventus.
-
-Permette di:
-
-- vedere il mese corrente;
-- evidenziare il giorno corrente;
-- passare al mese precedente;
-- passare al mese successivo;
-- tornare rapidamente al mese corrente.
-
----
-
-## Navigazione touchscreen
-
-Sono disponibili due modalità principali di navigazione:
-
-- **swipe orizzontale** per passare da una pagina all'altra;
-- **barra inferiore** per aprire direttamente una delle sette pagine.
-
-Alcune pagine gestiscono gesture interne:
-
-- nella **Coda Spotify**, lo swipe verticale scorre la lista;
-- nel **Calendario**, i controlli laterali cambiano mese;
-- nelle **Playlist Spotify**, le frecce cambiano pagina.
-
-La barra inferiore viene ridisegnata anche dopo gli aggiornamenti completi delle pagine Spotify e SPORT, così rimane sempre disponibile.
-
----
-
-## Servizi Internet utilizzati
-
-| Funzione | Servizio | API key esterna |
-|---|---|---|
-| Spotify | Spotify Web API | OAuth Spotify |
-| Meteo | Open-Meteo | No |
-| Radar | RainViewer | No |
-| Formula 1 | Jolpica / Ergast | No |
-| Juventus | Fixtur.es iCalendar | No |
-| Ora | NTP | No |
-
-Il dispositivo deve avere accesso a Internet per aggiornare questi servizi.
-
----
-
-## Struttura del progetto
-
-```text
-CYD-Hub/
-|
-|-- src/
-|   |-- main.cpp
-|   |-- config.h
-|   |-- secret.h              # credenziali locali, NON versionare
-|   `-- secret_example.h
-|
-|-- platformio.ini
-|-- diagram.json
-|-- wokwi.toml
-|-- .gitignore
-`-- README.md
-```
-
-`secret.h` è escluso dal repository tramite `.gitignore`.
-
----
-
-## Organizzazione di `main.cpp` in v7
-
-Per rendere più leggibile il sorgente, i blocchi principali sono identificati da separatori del tipo:
-
-```cpp
-// ########==================== PAGINA 4 - OROLOGIO / HOME ====================########
-```
-
-Le sezioni principali sono:
-
-```text
-HARDWARE / PALETTE / DISPLAY
-UTILITY / UI COMUNE
-SERVIZIO SPOTIFY - AUTH + API COMUNE
-PAGINA 1 - PLAYLIST / CODA SPOTIFY
-PAGINA 2 - SPOTIFY PLAYER
-PAGINA 3 - METEO
-PAGINA 4 - OROLOGIO / HOME
-PAGINA 5 - RADAR PIOGGIA
-PAGINA 6 - SPORT / FORMULA 1
-PAGINA 6 - SPORT / JUVENTUS + UI SPORT
-PAGINA 7 - CALENDARIO MENSILE
-NAVIGAZIONE / GESTIONE PAGINE
-TOUCH / GESTURE
-BOOT ANIMATION
-TEST CALIBRAZIONE COLORI
-SETUP / LOOP PRINCIPALE
-```
-
-La parte SPORT è divisa internamente in due blocchi perché Formula 1 e Juventus usano sorgenti dati e parser differenti, ma costituiscono un'unica pagina dell'interfaccia.
-
----
-
-## Configurazione WiFi e credenziali
-
-Copia:
-
-```text
-src/secret_example.h
-```
-
-in:
-
-```text
-src/secret.h
-```
-
-e inserisci i dati reali.
-
-Esempio:
-
-```cpp
-#pragma once
-
-#define WIFI_SSID_BACKUP "..."
-#define WIFI_PASS_BACKUP "..."
-
-#define WIFI_SSID_PRIMARY "..."
-#define WIFI_PASS_PRIMARY "..."
-
-#define SPOTIFY_CLIENT_ID_VALUE "..."
-#define SPOTIFY_CLIENT_SECRET_VALUE "..."
-```
-
-Il firmware usa `secret.h` solo sull'hardware reale.
-
-Non inserire mai `secret.h` in Git.
-
----
-
-## Configurazione generale
-
-Le impostazioni non sensibili sono in:
-
-```text
-src/config.h
-```
-
-Tra queste:
-
-```cpp
-#define WEATHER_CITY "Imola"
-#define WEATHER_LAT "44.3592"
-#define WEATHER_LON "11.7132"
-
-#define TZ_INFO "CET-1CEST,M3.5.0,M10.5.0/3"
-
-#define ROTATION 3
-```
-
-La stringa `TZ_INFO` gestisce automaticamente CET/CEST per l'Italia.
-
----
-
-## Spotify - configurazione OAuth
-
-Crea un'app dalla dashboard sviluppatori Spotify e registra questo Redirect URI:
-
-```text
-http://127.0.0.1:8888/callback
-```
-
-Il firmware richiede gli scope:
-
-```text
-user-read-playback-state
-user-modify-playback-state
-user-read-currently-playing
-playlist-read-private
-playlist-read-collaborative
-```
-
-Al primo avvio su hardware reale, se non è presente un refresh token, il CYD avvia la procedura di associazione dell'account Spotify.
-
-Il refresh token viene memorizzato tramite `Preferences` dell'ESP32.
-
-Per dimenticare l'account Spotify è possibile tenere premuto il touchscreen durante l'avvio: il firmware cancella il refresh token salvato.
-
----
-
-## Intervalli di aggiornamento
-
-I principali intervalli sono definiti in `src/config.h`:
-
-```cpp
-#define SPOTIFY_POLL_MS 4000UL
-#define WEATHER_REFRESH_MS (15UL * 60UL * 1000UL)
-#define RADAR_REFRESH_MS (10UL * 60UL * 1000UL)
-#define F1_REFRESH_MS (6UL * 60UL * 60UL * 1000UL)
-```
-
-Il calendario Juventus mantiene inoltre una propria logica di cache/refresh nel `main.cpp`.
-
----
-
-## Build con PlatformIO
-
-### CYD standard
-
-```bash
-pio run -e cyd
-```
-
-Upload:
-
-```bash
-pio run -e cyd -t upload
-```
-
-### CYD 2 USB / ST7789
-
-```bash
-pio run -e cyd2usb
-```
-
-Upload:
-
-```bash
-pio run -e cyd2usb -t upload
-```
-
-### Wokwi
-
-```bash
-pio run -e cyd-wokwi
-```
-
-Il progetto contiene:
-
-```text
-diagram.json
-wokwi.toml
-```
-
-per la simulazione del CYD in Wokwi.
-
-> La v7 qui documentata descrive il sorgente e la configurazione del progetto; la build Wokwi va verificata quando si modificano le macro WiFi o le differenze tra ambiente reale e simulato.
-
----
-
-## Librerie principali
-
-Configurate in `platformio.ini`:
-
-- `TFT_eSPI`
-- `XPT2046_Touchscreen`
-- `ArduinoJson`
-- `JPEGDEC`
-- `PNGdec`
-
-Il framework utilizzato è **Arduino** su piattaforma **Espressif32**.
-
----
-
-## Boot
-
-Durante l'avvio il display mostra la schermata **CYD HUB v7** e lo stato delle principali inizializzazioni:
-
-```text
-WiFi
-NTP / sincronizzazione ora
-Meteo
-Spotify
-Ready
-```
-
-Al termine viene aperta la pagina **HOME / Orologio**.
-
----
-
-## Sicurezza
-
-Non pubblicare mai nel repository:
-
-```text
-password WiFi
-Spotify Client Secret
-token Spotify
-refresh token
-src/secret.h
-```
-
-Il repository deve contenere soltanto un file di esempio, ad esempio:
-
-```text
-src/secret_example.h
-```
-
-Se una credenziale è già stata pubblicata su Git, rimuoverla dal file non è sufficiente: deve essere considerata compromessa e rigenerata.
-
----
-
-## Versione
-
-```text
-CYD Hub v7
-```
-
-Interfaccia: **Ink**  
-Target principale: **ESP32-2432S028R / CYD 320x240**
-</file>
-
 <file path="src/main.cpp">
-// CYD Hub (base v6): Spotify + Playlist/Coda + Orologio + Meteo + Radar + F1/Juventus
+// CYD Hub v7: Spotify + Playlist/Coda + Orologio + Meteo + Radar + F1/Juventus + Controllo PC (BLE)
 // Hardware: ESP32-2432S028R ("Cheap Yellow Display")
 // Home: orologio al centro; le altre pagine sono ai lati con swipe sinistra/destra.
 // Nessuno screensaver automatico: il display resta stabile sulla pagina corrente.
 
 #include <Arduino.h>
+// NimBLE prima di PNGdec: zutil.h di PNGdec definisce la macro "local" che rompe gli header BLE.
+#ifndef WOKWI
+#include <NimBLEDevice.h>
+#include <NimBLEHIDDevice.h>
+#endif
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
@@ -792,10 +794,15 @@ Target principale: **ESP32-2432S028R / CYD 320x240**
 #include <time.h>
 #include <sys/time.h>
 #include <vector>
+#include <mutex>
+#include <string>
 #include "mbedtls/base64.h"
 #include "config.h"
 
-// ===================== Hardware =====================
+#define HUB_VERSION "v7.4" // da aumentare a ogni modifica del firmware (7.1, 7.2, ...)
+#define HUB_USER_AGENT "CYD-Hub/7.0"
+
+// ########==================== HARDWARE / PALETTE / DISPLAY ====================########
 #define TOUCH_CS 33
 #define TOUCH_IRQ 36
 #define TOUCH_CLK 25
@@ -813,35 +820,49 @@ bool rgbLedEnabled = true;
 TFT_eSPI tft;
 SPIClass touchSPI(VSPI);
 XPT2046_Touchscreen ts(TOUCH_CS, TOUCH_IRQ);
-JPEGDEC jpeg;
-PNG png;
+JPEGDEC *jpeg = nullptr; // ~18 KB: allocato solo mentre si decodifica la copertina
+PNG *png = nullptr; // ~45 KB: allocato solo durante la decodifica del radar, per lasciare RAM a TLS e copertine
 Preferences prefs;
 
 #define C565(r, g, b) ((((r) & 0xF8) << 8) | (((g) & 0xFC) << 3) | ((b) >> 3))
-// Palette "Ink": fondo quasi nero, pannelli piatti, un solo colore d'accento per pagina.
+// Palette "Nebula": fondo scuro piatto, card in vetro con riflesso sul bordo
+// superiore, accenti saturi (uno per pagina).
 constexpr uint16_t C_BG = C565(8, 10, 15);
-constexpr uint16_t C_NAV = C565(13, 15, 22);
-constexpr uint16_t C_PANEL = C565(20, 23, 33);
-constexpr uint16_t C_PANEL2 = C565(31, 35, 50);
-constexpr uint16_t C_LINE = C565(46, 52, 72);
-constexpr uint16_t C_HAIR = C565(25, 28, 40);
+constexpr uint16_t C_NAV = C565(20, 20, 38);
+constexpr uint16_t C_PANEL = C565(22, 23, 44);
+constexpr uint16_t C_PANEL2 = C565(36, 37, 66);
+constexpr uint16_t C_LINE = C565(56, 58, 96);
+constexpr uint16_t C_HAIR = C565(34, 36, 62);
 constexpr uint16_t C_FG = C565(250, 250, 255);
-constexpr uint16_t C_DIM = C565(185, 192, 210); // era (140, 148, 168)
-constexpr uint16_t C_FAINT = C565(88, 96, 116);
-constexpr uint16_t C_TRACK = C565(38, 43, 60);
-constexpr uint16_t C_GREEN = C565(30, 220, 60);
-constexpr uint16_t C_CYAN = C565(64, 200, 255);
+constexpr uint16_t C_DIM = C565(185, 190, 215);
+constexpr uint16_t C_FAINT = C565(100, 104, 142);
+constexpr uint16_t C_TRACK = C565(42, 44, 74);
+constexpr uint16_t C_GREEN = C565(30, 230, 110);
+constexpr uint16_t C_CYAN = C565(64, 210, 255);
 constexpr uint16_t C_AMBER = C565(255, 255, 0);
-constexpr uint16_t C_SUN = C565(255, 255, 0);
+constexpr uint16_t C_ORANGE = C565(255, 120, 40);
+constexpr uint16_t C_SUN = C565(255, 230, 40);
 constexpr uint16_t C_BLUE = C565(92, 142, 255);
-constexpr uint16_t C_RED = C565(255, 25, 25);
-constexpr uint16_t C_VIOLET = C565(172, 128, 255);
-constexpr uint16_t C_PINK = C565(255, 104, 176);
+constexpr uint16_t C_RED = C565(255, 40, 60);
+constexpr uint16_t C_VIOLET = C565(172, 120, 255);
+constexpr uint16_t C_PINK = C565(255, 80, 190);
 constexpr uint16_t C_CLOUD = C565(220, 228, 242);
-constexpr uint16_t C_DARK = C565(112, 126, 152);
+constexpr uint16_t C_DARK = C565(120, 132, 164);
 constexpr uint16_t C_RAIN = C565(90, 182, 255);
-constexpr int NAV_Y = 214; // tab bar: y 214..240
-constexpr int NAV_H = 26;
+
+// Spotify: stessa grammatica "Nebula" ma con base verde-petrolio.
+constexpr uint16_t SP_BG = C565(6, 17, 22);
+constexpr uint16_t SP_NAV = C565(12, 30, 34);
+constexpr uint16_t SP_PANEL = C565(16, 36, 42);
+constexpr uint16_t SP_PANEL2 = C565(24, 52, 58);
+constexpr uint16_t SP_LINE = C565(44, 82, 86);
+constexpr uint16_t SP_GREEN = C565(27, 232, 163);
+constexpr uint16_t SP_MUTED = C565(150, 175, 182);
+constexpr uint16_t SP_FAINT = C565(88, 124, 130);
+constexpr uint16_t SP_BAR = C565(40, 66, 72);
+
+constexpr int NAV_Y = 211; // tab bar: y 211..240
+constexpr int NAV_H = 29;
 int lastTopBarMinute = -1;
 bool bootStatic = false;
 
@@ -854,7 +875,72 @@ void updateRgbLed();
 void setBootRgbLed(int active);
 void runTouchCalibrationMenu();
 
-// ===================== Utility =====================// ===================== Utility =====================
+// Stato del tocco corrente (gestito in handleTouch), usato anche per l'auto-repeat.
+extern bool tsDown;
+extern uint32_t tsStartT;
+extern int sx, sy, lx, ly;
+
+// Stato Bluetooth (sezione SERVIZIO BLUETOOTH), mostrato anche nella testata.
+extern bool bleEnabled;
+extern volatile bool bleConnected;
+extern volatile bool bleTopDirty;
+
+// Le pagine Spotify hanno uno sfondo proprio: la testata deve usare lo stesso colore.
+bool isSpotifyPage(int page) { return page == 0 || page == 1; }
+
+// Confronto tra timestamp millis() robusto all'overflow (~49 giorni).
+inline bool timeReached(uint32_t now, uint32_t deadline) { return (int32_t)(now - deadline) >= 0; }
+
+// ----- Sfondo -----
+// Non c'e' framebuffer: ogni riga ha un colore noto (bgLut), cosi' ogni area puo'
+// essere ripulita (fillBg) e ogni bordo anti-aliasing conosce il colore che ha sotto.
+// Oggi lo sfondo e' piatto; la tabella permette di tornare a una sfumatura.
+uint16_t bgLut[240];
+uint16_t themeAccent = C_AMBER;
+
+uint16_t mix565(uint16_t a, uint16_t b, uint8_t amount);
+
+void applyTheme(uint16_t accent, bool spotify)
+{
+  themeAccent = accent;
+  const uint16_t base = spotify ? SP_BG : C_BG;
+  for (int y = 0; y < 240; y++)
+    bgLut[y] = base;
+}
+
+inline uint16_t bgAt(int y) { return bgLut[constrain(y, 0, 239)]; }
+
+// Ripulisce un rettangolo ridisegnando lo sfondo sfumato (righe uguali raggruppate).
+void fillBg(int x, int y, int w, int h)
+{
+  if (x < 0)
+  {
+    w += x;
+    x = 0;
+  }
+  if (y < 0)
+  {
+    h += y;
+    y = 0;
+  }
+  w = min(w, 320 - x);
+  h = min(h, 240 - y);
+  if (w <= 0 || h <= 0)
+    return;
+  int runStart = y;
+  for (int yy = y + 1; yy <= y + h; yy++)
+  {
+    if (yy == y + h || bgLut[yy] != bgLut[runStart])
+    {
+      tft.fillRect(x, runStart, w, yy - runStart, bgLut[runStart]);
+      runStart = yy;
+    }
+  }
+}
+
+void drawBackdrop() { fillBg(0, 0, 320, 240); }
+
+// ########==================== UTILITY / UI COMUNE ====================########
 // I font integrati sono solo ASCII: converte accenti e caratteri UTF-8 comuni.
 String fold(const char *s)
 {
@@ -980,8 +1066,9 @@ uint16_t mix565(uint16_t a, uint16_t b, uint8_t amount)
 
 uint16_t pageAccent(int page)
 {
-  static const uint16_t A[] = {C_GREEN, C_GREEN, C_CYAN, C_AMBER, C_BLUE, C_RED, C_VIOLET};
-  return A[constrain(page, 0, 6)];
+  static const uint16_t A[] = {SP_GREEN, SP_GREEN, C_ORANGE, C_CYAN, C_AMBER, C_BLUE, C_RED, C_VIOLET, C_PINK};
+  constexpr int N = sizeof(A) / sizeof(A[0]);
+  return A[constrain(page, 0, N - 1)];
 }
 
 String upperStr(const char *s)
@@ -992,10 +1079,12 @@ String upperStr(const char *s)
 }
 
 // Rettangolo arrotondato con bordi anti-aliasing (bg = colore sotto).
-void rrect(int x, int y, int w, int h, int r, uint16_t c, uint16_t bg = C_BG)
+// Rettangolo arrotondato con bordi anti-aliasing (bg = colore sotto, -1 = sfondo della pagina).
+void rrect(int x, int y, int w, int h, int r, uint16_t c, int32_t bg = -1)
 {
   if (w <= 0 || h <= 0)
     return;
+  uint16_t under = bg < 0 ? bgAt(y + h / 2) : (uint16_t)bg;
   if (r > w / 2)
     r = w / 2;
   if (r > h / 2)
@@ -1003,22 +1092,40 @@ void rrect(int x, int y, int w, int h, int r, uint16_t c, uint16_t bg = C_BG)
   if (r < 1)
     tft.fillRect(x, y, w, h, c);
   else
-    tft.fillSmoothRoundRect(x, y, w, h, r, c, bg);
+    tft.fillSmoothRoundRect(x, y, w, h, r, c, under);
 }
 
 // Pannello piatto con bordo sottile.
-void panel(int x, int y, int w, int h, int r = 9, uint16_t fill = C_PANEL, uint16_t border = C_LINE, uint16_t bg = C_BG)
+// Card "vetro": bordo sottile, riempimento scuro e riflesso chiaro sul lato superiore.
+void panel(int x, int y, int w, int h, int r = 10, uint16_t fill = C_PANEL, uint16_t border = C_LINE, int32_t bg = -1)
 {
-  rrect(x, y, w, h, r, border, bg);
-  rrect(x + 1, y + 1, w - 2, h - 2, r - 1, fill, border);
+  uint16_t under = bg < 0 ? bgAt(y + h / 2) : (uint16_t)bg;
+  rrect(x, y, w, h, r, border, under);
+  rrect(x + 1, y + 1, w - 2, h - 2, max(r - 1, 0), fill, border);
+  if (w > 2 * r + 4)
+    tft.drawFastHLine(x + r, y + 1, w - 2 * r, mix565(fill, C_FG, 34));
 }
 
-void disc(int cx, int cy, int r, uint16_t c, uint16_t bg = C_BG)
+void disc(int cx, int cy, int r, uint16_t c, int32_t bg = -1)
 {
-  tft.fillSmoothCircle(cx, cy, r, c, bg);
+  tft.fillSmoothCircle(cx, cy, r, c, bg < 0 ? bgAt(cy) : (uint16_t)bg);
 }
 
-void pill(int x, int y, int w, int h, const String &txt, uint16_t fg, uint16_t fill, int font = 1, uint16_t under = C_BG)
+// Disco con alone luminoso: anelli concentrici che sfumano verso lo sfondo.
+void glowDisc(int cx, int cy, int r, uint16_t c, int halo = 6, int32_t bg = -1, uint8_t strength = 120)
+{
+  uint16_t under = bg < 0 ? bgAt(cy) : (uint16_t)bg;
+  const uint16_t base = under;
+  for (int i = halo; i >= 1; i--)
+  {
+    uint16_t col = mix565(base, c, (uint8_t)(strength * (halo + 1 - i) / (halo + 1) / 2));
+    tft.fillSmoothCircle(cx, cy, r + i, col, under);
+    under = col;
+  }
+  tft.fillSmoothCircle(cx, cy, r, c, under);
+}
+
+void pill(int x, int y, int w, int h, const String &txt, uint16_t fg, uint16_t fill, int font = 1, int32_t under = -1)
 {
   rrect(x, y, w, h, h / 2, fill, under);
   tft.setTextDatum(MC_DATUM);
@@ -1028,22 +1135,38 @@ void pill(int x, int y, int w, int h, const String &txt, uint16_t fg, uint16_t f
 }
 
 // Anello (es. simbolo di grado).
-void ring(int cx, int cy, int r, int thick, uint16_t c, uint16_t bg)
+void ring(int cx, int cy, int r, int thick, uint16_t c, int32_t bg = -1)
 {
-  tft.fillSmoothCircle(cx, cy, r, c, bg);
-  tft.fillSmoothCircle(cx, cy, r - thick, bg, c);
+  uint16_t under = bg < 0 ? bgAt(cy) : (uint16_t)bg;
+  tft.fillSmoothCircle(cx, cy, r, c, under);
+  tft.fillSmoothCircle(cx, cy, r - thick, under, c);
 }
 
 void drawWifiIcon(int x, int y, uint16_t col)
 {
-  int rssi = WiFi.RSSI();
-  int bars = (rssi > -58) ? 3 : (rssi > -70) ? 2
-                                             : 1;
+  int bars = 0;
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    int rssi = WiFi.RSSI();
+    bars = (rssi > -58) ? 3 : (rssi > -70) ? 2
+                                           : 1;
+  }
   for (int i = 0; i < 3; i++)
   {
     int h = 4 + i * 3;
     rrect(x + i * 5, y + 10 - h, 3, h, 1, i < bars ? col : C_LINE);
   }
+}
+
+// Runa Bluetooth 7x11: accesa se il PC e' collegato.
+void drawBtIcon(int cx, int cy, uint16_t c)
+{
+  uint16_t bg = bgAt(cy);
+  tft.drawFastVLine(cx, cy - 5, 11, c);
+  tft.drawWideLine(cx, cy - 5, cx + 3, cy - 2, 1.2f, c, bg);
+  tft.drawWideLine(cx + 3, cy - 2, cx - 3, cy + 3, 1.2f, c, bg);
+  tft.drawWideLine(cx, cy + 5, cx + 3, cy + 2, 1.2f, c, bg);
+  tft.drawWideLine(cx + 3, cy + 2, cx - 3, cy - 3, 1.2f, c, bg);
 }
 
 void getTinyTime(char *b, size_t n)
@@ -1059,41 +1182,50 @@ void drawTopBarTime(uint16_t accent)
 {
   char tm[8];
   getTinyTime(tm, sizeof(tm));
-  tft.fillRect(240, 3, 76, 20, C_BG);
+  fillBg(236, 3, 82, 21);
   tft.setTextDatum(MR_DATUM);
-  tft.setTextColor(C_FG, C_BG);
+  tft.setTextColor(C_FG);
   tft.drawString(tm, 292, 13, 2);
   drawWifiIcon(298, 8, accent);
+  if (bleEnabled)
+    drawBtIcon(243, 13, bleConnected ? accent : C_FAINT);
   tft.setTextDatum(TL_DATUM);
 }
 
 void updateTopBarClock()
 {
   struct tm ti;
-  if (!getLocalTime(&ti, 0))
+  bool timeOk = getLocalTime(&ti, 0);
+  if (!bleTopDirty && (!timeOk || ti.tm_min == lastTopBarMinute))
     return;
-  if (ti.tm_min == lastTopBarMinute)
-    return;
-  lastTopBarMinute = ti.tm_min;
-  drawTopBarTime(pageAccent(curPage));
+  bleTopDirty = false;
+  if (timeOk)
+    lastTopBarMinute = ti.tm_min;
+  drawTopBarTime(themeAccent);
 }
 
 // Testata: barretta d'accento + titolo pagina a sinistra, ora e WiFi a destra.
+// Testata: punto luminoso + titolo a sinistra, ora / Bluetooth / WiFi a destra,
+// filetto d'accento che sfuma verso destra.
 void drawTopBar(const char *label, uint16_t accent)
 {
-  tft.fillRect(0, 0, 320, 26, C_BG);
-  rrect(12, 7, 3, 12, 1, accent);
+  fillBg(0, 0, 320, 28);
+  glowDisc(17, 13, 3, accent, 4);
   tft.setTextDatum(ML_DATUM);
   tft.setTextColor(C_FG);
-  tft.drawString(label, 21, 13, 2);
+  tft.drawString(label, 27, 13, 2);
   drawTopBarTime(accent);
-  tft.drawFastHLine(12, 25, 296, C_HAIR);
+  uint16_t lineBg = bgAt(26);
+  tft.fillRectHGradient(12, 26, 170, 1, mix565(lineBg, accent, 200), lineBg);
   tft.setTextDatum(TL_DATUM);
 }
 
 // Angoli arrotondati "a ritaglio" su immagini gia' disegnate (copertine, radar).
-void roundCorners(int x, int y, int w, int h, int r, uint16_t outside)
+// Angoli arrotondati "a ritaglio" su immagini gia' disegnate (copertine, radar).
+// Gli angoli superiori e inferiori possono avere colori diversi (sfondo sfumato).
+void roundCorners(int x, int y, int w, int h, int r, uint16_t outside, int32_t outsideBottom = -1)
 {
+  uint16_t bottom = outsideBottom < 0 ? outside : (uint16_t)outsideBottom;
   for (int i = 0; i < r; i++)
   {
     float dy = r - i - 0.5f;
@@ -1102,8 +1234,8 @@ void roundCorners(int x, int y, int w, int h, int r, uint16_t outside)
       continue;
     tft.fillRect(x, y + i, inset, 1, outside);
     tft.fillRect(x + w - inset, y + i, inset, 1, outside);
-    tft.fillRect(x, y + h - 1 - i, inset, 1, outside);
-    tft.fillRect(x + w - inset, y + h - 1 - i, inset, 1, outside);
+    tft.fillRect(x, y + h - 1 - i, inset, 1, bottom);
+    tft.fillRect(x + w - inset, y + h - 1 - i, inset, 1, bottom);
   }
 }
 
@@ -1140,28 +1272,44 @@ void drawTabIcon(int i, int cx, int cy, uint16_t c, uint16_t bg)
     tft.fillRect(cx + 7, cy - 8, 2, 12, c);
     tft.drawWideLine(cx - 1, cy - 6, cx + 8, cy - 8, 2.2f, c, bg);
     break;
-  case 2: // nuvola
+  case 2: // campanella (notifiche)
+    tft.fillSmoothCircle(cx, cy - 1, 6, c, bg);
+    tft.fillRect(cx - 6, cy - 1, 13, 6, c);
+    tft.fillRect(cx - 8, cy + 4, 17, 2, c);
+    tft.fillSmoothCircle(cx, cy + 7, 2, c, bg);
+    tft.fillRect(cx - 1, cy - 9, 3, 2, c);
+    break;
+  case 3: // nuvola
     tft.fillSmoothCircle(cx - 4, cy + 2, 4, c, bg);
     tft.fillSmoothCircle(cx + 1, cy - 2, 5, c, bg);
     tft.fillSmoothCircle(cx + 5, cy + 2, 4, c, bg);
     tft.fillRect(cx - 4, cy + 2, 10, 5, c);
     break;
-  case 3: // casa
+  case 4: // casa
     tft.fillTriangle(cx - 8, cy, cx, cy - 8, cx + 8, cy, c);
     tft.fillRect(cx - 5, cy, 11, 8, c);
     tft.fillRect(cx - 1, cy + 3, 3, 5, bg);
     break;
-  case 4: // radar
+  case 5: // radar
     tft.drawSmoothCircle(cx, cy, 7, c, bg);
     tft.drawSmoothCircle(cx, cy, 3, c, bg);
     tft.drawWideLine(cx, cy, cx + 5, cy - 5, 1.8f, c, bg);
     break;
-  case 5: // bandiera a scacchi
+  case 6: // bandiera a scacchi
     tft.fillRect(cx - 7, cy - 8, 2, 17, c);
     for (int r = 0; r < 3; r++)
       for (int k = 0; k < 4; k++)
         if ((r + k) % 2 == 0)
           tft.fillRect(cx - 4 + k * 3, cy - 8 + r * 3, 3, 3, c);
+    break;
+  case 8: // microfono (controllo PC)
+    tft.fillSmoothRoundRect(cx - 3, cy - 8, 7, 11, 3, c, bg);
+    tft.drawWideLine(cx - 6, cy - 1, cx - 5, cy + 2, 1.6f, c, bg);
+    tft.drawWideLine(cx + 6, cy - 1, cx + 5, cy + 2, 1.6f, c, bg);
+    tft.drawWideLine(cx - 5, cy + 2, cx, cy + 5, 1.6f, c, bg);
+    tft.drawWideLine(cx + 5, cy + 2, cx, cy + 5, 1.6f, c, bg);
+    tft.fillRect(cx, cy + 5, 1, 3, c);
+    tft.fillRect(cx - 3, cy + 8, 7, 1, c);
     break;
   default: // calendario
     tft.drawRoundRect(cx - 7, cy - 6, 15, 14, 3, c);
@@ -1181,11 +1329,12 @@ void centerMsg(const String &l1, const String &l2 = "", uint16_t col = C_FG)
 {
   bootStatic = false;
   uint16_t accent = (col == C_FG) ? C_AMBER : col;
-  tft.fillScreen(C_BG);
+  applyTheme(accent, false);
+  drawBackdrop();
   int h = l2.length() ? 96 : 72;
   int y = (240 - h) / 2;
-  panel(24, y, 272, h, 14);
-  rrect(24, y + 14, 4, h - 28, 2, accent, C_PANEL);
+  panel(24, y, 272, h, 16);
+  rrect(24, y + 16, 4, h - 32, 2, accent, C_PANEL);
   tft.setTextDatum(MC_DATUM);
   tft.setTextColor(col, C_PANEL);
   tft.drawString(l1, 162, l2.length() ? y + 34 : y + h / 2, 4);
@@ -1197,7 +1346,7 @@ void centerMsg(const String &l1, const String &l2 = "", uint16_t col = C_FG)
   tft.setTextDatum(TL_DATUM);
 }
 
-// ===================== Spotify: auth + API =====================
+// ########==================== SERVIZIO SPOTIFY - AUTH + API COMUNE ====================########
 static const char *REDIRECT_ENC = "http%3A%2F%2F127.0.0.1%3A8888%2Fcallback";
 static const char *SCOPES = "user-read-playback-state%20user-modify-playback-state%20user-read-currently-playing%20playlist-read-private%20playlist-read-collaborative";
 
@@ -1393,21 +1542,24 @@ void runAuthMode()
   server.on("/", HTTP_GET, handleRoot);
   server.on("/code", HTTP_POST, handleCode);
   server.begin();
-  tft.fillScreen(C_BG);
-  drawTopBar("COLLEGA SPOTIFY", C_GREEN);
-  panel(12, 34, 296, 72, 14);
+  applyTheme(SP_GREEN, true);
+  drawBackdrop();
+  drawTopBar("COLLEGA SPOTIFY", SP_GREEN);
+  panel(12, 36, 296, 74, 14, SP_PANEL, SP_LINE);
+  rrect(12, 52, 4, 42, 2, SP_GREEN, SP_PANEL);
   tft.setTextDatum(TL_DATUM);
-  tft.setTextColor(C_DIM, C_PANEL);
-  tft.drawString("1. Dal telefono (stessa WiFi) apri:", 24, 44, 2);
-  tft.setTextColor(C_GREEN, C_PANEL);
-  tft.drawString("http://" + WiFi.localIP().toString(), 24, 68, 4);
-  panel(12, 114, 296, 84, 14);
-  tft.setTextColor(C_DIM, C_PANEL);
-  tft.drawString("2. Redirect URI da registrare su Spotify:", 24, 124, 2);
-  tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("http://127.0.0.1:8888/callback", 24, 148, 2);
-  tft.setTextColor(C_FAINT, C_PANEL);
-  tft.drawString("in attesa di collegamento...", 24, 172, 1);
+  tft.setTextColor(SP_MUTED, SP_PANEL);
+  tft.drawString("1. Dal telefono (stessa WiFi) apri:", 26, 46, 2);
+  tft.setTextColor(SP_GREEN, SP_PANEL);
+  tft.drawString("http://" + WiFi.localIP().toString(), 26, 70, 4);
+  panel(12, 118, 296, 84, 14, SP_PANEL, SP_LINE);
+  tft.setTextColor(SP_MUTED, SP_PANEL);
+  tft.drawString("2. Redirect URI da registrare su Spotify:", 26, 128, 2);
+  tft.setTextColor(C_FG, SP_PANEL);
+  tft.drawString("http://127.0.0.1:8888/callback", 26, 152, 2);
+  glowDisc(30, 182, 3, SP_GREEN, 3, SP_PANEL);
+  tft.setTextColor(SP_FAINT, SP_PANEL);
+  tft.drawString("in attesa di collegamento...", 40, 178, 1);
   while (!authDone)
   {
     server.handleClient();
@@ -1417,18 +1569,196 @@ void runAuthMode()
   server.stop();
 }
 
-// ===================== Spotify Dark Neon: UI 320x240 =====================
-// Colori locali alle pagine Spotify: le altre schermate non cambiano.
-constexpr uint16_t SP_BG = C565(6, 17, 22);
-constexpr uint16_t SP_NAV = C565(7, 22, 27);
-constexpr uint16_t SP_PANEL = C565(18, 37, 43);
-constexpr uint16_t SP_PANEL2 = C565(23, 49, 54);
-constexpr uint16_t SP_LINE = C565(41, 72, 75);
-constexpr uint16_t SP_GREEN = C565(27, 232, 163);
-constexpr uint16_t SP_MUTED = C565(145, 169, 176);
-constexpr uint16_t SP_FAINT = C565(88, 122, 128);
-constexpr uint16_t SP_BAR = C565(56, 83, 88);
+// ########==================== SERVIZIO BLUETOOTH - TASTIERA HID PC ====================########
+// Il CYD si presenta al PC come tastiera Bluetooth LE ("CYD Hub"):
+// - tasti multimediali (Consumer Control) per volume di sistema +/-, muto audio e play/pausa;
+// - scorciatoia Win+Alt+K per il muto del microfono nelle chiamate (Windows 11: Teams, Zoom, ...).
+// Sullo stesso collegamento c'e' un servizio di sincronizzazione usato da tools/cyd_sync.py:
+// il PC scrive lo stato reale del microfono e le notifiche (Teams, Webex, Slack), il CYD
+// notifica i tocchi su MIC. Senza lo script il microfono usa Win+Alt+K con stato presunto.
+constexpr const char *BLE_DEVICE_NAME = "CYD Hub";
 
+bool bleEnabled = true;       // dal menu SET, richiede riavvio
+bool notifEnabled = true;     // dal menu SET: popup e LED delle notifiche PC
+volatile bool bleConnected = false;
+volatile bool bleStateDirty = false; // aggiornato dai callback NimBLE (altro task)
+volatile bool bleTopDirty = false;   // ridisegna l'icona Bluetooth nella testata
+bool micMuted = false;        // stato del microfono (reale se cyd_sync.py e' attivo, altrimenti presunto)
+uint32_t micSyncAt = 0;       // ultimo stato ricevuto da cyd_sync.py
+
+// Scritture del PC sul servizio di sincronizzazione: arrivano dal task NimBLE e
+// vengono consumate nel loop principale (bleSyncService) sotto syncMutex.
+std::mutex syncMutex;
+int syncMicState = -1; // ultimo stato del microfono scritto dal PC, -1 = nessuno
+std::vector<std::string> syncNotifQueue;
+
+// Bit del report Consumer Control (report ID 2).
+enum ConsumerKey : uint8_t
+{
+  CK_VOL_UP = 1 << 0,
+  CK_VOL_DOWN = 1 << 1,
+  CK_MUTE = 1 << 2,
+  CK_PLAY_PAUSE = 1 << 3,
+};
+
+#ifndef WOKWI
+// Tastiera (report ID 1, 8 byte) + Consumer Control (report ID 2, 1 byte).
+static const uint8_t HID_REPORT_MAP[] = {
+    0x05, 0x01, 0x09, 0x06, 0xA1, 0x01, 0x85, 0x01, // Generic Desktop / Keyboard
+    0x05, 0x07, 0x19, 0xE0, 0x29, 0xE7, 0x15, 0x00, // modificatori
+    0x25, 0x01, 0x75, 0x01, 0x95, 0x08, 0x81, 0x02,
+    0x95, 0x01, 0x75, 0x08, 0x81, 0x01,             // byte riservato
+    0x95, 0x06, 0x75, 0x08, 0x15, 0x00, 0x25, 0x65, // 6 tasti
+    0x05, 0x07, 0x19, 0x00, 0x29, 0x65, 0x81, 0x00,
+    0xC0,
+    0x05, 0x0C, 0x09, 0x01, 0xA1, 0x01, 0x85, 0x02, // Consumer Control
+    0x15, 0x00, 0x25, 0x01, 0x75, 0x01, 0x95, 0x04,
+    0x09, 0xE9, 0x09, 0xEA, 0x09, 0xE2, 0x09, 0xCD, // Vol+, Vol-, Mute, Play/Pause
+    0x81, 0x02,
+    0x95, 0x04, 0x81, 0x01, // padding a 8 bit
+    0xC0};
+
+NimBLEHIDDevice *bleHid = nullptr;
+NimBLECharacteristic *bleKeyboardInput = nullptr;
+NimBLECharacteristic *bleConsumerInput = nullptr;
+
+static const char *SYNC_SVC_UUID = "c7d10000-5f6e-4b8a-9a2d-3c1e0f6b7a90";
+static const char *SYNC_MIC_UUID = "c7d10001-5f6e-4b8a-9a2d-3c1e0f6b7a90";   // PC: '0'/'1'; CYD notifica 't' = tocco
+static const char *SYNC_NOTIF_UUID = "c7d10002-5f6e-4b8a-9a2d-3c1e0f6b7a90"; // PC: notifica, campi separati da 0x1F
+NimBLECharacteristic *bleMicChar = nullptr;
+
+class SyncCallbacks : public NimBLECharacteristicCallbacks
+{
+  void onWrite(NimBLECharacteristic *c, NimBLEConnInfo &) override
+  {
+    std::string v = c->getValue();
+    std::lock_guard<std::mutex> lock(syncMutex);
+    if (c == bleMicChar)
+      syncMicState = !v.empty() && v[0] == '1';
+    else if (syncNotifQueue.size() < 10)
+      syncNotifQueue.push_back(v);
+  }
+};
+
+class BleServerCallbacks : public NimBLEServerCallbacks
+{
+  void onConnect(NimBLEServer *, NimBLEConnInfo &) override
+  {
+    bleConnected = true;
+    bleStateDirty = true;
+    bleTopDirty = true;
+  }
+  void onDisconnect(NimBLEServer *, NimBLEConnInfo &, int) override
+  {
+    bleConnected = false;
+    bleStateDirty = true;
+    bleTopDirty = true;
+  }
+};
+
+void bleInit()
+{
+  if (!bleEnabled)
+    return;
+  NimBLEDevice::init(BLE_DEVICE_NAME);
+  // Bonding + Secure Connections, senza PIN ("just works"): il PC lo ricorda.
+  NimBLEDevice::setSecurityAuth(true, false, true);
+
+  NimBLEServer *server = NimBLEDevice::createServer();
+  server->setCallbacks(new BleServerCallbacks());
+  server->advertiseOnDisconnect(true);
+
+  bleHid = new NimBLEHIDDevice(server);
+  bleHid->setManufacturer("CYD Hub");
+  bleHid->setPnp(0x02, 0xE502, 0xA111, 0x0210);
+  bleHid->setHidInfo(0x00, 0x01);
+  bleHid->setReportMap((uint8_t *)HID_REPORT_MAP, sizeof(HID_REPORT_MAP));
+  bleKeyboardInput = bleHid->getInputReport(1);
+  bleConsumerInput = bleHid->getInputReport(2);
+  bleHid->setBatteryLevel(100);
+
+  static SyncCallbacks syncCb;
+  NimBLEService *sync = server->createService(SYNC_SVC_UUID);
+  bleMicChar = sync->createCharacteristic(SYNC_MIC_UUID, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
+  bleMicChar->setCallbacks(&syncCb);
+  sync->createCharacteristic(SYNC_NOTIF_UUID, NIMBLE_PROPERTY::WRITE)->setCallbacks(&syncCb);
+  sync->start();
+
+  server->start();
+  NimBLEAdvertising *adv = NimBLEDevice::getAdvertising();
+  adv->setName(BLE_DEVICE_NAME);
+  adv->setAppearance(HID_KEYBOARD);
+  adv->addServiceUUID(bleHid->getHidService()->getUUID());
+  adv->enableScanResponse(true);
+  adv->start();
+  Serial.printf("BLE HID pronto, heap libero %u\n", (unsigned)ESP.getFreeHeap());
+}
+
+bool bleSendKeyboard(uint8_t modifiers, uint8_t key)
+{
+  if (!bleConnected || !bleKeyboardInput)
+    return false;
+  uint8_t report[8] = {modifiers, 0, key, 0, 0, 0, 0, 0};
+  bleKeyboardInput->notify(report, sizeof(report));
+  delay(12);
+  memset(report, 0, sizeof(report));
+  bleKeyboardInput->notify(report, sizeof(report));
+  return true;
+}
+
+bool bleSendConsumer(uint8_t keys)
+{
+  if (!bleConnected || !bleConsumerInput)
+    return false;
+  uint8_t report = keys;
+  bleConsumerInput->notify(&report, 1);
+  delay(12);
+  report = 0;
+  bleConsumerInput->notify(&report, 1);
+  return true;
+}
+
+void bleSyncSendToggle()
+{
+  bleMicChar->setValue("t");
+  bleMicChar->notify();
+}
+#else
+// Wokwi non simula il Bluetooth: i comandi vengono solo registrati sul monitor seriale.
+void bleInit() { bleConnected = true; }
+bool bleSendKeyboard(uint8_t modifiers, uint8_t key)
+{
+  Serial.printf("[WOKWI BLE] tasto mod=0x%02X key=0x%02X\n", modifiers, key);
+  return true;
+}
+bool bleSendConsumer(uint8_t keys)
+{
+  Serial.printf("[WOKWI BLE] consumer 0x%02X\n", keys);
+  return true;
+}
+void bleSyncSendToggle() { Serial.println("[WOKWI BLE] tocco microfono"); }
+#endif
+
+bool micSyncLive() { return micSyncAt && millis() - micSyncAt < 3000; }
+
+// Con cyd_sync.py attivo il muto lo applica il PC (stato reale); altrimenti Win+Alt+K,
+// interruttore del microfono di Windows 11 nelle chiamate, con stato presunto.
+bool pcToggleMic()
+{
+  if (micSyncLive())
+  {
+    bleSyncSendToggle();
+    return true;
+  }
+  constexpr uint8_t MOD_LALT = 0x04, MOD_LGUI = 0x08, KEY_K = 0x0E;
+  if (!bleSendKeyboard(MOD_LGUI | MOD_LALT, KEY_K))
+    return false;
+  micMuted = !micMuted;
+  return true;
+}
+
+// ########==================== PAGINA 2 - SPOTIFY PLAYER ====================########
+// ----- Spotify Dark Neon: UI 320x240 -----
 String spotifyFit(String s, int maxW, int font = 2)
 {
   if (tft.textWidth(s, font) <= maxW)
@@ -1440,34 +1770,35 @@ String spotifyFit(String s, int maxW, int font = 2)
 
 void spotifyHeader(bool library)
 {
-  tft.fillRect(0, 0, 320, 29, SP_BG);
-  if (!library)
+  if (library)
   {
-    // Titolo compatto: lascia spazio allo stato e al tasto CODA.
-    tft.setTextDatum(ML_DATUM);
-    tft.setTextColor(C_FG, SP_BG);
-    tft.drawString("SPOTIFY", 12, 14, 1);
-
-    // Lo stato di riproduzione viene disegnato da drawTrackText().
-    rrect(175, 4, 51, 20, 8, SP_PANEL2, SP_BG);
-    tft.setTextColor(SP_GREEN, SP_PANEL2);
-    tft.setTextDatum(MC_DATUM);
-    tft.drawString("CODA", 200, 14, 1);
-
-    drawTopBarTime(SP_GREEN);
+    drawTopBar("LIBRERIA SPOTIFY", themeAccent);
+    return;
   }
-  else
+  fillBg(0, 0, 320, 28);
+  glowDisc(17, 14, 3, themeAccent, 4);
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_FG);
+  tft.drawString("SPOTIFY", 27, 14, 2);
+
+  // Tasto CODA: riquadro x=175..225, y=4..23 (vedi spTap).
+  panel(175, 4, 51, 20, 10, SP_PANEL2, SP_LINE);
+  for (int k = 0; k < 3; k++)
   {
-    drawTopBar("SPOTIFY", C_GREEN);
+    tft.fillRect(183, 9 + k * 4, 2, 2, themeAccent);
+    tft.fillRect(187, 9 + k * 4, 7, 2, C_FG);
   }
+  tft.setTextColor(C_FG, SP_PANEL2);
+  tft.drawString("CODA", 198, 15, 1);
+
+  drawTopBarTime(themeAccent);
   tft.setTextDatum(TL_DATUM);
-  tft.drawFastHLine(12, 28, 296, SP_LINE);
 }
 
-// ===================== Spotify: stato + UI =====================
+// ----- Spotify: stato + UI -----
 constexpr int ART_X = 12, ART_Y = 32, ART_SZ = 150;
 constexpr int TXT_X = 174, TXT_W = 134;
-constexpr int PB_X = 14, PB_Y = 198, PB_W = 292, PB_H = 4;
+constexpr int PB_X = 14, PB_Y = 196, PB_W = 292, PB_H = 4;
 constexpr int CTL_Y = 164;
 
 struct Track
@@ -1502,66 +1833,77 @@ uint32_t progressNow() { return T.progress + (T.playing ? millis() - T.stamp : 0
 
 void drawTrackText()
 {
-  const int x = 174, w = 134;
-  tft.fillRect(169, 32, 151, 112, SP_BG);
-  // Titolo e artista senza banner superiore.
-  String title = T.title.length() ? T.title : String("Pronto per la musica");
-  tft.setTextColor(C_FG, SP_BG);
-  if (tft.textWidth(title, 4) <= w)
+  const int x = TXT_X, w = TXT_W;
+  const uint16_t acc = themeAccent;
+  fillBg(169, 30, 151, 109);
+
+  // Stato: equalizzatore acceso in riproduzione, due barre in pausa.
+  tft.setTextDatum(TL_DATUM);
+  if (T.playing)
   {
-    tft.drawString(title, x, 43, 4);
+    static const uint8_t EQ[3] = {6, 10, 7};
+    for (int i = 0; i < 3; i++)
+      rrect(x + i * 4, 45 - EQ[i], 3, EQ[i], 1, acc);
+    tft.setTextColor(acc);
+    tft.drawString("IN RIPRODUZIONE", x + 16, 37, 1);
   }
   else
   {
+    rrect(x, 36, 3, 9, 1, SP_MUTED);
+    rrect(x + 5, 36, 3, 9, 1, SP_MUTED);
+    tft.setTextColor(SP_MUTED);
+    tft.drawString("IN PAUSA", x + 14, 37, 1);
+  }
+
+  String title = T.title.length() ? T.title : String("Pronto per la musica");
+  tft.setTextColor(C_FG);
+  if (tft.textWidth(title, 4) <= w)
+    tft.drawString(title, x, 54, 4);
+  else
+  {
     auto lines = wrapText(title, 2, w);
-    drawLines(lines, x, 43, 2, 17, 2, C_FG, w);
+    drawLines(lines, x, 52, 2, 17, 2, C_FG, w);
   }
   if (T.artist.length())
   {
-    tft.setTextColor(SP_MUTED, SP_BG);
-    tft.drawString(spotifyFit(T.artist, w, 2), x, 96, 2);
+    tft.setTextColor(SP_MUTED);
+    tft.drawString(spotifyFit(T.artist, w, 2), x, 92, 2);
   }
 
-  // Stato vicino a CODA, nella barra superiore (senza animazioni).
-  rrect(71, 5, 98, 18, 8, SP_PANEL2, SP_BG);
-  tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(T.playing ? SP_GREEN : SP_MUTED, SP_PANEL2);
-  tft.drawString(T.playing ? "IN RIPRODUZIONE" : "IN PAUSA", 120, 14, 1);
-
-  // Gli eventuali messaggi d'errore restano sotto il titolo.
-  tft.fillRect(x, 121, w, 21, SP_BG);
+  // Gli eventuali messaggi d'errore restano sotto l'artista.
   if (statusMsg.length())
   {
-    const uint16_t errorBg = C565(71, 29, 35);
-    rrect(x, 121, w, 21, 8, errorBg, SP_BG);
+    const uint16_t errorBg = C565(74, 22, 34);
+    rrect(x, 116, w, 20, 8, errorBg);
     tft.setTextDatum(ML_DATUM);
     tft.setTextColor(C_RED, errorBg);
-    tft.drawString(spotifyFit(statusMsg, w - 12, 1), x + 6, 131, 1);
+    tft.drawString(spotifyFit(statusMsg, w - 12, 1), x + 6, 126, 1);
   }
   tft.setTextDatum(TL_DATUM);
 }
 
 void drawControls()
 {
-  tft.fillRect(TXT_X - 4, 142, 146, 44, C_BG);
+  fillBg(TXT_X - 4, 139, 146, 52);
   const int cy = CTL_Y;
+  const uint16_t acc = themeAccent;
   // precedente
-  disc(192, cy, 16, C_LINE);
-  disc(192, cy, 15, C_PANEL2, C_LINE);
+  disc(192, cy, 16, SP_LINE);
+  disc(192, cy, 15, SP_PANEL2, SP_LINE);
   tft.fillRect(185, cy - 6, 2, 12, C_FG);
   tft.fillTriangle(189, cy, 198, cy - 6, 198, cy + 6, C_FG);
-  // play / pausa
-  disc(241, cy, 21, C_GREEN);
+  // play / pausa: disco d'accento con alone
+  glowDisc(241, cy, 19, acc, 6);
   if (T.playing)
   {
-    rrect(233, cy - 8, 5, 16, 2, C_BG, C_GREEN);
-    rrect(244, cy - 8, 5, 16, 2, C_BG, C_GREEN);
+    rrect(234, cy - 8, 5, 16, 2, SP_BG, acc);
+    rrect(243, cy - 8, 5, 16, 2, SP_BG, acc);
   }
   else
-    tft.fillTriangle(236, cy - 9, 236, cy + 9, 251, cy, C_BG);
+    tft.fillTriangle(236, cy - 9, 236, cy + 9, 251, cy, SP_BG);
   // successivo
-  disc(290, cy, 16, C_LINE);
-  disc(290, cy, 15, C_PANEL2, C_LINE);
+  disc(290, cy, 16, SP_LINE);
+  disc(290, cy, 15, SP_PANEL2, SP_LINE);
   tft.fillTriangle(283, cy - 6, 283, cy + 6, 292, cy, C_FG);
   tft.fillRect(294, cy - 6, 2, 12, C_FG);
   drawnPlaying = T.playing;
@@ -1579,174 +1921,123 @@ void drawProgress()
   if (T.duration && p > T.duration)
     p = T.duration;
   int w = T.duration ? (int)((uint64_t)PB_W * p / T.duration) : 0;
-  tft.fillRect(0, 195, 320, 19, SP_BG);
-  rrect(PB_X, PB_Y, PB_W, PB_H, 2, SP_BAR, SP_BG);
+  const uint16_t acc = themeAccent;
+  fillBg(0, 191, 320, 20);
+  rrect(PB_X, PB_Y, PB_W, PB_H, 2, SP_BAR);
   if (w > 0)
-    rrect(PB_X, PB_Y, max(4, w), PB_H, 2, SP_GREEN, SP_BAR);
-  disc(PB_X + w, PB_Y + 2, 3, C_FG, SP_BG);
+    tft.fillRectHGradient(PB_X, PB_Y, max(4, w), PB_H, mix565(SP_BAR, acc, 110), acc);
+  // cursore bianco con alone d'accento
+  disc(PB_X + w, PB_Y + 2, 6, mix565(bgAt(PB_Y), acc, 80));
+  disc(PB_X + w, PB_Y + 2, 3, C_FG, mix565(bgAt(PB_Y), acc, 80));
   char b[8];
-  tft.setTextColor(SP_MUTED, SP_BG);
+  tft.setTextColor(SP_MUTED);
   tft.setTextDatum(TL_DATUM);
   fmtTime(p, b);
-  tft.drawString(b, PB_X, 205, 1);
+  tft.drawString(b, PB_X, 202, 1);
   tft.setTextDatum(TR_DATUM);
   fmtTime(T.duration, b);
-  tft.drawString(b, PB_X + PB_W, 205, 1);
+  tft.drawString(b, PB_X + PB_W, 202, 1);
   tft.setTextDatum(TL_DATUM);
   progDirty = false;
 }
 
-// ===================== Spotify Ambilight (nessun buffer aggiuntivo) =====================
-// I 6 gruppi raccolgono colori simili. Si campiona 1 pixel ogni 8
-// direttamente dai blocchi RGB565 che JPEGDEC invia al display.
-struct ArtColorGroup
-{
-  uint32_t sumR = 0, sumG = 0, sumB = 0;
-  uint32_t count = 0;
-};
-
-ArtColorGroup artGroups[6];
-bool artSampling = false;
-bool artColorValid = false;
-uint8_t artColorR = 0, artColorG = 165, artColorB = 0;
-
-void sampleArtPixel(uint16_t px)
-{
-  // JPEGDEC produce pixel RGB565; TFT_eSPI gestisce il byte swap in pushImage.
-  uint8_t r = ((px >> 11) & 31) * 255 / 31;
-  uint8_t g = ((px >> 5) & 63) * 255 / 63;
-  uint8_t b = (px & 31) * 255 / 31;
-  uint8_t hi = max(r, max(g, b));
-  uint8_t lo = min(r, min(g, b));
-  // Evita che sfondi neri, grigi e bianchi dominino il colore scelto.
-  if (hi < 65 || (hi - lo) < 48)
-    return;
-
-  int group;
-  if (r >= g && r >= b)
-    group = (g >= b) ? 0 : 1; // rosso/arancio, rosa
-  else if (g >= r && g >= b)
-    group = (r >= b) ? 2 : 3; // giallo/verde, verde/ciano
-  else
-    group = (r >= g) ? 4 : 5; // viola, blu/azzurro
-
-  ArtColorGroup &a = artGroups[group];
-  a.sumR += r;
-  a.sumG += g;
-  a.sumB += b;
-  a.count++;
-}
-
-void applyArtDominantColor()
-{
-  artSampling = false;
-  int best = -1;
-  for (int i = 0; i < 6; ++i)
-    if (artGroups[i].count > 0 &&
-        (best < 0 || artGroups[i].count > artGroups[best].count))
-      best = i;
-
-  if (best < 0)
-  {
-    artColorValid = false; // ritorna al verde originale
-    return;
-  }
-
-  const ArtColorGroup &a = artGroups[best];
-  uint8_t r = a.sumR / a.count;
-  uint8_t g = a.sumG / a.count;
-  uint8_t b = a.sumB / a.count;
-  uint8_t peak = max(r, max(g, b));
-  // Massima vivacita': il canale dominante arriva a 255 anziche' 180.
-  // Riduciamo parzialmente la componente neutra per rendere il colore piu' saturo.
-  uint8_t neutral = min(r, min(g, b)) / 2;
-  r -= neutral;
-  g -= neutral;
-  b -= neutral;
-  peak = max(r, max(g, b));
-  artColorR = (uint16_t)r * 255 / peak;
-  artColorG = (uint16_t)g * 255 / peak;
-  artColorB = (uint16_t)b * 255 / peak;
-  artColorValid = true;
-}
-
 int jpegDraw(JPEGDRAW *d)
 {
-  if (artSampling)
-  {
-    const int total = d->iWidth * d->iHeight;
-    for (int i = 0; i < total; i += 8)
-      sampleArtPixel(d->pPixels[i]);
-  }
   tft.pushImage(ART_X + d->x, ART_Y + d->y, d->iWidth, d->iHeight, d->pPixels);
   return 1;
 }
 
+// Colori dell'alone attorno alla copertina, tinti con l'accento corrente.
+uint16_t artHaloOuter() { return mix565(bgAt(ART_Y + ART_SZ / 2), themeAccent, 45); }
+uint16_t artHaloInner() { return mix565(bgAt(ART_Y + ART_SZ / 2), themeAccent, 95); }
+
+void drawArtFrame()
+{
+  rrect(ART_X - 4, ART_Y - 4, ART_SZ + 8, ART_SZ + 8, 17, artHaloOuter());
+  rrect(ART_X - 2, ART_Y - 2, ART_SZ + 4, ART_SZ + 4, 15, artHaloInner(), artHaloOuter());
+}
+
 void drawArtPlaceholder()
 {
-  panel(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_PANEL, SP_LINE, SP_BG);
+  panel(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_PANEL, SP_LINE, artHaloInner());
   int cx = ART_X + ART_SZ / 2, cy = ART_Y + ART_SZ / 2;
   // Disco stilizzato; niente immagini aggiuntive in RAM.
-  disc(cx, cy, 39, SP_PANEL2, SP_PANEL);
-  for (int r = 14; r < 39; r += 9)
+  disc(cx, cy, 44, SP_PANEL2, SP_PANEL);
+  for (int r = 16; r < 44; r += 7)
     tft.drawCircle(cx, cy, r, SP_LINE);
-  disc(cx, cy, 8, SP_GREEN, SP_PANEL2);
+  glowDisc(cx, cy, 9, themeAccent, 4, SP_PANEL2);
+  disc(cx, cy, 2, SP_BG, themeAccent);
 }
 
 // Dopo il decode JPEG: ritaglia gli angoli e aggiunge un filo di bordo.
+// Dopo il decode JPEG: ritaglia gli angoli sull'alone e aggiunge un filo di bordo.
 void finishArt()
 {
-  roundCorners(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_BG);
-  tft.drawRoundRect(ART_X, ART_Y, ART_SZ, ART_SZ, 13, SP_LINE);
+  roundCorners(ART_X, ART_Y, ART_SZ, ART_SZ, 13, artHaloInner());
+  tft.drawRoundRect(ART_X, ART_Y, ART_SZ, ART_SZ, 13, mix565(SP_LINE, themeAccent, 90));
 }
 
-void fetchArt(const String &url)
+// Scarica la copertina in RAM (max 90 KB). Il chiamante libera il buffer.
+uint8_t *downloadArt(const String &url, int &size)
 {
+  size = 0;
   WiFiClientSecure client;
   client.setInsecure();
   HTTPClient http;
   http.useHTTP10(true);
   http.setTimeout(8000);
   if (!http.begin(client, url))
-    return;
+    return nullptr;
+  uint8_t *buf = nullptr;
   int code = http.GET();
-  int size = http.getSize();
-  if (code == 200 && size > 0 && size < 90000)
+  int len = http.getSize();
+  if (code == 200 && len > 0 && len < 90000)
   {
-    uint8_t *buf = (uint8_t *)malloc(size);
+    buf = (uint8_t *)malloc(len);
     if (buf)
     {
       WiFiClient *s = http.getStreamPtr();
       int got = 0;
       uint32_t t0 = millis();
-      while (got < size && millis() - t0 < 8000)
+      while (got < len && millis() - t0 < 8000)
       {
         int av = s->available();
         if (av > 0)
-          got += s->readBytes(buf + got, min(av, size - got));
+          got += s->readBytes(buf + got, min(av, len - got));
         else if (!s->connected())
           break;
         else
           delay(1);
       }
-      if (got == size && jpeg.openRAM(buf, size, jpegDraw))
+      if (got == len)
+        size = len;
+      else
       {
-        int w = jpeg.getWidth();
-        int sc = (w >= 500) ? JPEG_SCALE_QUARTER : (w >= 250) ? JPEG_SCALE_HALF
-                                                              : 0;
-        for (ArtColorGroup &a : artGroups)
-          a = ArtColorGroup{};
-        artSampling = true;
-        int decoded = jpeg.decode(0, 0, sc);
-        artSampling = false;
-        jpeg.close();
-        if (decoded)
-          applyArtDominantColor();
+        free(buf);
+        buf = nullptr;
       }
-      free(buf);
     }
   }
   http.end();
+  if (!buf)
+    Serial.printf("Copertina fallita: HTTP %d, %d B, heap %u, blocco max %u\n", code, len,
+                  (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMaxAllocHeap());
+  return buf;
+}
+
+int artScale(int width)
+{
+  return (width >= 500) ? JPEG_SCALE_QUARTER : (width >= 250) ? JPEG_SCALE_HALF
+                                                               : 0;
+}
+
+// Disegna la copertina.
+void drawArtJpeg(uint8_t *buf, int size)
+{
+  if (!jpeg->openRAM(buf, size, jpegDraw))
+    return;
+  jpeg->decode(0, 0, artScale(jpeg->getWidth()));
+  jpeg->close();
 }
 
 #ifdef WOKWI
@@ -1799,7 +2090,6 @@ void spotifyPoll()
         imgs = it["images"].as<JsonArray>();
       int best = 100000;
       T.artUrl = "";
-      artColorValid = false; // nuova traccia: non riutilizzare il vecchio colore
       for (JsonObject im : imgs)
       {
         int d = abs((int)(im["width"] | 0) - 300);
@@ -1824,7 +2114,6 @@ void spotifyPoll()
       T.title = nt;
       T.artist = "";
       T.artUrl = "";
-      artColorValid = false;
       T.playing = false;
       T.progress = 0;
       T.duration = 0;
@@ -1883,7 +2172,7 @@ void spotifyCommand(const char *method, const char *path)
 
 void spEnter()
 {
-  tft.fillScreen(SP_BG);
+  drawBackdrop();
   spotifyHeader(false);
   needText = needArt = needCtl = progDirty = true;
   nextPoll = 0;
@@ -1893,12 +2182,12 @@ void spEnter()
 void spLoop()
 {
   uint32_t now = millis();
-  if (statusMsg.length() && now > statusUntil)
+  if (statusMsg.length() && timeReached(now, statusUntil))
   {
     statusMsg = "";
     needText = true;
   }
-  if (now >= nextPoll)
+  if (timeReached(now, nextPoll))
     spotifyPoll();
   if (needText)
   {
@@ -1913,11 +2202,24 @@ void spLoop()
   if (needArt)
   {
     needArt = false;
-    drawArtPlaceholder();
-    if (T.artUrl.length())
+    int size = 0;
+    uint8_t *buf = T.artUrl.length() ? downloadArt(T.artUrl, size) : nullptr;
+    // Decoder creato dopo il download: durante l'HTTPS la RAM serve a TLS.
+    if (buf && !(jpeg = new (std::nothrow) JPEGDEC))
     {
-      fetchArt(T.artUrl);
+      Serial.printf("Copertina: memoria insufficiente per il JPEG, blocco max %u\n", (unsigned)ESP.getMaxAllocHeap());
+      free(buf);
+      buf = nullptr;
+    }
+    drawArtFrame();
+    drawArtPlaceholder();
+    if (buf)
+    {
+      drawArtJpeg(buf, size);
       finishArt();
+      free(buf);
+      delete jpeg;
+      jpeg = nullptr;
     }
   }
   if (now - lastProg >= 500 || progDirty)
@@ -1925,6 +2227,25 @@ void spLoop()
     drawProgress();
     lastProg = now;
   }
+}
+
+// Fuori dalle pagine Spotify lo stato del player viene letto piu' di rado,
+// solo per tenere allineato il LED (pulsa solo se la musica suona davvero).
+constexpr uint32_t SPOTIFY_BG_POLL_MS = 30000UL;
+
+void spotifyBackgroundPoll()
+{
+#ifdef WOKWI
+  return;
+#endif
+  static uint32_t nextBgPoll = 0;
+  if (isSpotifyPage(curPage) || !rgbLedEnabled || !refreshToken.length() || WiFi.status() != WL_CONNECTED)
+    return;
+  uint32_t now = millis();
+  if (!timeReached(now, nextBgPoll))
+    return;
+  nextBgPoll = now + SPOTIFY_BG_POLL_MS;
+  spotifyPoll();
 }
 
 void spTap(int x, int y)
@@ -1936,7 +2257,7 @@ void spTap(int x, int y)
     return;
   }
   // Tap sulla barra di avanzamento = seek (Premium / player attivo).
-  if (y >= 196 && y < NAV_Y - 2 && T.duration > 0)
+  if (y >= 192 && y < NAV_Y - 2 && T.duration > 0)
   {
     int seekX = constrain(x - PB_X, 0, PB_W);
     uint32_t dest = (uint64_t)T.duration * seekX / PB_W;
@@ -2143,6 +2464,8 @@ bool fetchSpotifyQueue()
   else if (code < 0)
   {
     queueStatus = "Errore di rete";
+    Serial.printf("Coda fallita: codice %d, heap %u, blocco max %u\n", code,
+                  (unsigned)ESP.getFreeHeap(), (unsigned)ESP.getMaxAllocHeap());
   }
   else
     queueStatus = "Spotify HTTP " + String(code);
@@ -2161,53 +2484,66 @@ uint16_t monogramColor(const String &name)
 void drawLibraryTabs()
 {
   bool pl = spotifyLibraryView == LIB_PLAYLISTS;
-  rrect(12, 33, 240, 24, 10, SP_PANEL, SP_BG);
-  rrect(pl ? 15 : 131, 36, pl ? 113 : 117, 18, 8, SP_GREEN, SP_PANEL);
+  const uint16_t acc = themeAccent;
+  // Controllo a segmenti in vetro con la "pillola" d'accento sulla scheda attiva.
+  panel(12, 33, 240, 24, 12, SP_PANEL, SP_LINE);
+  rrect(pl ? 15 : 131, 36, pl ? 113 : 118, 18, 9, acc, SP_PANEL);
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(pl ? SP_BG : SP_MUTED, pl ? SP_GREEN : SP_PANEL);
+  tft.setTextColor(pl ? SP_BG : SP_MUTED, pl ? acc : SP_PANEL);
   tft.drawString("PLAYLIST", 71, 45, 2);
-  tft.setTextColor(pl ? SP_MUTED : SP_BG, pl ? SP_PANEL : SP_GREEN);
-  tft.drawString("CODA", 188, 45, 2);
-  rrect(278, 33, 30, 24, 9, SP_PANEL2, SP_BG);
-  drawRefreshIcon(293, 45, SP_GREEN, SP_PANEL2);
+  tft.setTextColor(pl ? SP_MUTED : SP_BG, pl ? SP_PANEL : acc);
+  tft.drawString("CODA", 190, 45, 2);
+  panel(278, 33, 30, 24, 10, SP_PANEL2, SP_LINE);
+  drawRefreshIcon(293, 45, acc, SP_PANEL2);
   tft.setTextDatum(TL_DATUM);
+}
+
+// Etichetta di sezione a sinistra e contatore / stato a destra (y = 66).
+void drawLibraryCaption(const char *label, const String &status, const String &counter)
+{
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(SP_FAINT);
+  tft.drawString(label, 14, 66, 1);
+  tft.setTextDatum(MR_DATUM);
+  if (status.length())
+  {
+    tft.setTextColor(status == "In riproduzione" ? themeAccent : C_RED);
+    tft.drawString(spotifyFit(status, 160, 1), 306, 66, 1);
+  }
+  else
+  {
+    tft.setTextColor(SP_FAINT);
+    tft.drawString(counter, 306, 66, 1);
+  }
+  tft.setTextDatum(TL_DATUM);
+}
+
+void drawLibraryEmpty(const char *title)
+{
+  panel(28, 92, 264, 76, 14, SP_PANEL, SP_LINE);
+  tft.setTextColor(C_FG, SP_PANEL);
+  tft.drawCentreString(title, 160, 109, 2);
+  tft.setTextColor(SP_MUTED, SP_PANEL);
+  tft.drawCentreString("Premi aggiorna per riprovare", 160, 136, 1);
 }
 
 void drawPlaylistGrid()
 {
-  tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(SP_FAINT, SP_BG);
-  tft.drawString("LE TUE PLAYLIST", 14, 66, 1);
-  if (playlistsStatus.length())
-  {
-    tft.setTextDatum(MR_DATUM);
-    tft.setTextColor(playlistsStatus == "In riproduzione" ? SP_GREEN : C_RED, SP_BG);
-    tft.drawString(spotifyFit(playlistsStatus, 154, 1), 306, 66, 1);
-  }
-  else
-  {
-    tft.setTextDatum(MR_DATUM);
-    tft.setTextColor(SP_FAINT, SP_BG);
-    tft.drawString(String((int)spotifyPlaylists.size()) + " LISTE", 305, 66, 1);
-  }
-  tft.setTextDatum(TL_DATUM);
+  drawLibraryCaption("LE TUE PLAYLIST", playlistsStatus, String((int)spotifyPlaylists.size()) + " LISTE");
 
   if (playlistsLoading)
   {
-    tft.setTextColor(SP_MUTED, SP_BG);
+    tft.setTextColor(SP_MUTED);
     tft.drawCentreString("Caricamento playlist...", 160, 122, 2);
     return;
   }
   if (spotifyPlaylists.empty())
   {
-    panel(28, 92, 264, 76, 12, SP_PANEL, SP_LINE, SP_BG);
-    tft.setTextColor(C_FG, SP_PANEL);
-    tft.drawCentreString("Nessuna playlist", 160, 109, 2);
-    tft.setTextColor(SP_MUTED, SP_PANEL);
-    tft.drawCentreString("Premi aggiorna per riprovare", 160, 136, 1);
+    drawLibraryEmpty("Nessuna playlist");
     return;
   }
 
+  const uint16_t acc = themeAccent;
   int pagesCount = (spotifyPlaylists.size() + PLAYLISTS_PER_PAGE - 1) / PLAYLISTS_PER_PAGE;
   playlistPage = constrain(playlistPage, 0, max(0, pagesCount - 1));
   int first = playlistPage * PLAYLISTS_PER_PAGE;
@@ -2220,13 +2556,15 @@ void drawPlaylistGrid()
     int y = PL_Y + (slot / PLAYLIST_COLS) * (PL_H + PL_GY);
     const String &name = spotifyPlaylists[idx].name;
     uint16_t color = monogramColor(name);
-    panel(x, y, PL_W, PL_H, 9, SP_PANEL, SP_LINE, SP_BG);
-    rrect(x + 5, y + 5, 28, 28, 7, mix565(SP_PANEL, color, 190), SP_PANEL);
+    panel(x, y, PL_W, PL_H, 10, SP_PANEL, SP_LINE);
+    // Monogramma su tessera sfumata.
+    tft.fillRectVGradient(x + 5, y + 5, 28, 28, color, mix565(color, SP_PANEL, 150));
+    roundCorners(x + 5, y + 5, 28, 28, 7, SP_PANEL);
     char letter[2] = {name.length() ? name[0] : '?', 0};
     if (letter[0] >= 'a' && letter[0] <= 'z')
       letter[0] -= 32;
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(SP_BG, mix565(SP_PANEL, color, 190));
+    tft.setTextColor(SP_BG);
     tft.drawString(letter, x + 19, y + 19, 4);
     tft.setTextDatum(TL_DATUM);
     auto lines = wrapText(name, 2, PL_W - 44);
@@ -2235,51 +2573,38 @@ void drawPlaylistGrid()
   if (pagesCount > 1)
   {
     bool prev = playlistPage > 0, next = playlistPage + 1 < pagesCount;
-    rrect(12, 198, 38, 14, 7, SP_PANEL2, SP_BG);
-    drawChevron(31, 205, true, prev ? SP_GREEN : SP_FAINT, SP_PANEL2);
-    rrect(270, 198, 38, 14, 7, SP_PANEL2, SP_BG);
-    drawChevron(289, 205, false, next ? SP_GREEN : SP_FAINT, SP_PANEL2);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(SP_MUTED, SP_BG);
-    tft.drawString(String(playlistPage + 1) + " / " + String(pagesCount), 160, 205, 1);
-    tft.setTextDatum(TL_DATUM);
+    panel(12, 197, 38, 13, 6, SP_PANEL2, SP_LINE);
+    drawChevron(31, 203, true, prev ? acc : SP_FAINT, SP_PANEL2);
+    panel(270, 197, 38, 13, 6, SP_PANEL2, SP_LINE);
+    drawChevron(289, 203, false, next ? acc : SP_FAINT, SP_PANEL2);
+    // indicatore a punti della pagina
+    int dots = min(pagesCount, 9);
+    int dx = 160 - (dots - 1) * 5;
+    for (int i = 0; i < dots; i++)
+    {
+      bool on = i == min(playlistPage, dots - 1);
+      disc(dx + i * 10, 203, on ? 3 : 2, on ? acc : SP_LINE);
+    }
   }
 }
 
 void drawQueueList()
 {
-  tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(SP_FAINT, SP_BG);
-  tft.drawString("PROSSIMI BRANI", 14, 66, 1);
-  if (queueStatus.length())
-  {
-    tft.setTextDatum(MR_DATUM);
-    tft.setTextColor(queueStatus == "In riproduzione" ? SP_GREEN : C_RED, SP_BG);
-    tft.drawString(spotifyFit(queueStatus, 162, 1), 304, 66, 1);
-  }
-  else
-  {
-    tft.setTextDatum(MR_DATUM);
-    tft.setTextColor(SP_FAINT, SP_BG);
-    tft.drawString(String((int)spotifyQueue.size()) + " BRANI", 304, 66, 1);
-  }
-  tft.setTextDatum(TL_DATUM);
+  drawLibraryCaption("PROSSIMI BRANI", queueStatus, String((int)spotifyQueue.size()) + " BRANI");
   if (queueLoading)
   {
-    tft.setTextColor(SP_MUTED, SP_BG);
+    tft.setTextColor(SP_MUTED);
     tft.drawCentreString("Caricamento coda...", 160, 122, 2);
     return;
   }
   if (spotifyQueue.empty())
   {
-    panel(28, 92, 264, 76, 12, SP_PANEL, SP_LINE, SP_BG);
-    tft.setTextColor(C_FG, SP_PANEL);
-    tft.drawCentreString("Coda vuota", 160, 109, 2);
-    tft.setTextColor(SP_MUTED, SP_PANEL);
-    tft.drawCentreString("Premi aggiorna per riprovare", 160, 136, 1);
+    drawLibraryEmpty("Coda vuota");
     return;
   }
 
+  const uint16_t acc = themeAccent;
+  const uint16_t badge = mix565(SP_PANEL, acc, 60);
   int total = (int)spotifyQueue.size();
   int visible = min(QUEUE_VISIBLE_ROWS, total);
   int maxFirst = max(0, total - visible);
@@ -2289,32 +2614,33 @@ void drawQueueList()
     int idx = queueScrollRow + slot;
     int y = Q_Y + slot * (Q_H + Q_GY);
     const QueueItem &item = spotifyQueue[idx];
-    panel(Q_X, y, Q_W, Q_H, 8, SP_PANEL, SP_LINE, SP_BG);
-    rrect(Q_X + 5, y + 5, 23, 20, 6, SP_PANEL2, SP_PANEL);
+    panel(Q_X, y, Q_W, Q_H, 9, SP_PANEL, SP_LINE);
+    rrect(Q_X + 5, y + 5, 24, 20, 7, badge, SP_PANEL);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(SP_GREEN, SP_PANEL2);
-    tft.drawString(String(idx + 1), Q_X + 16, y + 15, 1);
+    tft.setTextColor(acc, badge);
+    tft.drawString(String(idx + 1), Q_X + 17, y + 15, 1);
     tft.setTextDatum(TL_DATUM);
     tft.setTextColor(C_FG, SP_PANEL);
-    tft.drawString(spotifyFit(item.title, 230, 2), Q_X + 35, y + 2, 2);
+    tft.drawString(spotifyFit(item.title, 228, 2), Q_X + 36, y + 2, 2);
     tft.setTextColor(SP_MUTED, SP_PANEL);
-    tft.drawString(spotifyFit(item.artist, 230, 1), Q_X + 35, y + 19, 1);
-    tft.fillTriangle(Q_X + Q_W - 16, y + 9, Q_X + Q_W - 16, y + 21,
-                     Q_X + Q_W - 8, y + 15, SP_GREEN);
+    tft.drawString(spotifyFit(item.artist, 228, 1), Q_X + 36, y + 19, 1);
+    disc(Q_X + Q_W - 13, y + 15, 9, badge, SP_PANEL);
+    tft.fillTriangle(Q_X + Q_W - 16, y + 10, Q_X + Q_W - 16, y + 20,
+                     Q_X + Q_W - 8, y + 15, acc);
   }
   if (total > visible)
   {
     const int trackH = visible * (Q_H + Q_GY) - Q_GY;
     int thumbH = max(14, trackH * visible / total);
     int thumbY = Q_Y + (trackH - thumbH) * queueScrollRow / maxFirst;
-    rrect(309, Q_Y, 3, trackH, 1, SP_BAR, SP_BG);
-    rrect(309, thumbY, 3, thumbH, 1, SP_GREEN, SP_BAR);
+    rrect(309, Q_Y, 3, trackH, 1, SP_BAR);
+    rrect(309, thumbY, 3, thumbH, 1, acc, SP_BAR);
   }
 }
 
 void drawPlaylistPage()
 {
-  tft.fillScreen(SP_BG);
+  drawBackdrop();
   spotifyHeader(true);
   drawLibraryTabs();
   if (spotifyLibraryView == LIB_PLAYLISTS)
@@ -2533,7 +2859,7 @@ void playlistTap(int x, int y)
     }
   }
 }
-// ===================== Meteo =====================
+// ########==================== PAGINA 3 - METEO ====================########
 struct Weather
 {
   float t = 0, feels = 0, wind = 0;
@@ -2764,15 +3090,16 @@ void drawIcon(int cx, int cy, int s, int code, bool day, uint16_t bg = C_BG)
   }
 }
 
-void drawDegree(int x, int y, uint16_t col, uint16_t bg = C_BG)
+void drawDegree(int x, int y, uint16_t col, int32_t bg = -1)
 {
   ring(x, y, 6, 3, col, bg);
 }
 
 void weatherEnter()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("METEO", C_CYAN);
+  const uint16_t acc = themeAccent;
+  drawBackdrop();
+  drawTopBar("METEO", acc);
   tft.setTextDatum(TL_DATUM);
   if (!weatherOk)
   {
@@ -2786,63 +3113,80 @@ void weatherEnter()
     return;
   }
   char b[48];
-  // ---- hero ----
+  // ---- hero: citta', temperatura, max/min, descrizione ----
+  glowDisc(18, 40, 2, acc, 3);
   tft.setTextColor(C_DIM);
-  tft.drawString(upperStr(WEATHER_CITY), 14, 32, 2);
+  tft.drawString(upperStr(WEATHER_CITY), 26, 33, 2);
   String temp = String((int)lroundf(W.t));
   tft.setTextColor(C_FG);
-  tft.drawString(temp, 12, 50, 6);
+  tft.drawString(temp, 12, 52, 6);
   int tw = tft.textWidth(temp, 6);
-  drawDegree(16 + tw, 62, C_FG);
-  // max / min
-  int bx = 24 + tw + 44;
-  tft.fillTriangle(bx, 72, bx + 8, 72, bx + 4, 66, C_AMBER);
-  tft.fillTriangle(bx, 86, bx + 8, 86, bx + 4, 92, C_CYAN);
+  drawDegree(17 + tw, 63, C_FG);
+  int bx = 24 + tw + 38;
+  tft.fillTriangle(bx, 72, bx + 8, 72, bx + 4, 66, C_ORANGE);
+  tft.fillTriangle(bx, 86, bx + 8, 86, bx + 4, 92, acc);
   snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmax[0]));
   tft.setTextColor(C_FG);
   tft.drawString(b, bx + 14, 62, 2);
   snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmin[0]));
   tft.setTextColor(C_DIM);
   tft.drawString(b, bx + 14, 82, 2);
-  tft.setTextColor(C_CYAN);
+  tft.setTextColor(acc);
   tft.drawString(descOf(W.code), 14, 102, 2);
-  // medaglione con l'icona
-  disc(260, 72, 44, C_LINE);
-  disc(260, 72, 43, C_PANEL, C_LINE);
-  drawIcon(260, 72, 62, W.code, W.isDay, C_PANEL);
+
+  // ---- medaglione con alone e icona ----
+  glowDisc(260, 74, 41, mix565(C_PANEL, acc, 110), 7);
+  disc(260, 74, 39, C_PANEL, mix565(C_PANEL, acc, 110));
+  drawIcon(260, 74, 60, W.code, W.isDay, C_PANEL);
+
   // ---- metriche ----
   const int xs[3] = {12, 112, 212};
   const char *labels[3] = {"PERCEPITA", "UMIDITA", "VENTO"};
+  const uint16_t tags[3] = {C_ORANGE, acc, C_VIOLET};
   String vals[3] = {String((int)lroundf(W.feels)) + "`", String(W.hum) + "%", String((int)lroundf(W.wind)) + " km/h"};
   for (int i = 0; i < 3; i++)
   {
-    panel(xs[i], 124, 96, 38, 9);
+    panel(xs[i], 124, 96, 38, 10);
+    rrect(xs[i] + 8, 132, 3, 22, 1, tags[i], C_PANEL);
     tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString(labels[i], xs[i] + 9, 131, 1);
+    tft.drawString(labels[i], xs[i] + 17, 131, 1);
     tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString(vals[i], xs[i] + 9, 143, 2);
+    tft.drawString(vals[i], xs[i] + 17, 142, 2);
   }
-  // ---- prossimi giorni ----
+
+  // ---- prossimi giorni, con barra dell'escursione termica ----
+  float lo = W.tmin[1], hi = W.tmax[1];
+  for (int i = 2; i <= 3; i++)
+  {
+    lo = min(lo, W.tmin[i]);
+    hi = max(hi, W.tmax[i]);
+  }
+  float span = max(1.0f, hi - lo);
+  constexpr int BAR_W = 58;
   for (int i = 1; i <= 3; i++)
   {
     int x = 12 + (i - 1) * 100;
-    panel(x, 168, 96, 38, 9);
-    tft.setTextColor(C_CYAN, C_PANEL);
-    tft.drawString(upperStr(DAYS_S[W.wday[i]]), x + 9, 175, 1);
+    panel(x, 168, 96, 38, 10);
+    tft.setTextColor(acc, C_PANEL);
+    tft.drawString(upperStr(DAYS_S[W.wday[i]]), x + 9, 173, 1);
     snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmax[i]));
     tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString(b, x + 9, 185, 2);
+    tft.drawString(b, x + 9, 182, 2);
     snprintf(b, sizeof(b), "%d`", (int)lroundf(W.tmin[i]));
     tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString(b, x + 37, 185, 2);
-    drawIcon(x + 76, 187, 26, W.dcode[i], true, C_PANEL);
+    tft.drawString(b, x + 37, 182, 2);
+    drawIcon(x + 78, 184, 24, W.dcode[i], true, C_PANEL);
+    rrect(x + 9, 199, BAR_W, 3, 1, C_TRACK, C_PANEL);
+    int x0 = x + 9 + (int)((W.tmin[i] - lo) / span * BAR_W);
+    int x1 = x + 9 + (int)((W.tmax[i] - lo) / span * BAR_W);
+    tft.fillRectHGradient(x0, 199, max(3, x1 - x0), 3, acc, C_ORANGE);
   }
 }
 
 void weatherLoop() {}
 void weatherTap(int, int) {}
 
-// ===================== Radar pioggia (RainViewer) =====================
+// ########==================== PAGINA 5 - RADAR PIOGGIA ====================########
 struct RadarState
 {
   String host;
@@ -2858,7 +3202,7 @@ struct RadarState
 constexpr int RADAR_VIEW_X = 32;
 constexpr int RADAR_VIEW_Y = 38;
 constexpr int RADAR_VIEW_W = 256;
-constexpr int RADAR_VIEW_H = 166;
+constexpr int RADAR_VIEW_H = 160;
 constexpr int RADAR_CROP_Y = (256 - RADAR_VIEW_H) / 2;
 constexpr int RADAR_ZOOM = 7;
 volatile uint32_t radarPaintedPixels = 0;
@@ -2876,7 +3220,7 @@ bool downloadBinary(const String &url, uint8_t *&data, size_t &len, size_t maxSi
   http.setConnectTimeout(7000);
   http.setTimeout(12000);
   http.useHTTP10(true); // evita transfer chunked: piu affidabile con PNGdec su ESP32
-  http.addHeader("User-Agent", "CYD-Hub/6.0");
+  http.addHeader("User-Agent", HUB_USER_AGENT);
   http.addHeader("Accept", "image/png,*/*;q=0.8");
   if (!http.begin(client, url))
   {
@@ -2993,7 +3337,7 @@ bool fetchRadarMeta()
   http.setConnectTimeout(7000);
   http.setTimeout(10000);
   http.useHTTP10(true);
-  http.addHeader("User-Agent", "CYD-Hub/6.0");
+  http.addHeader("User-Agent", HUB_USER_AGENT);
   if (!http.begin(client, "https://api.rainviewer.com/public/weather-maps.json"))
     return false;
   int code = http.GET();
@@ -3031,23 +3375,30 @@ bool fetchRadarMeta()
   return radarState.ok;
 }
 
+// Mappa radar: sfumatura blu notte, griglia a punti e anelli di distanza.
+constexpr uint16_t RADAR_MAP_TOP = C565(10, 22, 44);
+constexpr uint16_t RADAR_MAP_BOT = C565(4, 9, 20);
+constexpr uint16_t RADAR_MAP_MID = C565(7, 15, 32);
+
 void drawRadarBase()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("RADAR PIOGGIA", C_BLUE);
-  panel(RADAR_VIEW_X - 3, RADAR_VIEW_Y - 3, RADAR_VIEW_W + 6, RADAR_VIEW_H + 6, 10);
-  tft.fillRect(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, C565(6, 13, 24));
-  uint16_t grid = C565(15, 30, 46);
+  const uint16_t acc = themeAccent;
+  drawBackdrop();
+  drawTopBar("RADAR PIOGGIA", acc);
+  panel(RADAR_VIEW_X - 3, RADAR_VIEW_Y - 3, RADAR_VIEW_W + 6, RADAR_VIEW_H + 6, 11, C_PANEL, mix565(C_LINE, acc, 90));
+  tft.fillRectVGradient(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, RADAR_MAP_TOP, RADAR_MAP_BOT);
+  const uint16_t dot = C565(36, 62, 96);
   for (int x = RADAR_VIEW_X + 16; x < RADAR_VIEW_X + RADAR_VIEW_W; x += 32)
-    tft.drawFastVLine(x, RADAR_VIEW_Y, RADAR_VIEW_H, grid);
-  for (int y = RADAR_VIEW_Y + 15; y < RADAR_VIEW_Y + RADAR_VIEW_H; y += 30)
-    tft.drawFastHLine(RADAR_VIEW_X, y, RADAR_VIEW_W, grid);
+    for (int y = RADAR_VIEW_Y + 15; y < RADAR_VIEW_Y + RADAR_VIEW_H; y += 30)
+      tft.fillRect(x, y, 2, 2, dot);
   int cx = RADAR_VIEW_X + RADAR_VIEW_W / 2;
   int cy = RADAR_VIEW_Y + RADAR_VIEW_H / 2;
-  tft.drawCircle(cx, cy, 34, C565(28, 58, 84));
-  tft.drawCircle(cx, cy, 68, C565(24, 50, 72));
+  tft.drawFastHLine(RADAR_VIEW_X + 8, cy, RADAR_VIEW_W - 16, C565(16, 32, 56));
+  tft.drawFastVLine(cx, RADAR_VIEW_Y + 6, RADAR_VIEW_H - 12, C565(16, 32, 56));
+  tft.drawCircle(cx, cy, 34, mix565(RADAR_MAP_MID, acc, 90));
+  tft.drawCircle(cx, cy, 68, mix565(RADAR_MAP_MID, acc, 60));
   tft.setTextDatum(TC_DATUM);
-  tft.setTextColor(C565(70, 110, 140));
+  tft.setTextColor(mix565(RADAR_MAP_MID, acc, 150));
   tft.drawString("30 km", cx, cy - 34 - 10, 1);
   tft.drawString("60 km", cx, cy - 68 - 10, 1);
   tft.setTextDatum(TL_DATUM);
@@ -3063,11 +3414,11 @@ int radarPngDraw(PNGDRAW *pDraw)
 
   uint16_t pixels[256];
   uint8_t mask[1 + 256 / 8];
-  png.getLineAsRGB565(pDraw, pixels, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+  png->getLineAsRGB565(pDraw, pixels, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
 
   // RainViewer usa alpha anche per precipitazioni leggere. Una soglia bassa
   // conserva gli echi deboli e lascia trasparente lo sfondo.
-  if (!png.getAlphaMask(pDraw, mask, 16))
+  if (!png->getAlphaMask(pDraw, mask, 16))
     return 1;
 
   uint32_t linePixels = 0;
@@ -3102,19 +3453,29 @@ bool decodeRadarPng(uint8_t *data, size_t len)
 {
   radarPaintedPixels = 0;
   radarState.lastPngError = 0;
-  int rc = png.openRAM(data, (int)len, radarPngDraw);
+  png = new (std::nothrow) PNG;
+  if (!png)
+  {
+    Serial.printf("Radar: memoria insufficiente per il PNG, blocco max %u\n", (unsigned)ESP.getMaxAllocHeap());
+    return false;
+  }
+  int rc = png->openRAM(data, (int)len, radarPngDraw);
   if (rc != PNG_SUCCESS)
   {
     radarState.lastPngError = rc;
     Serial.printf("Radar PNG open error=%d\n", rc);
+    delete png;
+    png = nullptr;
     return false;
   }
 
   tft.startWrite();
-  rc = png.decode(nullptr, PNG_FAST_PALETTE);
+  rc = png->decode(nullptr, PNG_FAST_PALETTE);
   tft.endWrite();
   radarState.lastPngError = rc;
-  png.close();
+  png->close();
+  delete png;
+  png = nullptr;
   Serial.printf("Radar PNG decode=%d, painted=%u\n", rc, (unsigned)radarPaintedPixels);
   return rc == PNG_SUCCESS;
 }
@@ -3155,25 +3516,27 @@ bool fetchAndDrawRadarTile()
 
 void drawRadarOverlay()
 {
+  const uint16_t acc = themeAccent;
   int cx = RADAR_VIEW_X + RADAR_VIEW_W / 2;
   int cy = RADAR_VIEW_Y + RADAR_VIEW_H / 2;
-  tft.fillCircle(cx, cy, 6, C_BG);
-  tft.fillCircle(cx, cy, 5, C_FG);
-  tft.fillCircle(cx, cy, 3, C_BLUE);
+  glowDisc(cx, cy, 6, C_FG, 5, mix565(RADAR_MAP_MID, acc, 40), 200);
+  disc(cx, cy, 3, acc, C_FG);
   // etichetta citta'
   String city = upperStr(WEATHER_CITY);
-  int w = tft.textWidth(city, 1) + 14;
-  rrect(RADAR_VIEW_X + 8, RADAR_VIEW_Y + 8, w, 15, 7, C565(9, 16, 28), C565(6, 13, 24));
+  int w = tft.textWidth(city, 1) + 22;
+  const uint16_t chip = C565(14, 26, 48);
+  rrect(RADAR_VIEW_X + 8, RADAR_VIEW_Y + 8, w, 16, 8, chip, RADAR_MAP_TOP);
+  disc(RADAR_VIEW_X + 17, RADAR_VIEW_Y + 16, 3, acc, chip);
   tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(C_FG, C565(9, 16, 28));
-  tft.drawString(city, RADAR_VIEW_X + 15, RADAR_VIEW_Y + 16, 1);
+  tft.setTextColor(C_FG, chip);
+  tft.drawString(city, RADAR_VIEW_X + 24, RADAR_VIEW_Y + 16, 1);
   roundCorners(RADAR_VIEW_X, RADAR_VIEW_Y, RADAR_VIEW_W, RADAR_VIEW_H, 7, C_PANEL);
   tft.setTextDatum(TL_DATUM);
 }
 
 void drawRadarStamp()
 {
-  tft.fillRect(0, 202, 320, 11, C_BG);
+  fillBg(0, 202, 320, 9);
   tft.setTextDatum(ML_DATUM);
   if (radarState.frameTime)
   {
@@ -3181,7 +3544,7 @@ void drawRadarStamp()
     localtime_r(&radarState.frameTime, &ti);
     char b[32];
     snprintf(b, sizeof(b), "ultimo frame %02d:%02d", ti.tm_hour, ti.tm_min);
-    disc(RADAR_VIEW_X + 4, 206, 3, C_GREEN);
+    glowDisc(RADAR_VIEW_X + 4, 206, 2, C_GREEN, 2);
     tft.setTextColor(C_DIM);
     tft.drawString(b, RADAR_VIEW_X + 13, 206, 1);
   }
@@ -3198,14 +3561,15 @@ void radarEnter()
   // Vista offline dimostrativa: la pagina rimane navigabile senza RainViewer.
   const int cx = RADAR_VIEW_X + RADAR_VIEW_W / 2;
   const int cy = RADAR_VIEW_Y + RADAR_VIEW_H / 2;
-  tft.drawCircle(cx, cy, 30, C_CYAN);
-  tft.drawCircle(cx, cy, 65, C_BLUE);
   tft.fillCircle(cx - 65, cy - 40, 29, C_BLUE);
+  tft.fillCircle(cx - 65, cy - 40, 15, C_CYAN);
   tft.fillCircle(cx + 64, cy + 32, 23, C_CYAN);
+  tft.fillCircle(cx + 64, cy + 32, 9, C_GREEN);
   drawRadarOverlay();
+  fillBg(0, 202, 320, 9);
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(C_FG, C_BG);
-  tft.drawString("RADAR DEMO - IMOLA", 160, 207, 1);
+  tft.setTextColor(C_DIM);
+  tft.drawString("RADAR DEMO - IMOLA", 160, 206, 1);
   tft.setTextDatum(TL_DATUM);
   return;
 #endif
@@ -3214,7 +3578,7 @@ void radarEnter()
   if (stale)
   {
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_DIM, C_BG);
+    tft.setTextColor(C_DIM);
     tft.drawString("aggiorno radar...", 160, 206, 1);
     tft.setTextDatum(TL_DATUM);
     radarState.ok = false;
@@ -3222,7 +3586,7 @@ void radarEnter()
   }
   if (!fetchAndDrawRadarTile())
   {
-    panel(60, 88, 200, 68, 14, C_PANEL2, C_LINE, C565(6, 13, 24));
+    panel(60, 88, 200, 68, 14, C_PANEL2, C_LINE, RADAR_MAP_MID);
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(C_FG, C_PANEL2);
     tft.drawString("Radar non disponibile", 160, 108, 2);
@@ -3230,7 +3594,7 @@ void radarEnter()
     char e[52];
     snprintf(e, sizeof(e), "HTTP %d  PNG %d", radarState.lastHttpCode, radarState.lastPngError);
     tft.drawString(e, 160, 128, 1);
-    tft.setTextColor(C_BLUE, C_PANEL2);
+    tft.setTextColor(themeAccent, C_PANEL2);
     tft.drawString("tocca per riprovare", 160, 141, 1);
     tft.setTextDatum(TL_DATUM);
   }
@@ -3240,9 +3604,10 @@ void radarEnter()
     if (radarPaintedPixels < 24)
     {
       int cy = RADAR_VIEW_Y + RADAR_VIEW_H - 24;
-      rrect(160 - 74, cy, 148, 16, 8, C565(9, 16, 28), C565(6, 13, 24));
+      const uint16_t chip = C565(14, 26, 48);
+      rrect(160 - 74, cy, 148, 16, 8, chip, RADAR_MAP_BOT);
       tft.setTextDatum(MC_DATUM);
-      tft.setTextColor(C_DIM, C565(9, 16, 28));
+      tft.setTextColor(C_DIM, chip);
       tft.drawString("nessuna pioggia rilevata", 160, cy + 8, 1);
       tft.setTextDatum(TL_DATUM);
     }
@@ -3258,7 +3623,7 @@ void radarTap(int, int)
   radarEnter();
 }
 
-// ===================== Calendario Formula 1 (Jolpica) =====================
+// ########==================== PAGINA 6 - SPORT / FORMULA 1 ====================########
 struct F1Race
 {
   int round = 0;
@@ -3380,16 +3745,6 @@ void formatLocalRaceTime(time_t epoch, char *buf, size_t len)
   snprintf(buf, len, "%s %d %s  %02d:%02d", DAYS_S[ti.tm_wday], ti.tm_mday, MON_S[ti.tm_mon], ti.tm_hour, ti.tm_min);
 }
 
-String f1Countdown(time_t epoch)
-{
-  long sec = (long)(epoch - time(nullptr));
-  if (sec <= 0)
-    return "ORA";
-  if (sec < 48L * 3600L)
-    return String(sec / 3600L) + "H";
-  return String(sec / 86400L) + " GIORNI";
-}
-
 void f1CountdownParts(time_t epoch, String &num, String &unit)
 {
   long sec = (long)(epoch - time(nullptr));
@@ -3412,120 +3767,51 @@ void f1CountdownParts(time_t epoch, String &num, String &unit)
   }
 }
 
-void drawF1Calendar()
-{
-  tft.fillScreen(C_BG);
-  drawTopBar("FORMULA 1", C_RED);
-  if (!f1Ok)
-  {
-    panel(26, 76, 268, 88, 16, C_PANEL, mix565(C_LINE, C_RED, 70));
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString("Calendario non disponibile", 160, 108, 2);
-    tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString("riprovo piu tardi", 160, 134, 2);
-    tft.setTextDatum(TL_DATUM);
-    return;
-  }
-  F1Race &r = f1Races[0];
-  uint16_t heroFill = mix565(C_PANEL, C_RED, 16);
-  panel(12, 32, 296, 92, 14, heroFill, mix565(C_LINE, C_RED, 110));
-  // countdown
-  String num, unit;
-  f1CountdownParts(r.raceEpoch, num, unit);
-  tft.setTextDatum(TC_DATUM);
-  tft.setTextColor(C_DIM, heroFill);
-  tft.drawString("TRA", 62, 41, 1);
-  tft.setTextColor(C_RED, heroFill);
-  tft.drawString(num, 62, 52, 6);
-  tft.setTextColor(C_FG, heroFill);
-  tft.drawString(unit, 62, 106, 1);
-  tft.drawFastVLine(114, 42, 72, mix565(C_LINE, C_RED, 60));
-  // dettagli
-  tft.setTextDatum(TL_DATUM);
-  char b[48];
-  snprintf(b, sizeof(b), "PROSSIMA GARA  R%02d", r.round);
-  tft.setTextColor(C_RED, heroFill);
-  tft.drawString(b, 128, 42, 1);
-  int titleFont = tft.textWidth(r.name, 4) <= 170 ? 4 : 2;
-  tft.setTextColor(C_FG, heroFill);
-  tft.drawString(r.name, 128, 56, titleFont);
-  String loc = r.locality + "  /  " + r.country;
-  if (tft.textWidth(loc, 2) > 172)
-    loc = r.locality;
-  tft.setTextColor(C_DIM, heroFill);
-  tft.drawString(loc, 128, 84, 2);
-  formatLocalRaceTime(r.raceEpoch, b, sizeof(b));
-  tft.setTextColor(C_FG, heroFill);
-  tft.drawString(b, 128, 104, 2);
-  if (r.sprint)
-    pill(246, 39, 52, 15, "SPRINT", C_FG, C565(120, 34, 40), 1, heroFill);
-  // prossime gare
-  for (int i = 1; i < f1Count; i++)
-  {
-    int y = 130 + (i - 1) * 40;
-    F1Race &n = f1Races[i];
-    panel(12, y, 296, 36, 11);
-    snprintf(b, sizeof(b), "R%02d", n.round);
-    rrect(20, y + 7, 34, 22, 7, mix565(C_PANEL, C_RED, 70), C_PANEL);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_RED, mix565(C_PANEL, C_RED, 70));
-    tft.drawString(b, 37, y + 19, 1);
-    tft.setTextDatum(ML_DATUM);
-    String nm = n.name;
-    if (nm.length() > 20)
-      nm = nm.substring(0, 19) + "...";
-    tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString(nm, 64, y + 12, 2);
-    formatLocalRaceTime(n.raceEpoch, b, sizeof(b));
-    tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString(b, 64, y + 28, 1);
-    if (n.sprint)
-      pill(258, y + 10, 40, 15, "SPR", C_FG, C565(120, 34, 40), 1, C_PANEL);
-  }
-  // scacchi decorativi
-  for (int rr = 0; rr < 2; rr++)
-    for (int k = 0; k < 8; k++)
-      tft.fillRect(268 + k * 3, 106 + rr * 3, 3, 3, ((rr + k) & 1) ? mix565(heroFill, C_FG, 60) : mix565(heroFill, C_RED, 200));
-  tft.setTextDatum(TL_DATUM);
-}
-
 bool ensureJuveCalendarFresh();
 void invalidateJuveCalendar();
 void drawSportsPage();
 
+// Schermata d'attesa mentre si scaricano F1 e Juventus.
+void drawSportsLoading()
+{
+  drawBackdrop();
+  drawTopBar("SPORT", themeAccent);
+  panel(50, 92, 220, 48, 14);
+  for (int i = 0; i < 3; i++)
+    glowDisc(146 + i * 14, 106, 3, i == 1 ? themeAccent : mix565(C_PANEL, themeAccent, 120), 2, C_PANEL);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(C_DIM, C_PANEL);
+  tft.drawString("aggiorno F1 e Juventus...", 160, 125, 1);
+  tft.setTextDatum(TL_DATUM);
+  drawNavBar();
+}
+
 void f1Enter()
 {
 #ifdef WOKWI
-  tft.fillScreen(C_BG);
-  drawTopBar("SPORT", C_RED);
-  tft.setTextColor(C_RED, C_BG);
-  tft.drawString("FORMULA 1", 12, 38, 2);
-  panel(12, 62, 296, 54, 11);
+  drawBackdrop();
+  drawTopBar("SPORT", themeAccent);
+  tft.setTextColor(themeAccent);
+  tft.drawString("FORMULA 1", 12, 37, 1);
+  panel(12, 51, 296, 62, 12, mix565(C_PANEL, themeAccent, 22), mix565(C_LINE, themeAccent, 120));
+  tft.setTextColor(C_FG, mix565(C_PANEL, themeAccent, 22));
+  tft.drawString("Prossimo Gran Premio", 24, 64, 2);
+  tft.setTextColor(C_DIM, mix565(C_PANEL, themeAccent, 22));
+  tft.drawString("Countdown / calendario: DEMO", 24, 88, 1);
+  tft.setTextColor(C_FG);
+  tft.drawString("JUVENTUS", 12, 120, 1);
+  panel(12, 135, 296, 69, 10);
   tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("Prossimo Gran Premio", 21, 73, 2);
+  tft.drawString("Prossime partite", 24, 148, 2);
   tft.setTextColor(C_DIM, C_PANEL);
-  tft.drawString("Countdown / calendario: DEMO", 21, 97, 1);
-  tft.setTextColor(C_RED, C_BG);
-  tft.drawString("JUVENTUS", 12, 125, 2);
-  panel(12, 145, 296, 50, 11);
-  tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("Prossime partite", 21, 154, 2);
-  tft.setTextColor(C_DIM, C_PANEL);
-  tft.drawString("Demo offline - nessuna API", 21, 177, 1);
+  tft.drawString("Demo offline - nessuna API", 24, 172, 1);
   return;
 #endif
   bool f1Stale = !f1Ok || (millis() - f1Stamp > F1_REFRESH_MS);
 
   if (f1Stale)
   {
-    tft.fillScreen(C_BG);
-    drawTopBar("SPORT", C_RED);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_DIM, C_BG);
-    tft.drawString("aggiorno F1 e Juventus...", 160, 116, 2);
-    tft.setTextDatum(TL_DATUM);
-    drawNavBar();
+    drawSportsLoading();
     fetchF1Calendar();
   }
 
@@ -3548,22 +3834,14 @@ void f1Tap(int x, int y)
     f1Ok = false;
     f1Stamp = 0;
     invalidateJuveCalendar();
-
-    tft.fillScreen(C_BG);
-    drawTopBar("SPORT", C_RED);
-    tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_DIM, C_BG);
-    tft.drawString("aggiorno F1 e Juventus...", 160, 116, 2);
-    tft.setTextDatum(TL_DATUM);
-    drawNavBar();
-
+    drawSportsLoading();
     fetchF1Calendar();
     ensureJuveCalendarFresh();
     drawSportsPage();
   }
 }
 
-// ===================== Calibrazione touch persistente =====================
+// ########==================== CALIBRAZIONE TOUCH + MENU SET ====================########
 // Se non esiste una calibrazione salvata, vengono usati i valori TS_MINX/TS_MAXX/TS_MINY/TS_MAXY
 // definiti in config.h.
 struct TouchCalibration
@@ -3706,19 +3984,26 @@ bool waitMappedTouchTap(int &x, int &y, uint32_t timeoutMs = 0)
 
 void drawCalibrationTarget(int x, int y, int step)
 {
-  tft.fillScreen(C_BG);
+  applyTheme(C_AMBER, false);
+  drawBackdrop();
   drawTopBar("CALIBRA TOUCH", C_AMBER);
 
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(C_FG, C_BG);
+  tft.setTextColor(C_FG);
   tft.drawString("Tocca e tieni premuto", 160, 93, 2);
-  tft.setTextColor(C_DIM, C_BG);
+  tft.setTextColor(C_DIM);
   tft.drawString(String("punto ") + String(step) + "/4", 160, 113, 1);
 
-  tft.drawSmoothCircle(x, y, 11, C_AMBER, C_BG);
-  tft.drawFastHLine(x - 17, y, 35, C_AMBER);
-  tft.drawFastVLine(x, y - 17, 35, C_AMBER);
-  disc(x, y, 3, C_FG, C_BG);
+  // indicatore di avanzamento a punti
+  for (int i = 0; i < 4; i++)
+    disc(145 + i * 10, 128, i < step ? 3 : 2, i < step ? C_AMBER : C_LINE);
+
+  uint16_t bg = bgAt(y);
+  tft.drawSmoothCircle(x, y, 13, mix565(bg, C_AMBER, 90), bg);
+  tft.drawSmoothCircle(x, y, 10, C_AMBER, bg);
+  tft.drawFastHLine(x - 18, y, 37, C_AMBER);
+  tft.drawFastVLine(x, y - 18, 37, C_AMBER);
+  glowDisc(x, y, 3, C_FG, 3, -1, 200);
   tft.setTextDatum(TL_DATUM);
 }
 
@@ -3763,9 +4048,9 @@ bool captureRawCalibrationPoint(int screenX, int screenY, int step, RawTouchPoin
   if (count < 6)
   {
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_RED, C_BG);
+    tft.setTextColor(C_RED);
     tft.drawString("Tocco troppo breve", 160, 150, 2);
-    tft.setTextColor(C_DIM, C_BG);
+    tft.setTextColor(C_DIM);
     tft.drawString("riprova", 160, 170, 1);
     tft.setTextDatum(TL_DATUM);
     delay(900);
@@ -3804,12 +4089,12 @@ bool runTouchCalibration()
 
   if (!touchCalibrationLooksValid(left, right, top, bottom))
   {
-    tft.fillScreen(C_BG);
+    drawBackdrop();
     drawTopBar("CALIBRA TOUCH", C_RED);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_RED, C_BG);
+    tft.setTextColor(C_RED);
     tft.drawString("Calibrazione non valida", 160, 102, 2);
-    tft.setTextColor(C_DIM, C_BG);
+    tft.setTextColor(C_DIM);
     tft.drawString("nessun dato salvato", 160, 126, 1);
     tft.setTextDatum(TL_DATUM);
     delay(1800);
@@ -3822,12 +4107,12 @@ bool runTouchCalibration()
   touchCal.rawBottom = bottom;
   saveTouchCalibration();
 
-  tft.fillScreen(C_BG);
+  drawBackdrop();
   drawTopBar("CALIBRA TOUCH", C_GREEN);
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(C_GREEN, C_BG);
+  tft.setTextColor(C_GREEN);
   tft.drawString("CALIBRAZIONE SALVATA", 160, 92, 2);
-  tft.setTextColor(C_DIM, C_BG);
+  tft.setTextColor(C_DIM);
   tft.drawString("rimane in memoria", 160, 116, 1);
   tft.drawString("anche dopo il riavvio", 160, 132, 1);
   tft.setTextDatum(TL_DATUM);
@@ -3838,35 +4123,67 @@ bool runTouchCalibration()
   return true;
 }
 
+// Righe del menu SET: y di partenza, altezza comune.
+constexpr int SET_ROW_Y[6] = {32, 66, 100, 134, 168, 204};
+constexpr int SET_ROW_H = 30;
+
+// Interruttore a slitta: binario d'accento acceso, pomello bianco.
+void drawSwitch(int x, int y, bool on, uint16_t accent, uint16_t under)
+{
+  rrect(x, y, 38, 18, 9, on ? accent : C_TRACK, under);
+  int kx = on ? x + 29 : x + 9;
+  disc(kx, y + 9, 7, on ? C_FG : C_DIM, on ? accent : C_TRACK);
+}
+
+void drawSetToggle(int row, const char *label, bool on)
+{
+  int y = SET_ROW_Y[row];
+  panel(18, y, 284, SET_ROW_H, 10);
+  rrect(26, y + 9, 3, 12, 1, on ? C_GREEN : C_FAINT, C_PANEL);
+  tft.setTextColor(C_FG, C_PANEL);
+  tft.drawString(label, 36, y + 7, 2);
+  drawSwitch(252, y + 6, on, C_GREEN, C_PANEL);
+}
+
 void drawTouchCalibrationMenu()
 {
-  tft.fillScreen(C_BG);
+  applyTheme(C_AMBER, false);
+  drawBackdrop();
   drawTopBar("IMPOSTAZIONI", C_AMBER);
+  pill(136, 5, 88, 17, "FIRMWARE " HUB_VERSION, C_AMBER, C_PANEL2);
 
-  panel(18, 38, 284, 34, 9);
+  panel(18, SET_ROW_Y[0], 284, SET_ROW_H, 10);
+  rrect(26, SET_ROW_Y[0] + 9, 3, 12, 1, C_AMBER, C_PANEL);
   tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("CALIBRA TOUCH", 30, 48, 2);
+  tft.drawString("CALIBRA TOUCH", 36, SET_ROW_Y[0] + 7, 2);
+  drawChevron(286, SET_ROW_Y[0] + 15, false, C_DIM, C_PANEL);
 
-  panel(18, 84, 284, 34, 9);
+  panel(18, SET_ROW_Y[1], 284, SET_ROW_H, 10);
+  rrect(26, SET_ROW_Y[1] + 9, 3, 12, 1, touchCal.valid ? C_AMBER : C_FAINT, C_PANEL);
   tft.setTextColor(touchCal.valid ? C_FG : C_FAINT, C_PANEL);
-  tft.drawString("RESET TOUCH", 30, 94, 2);
-  tft.setTextDatum(MR_DATUM);
-  tft.setTextColor(touchCal.valid ? C_GREEN : C_FAINT, C_PANEL);
-  tft.drawString(touchCal.valid ? "SALVATA" : "DEFAULT", 285, 102, 1);
-  tft.setTextDatum(TL_DATUM);
+  tft.drawString("RESET TOUCH", 36, SET_ROW_Y[1] + 7, 2);
+  pill(226, SET_ROW_Y[1] + 7, 64, 16, touchCal.valid ? "SALVATA" : "DEFAULT",
+       touchCal.valid ? C_GREEN : C_FAINT, C_PANEL2, 1, C_PANEL);
 
-  panel(18, 130, 284, 34, 9);
-  tft.setTextColor(C_FG, C_PANEL);
-  tft.drawString("LED RGB", 30, 140, 2);
-  pill(250, 139, 38, 17,
-       rgbLedEnabled ? "ON" : "OFF",
-       rgbLedEnabled ? C_BG : C_DIM,
-       rgbLedEnabled ? C_GREEN : C_PANEL2,
-       1, C_PANEL);
+  drawSetToggle(2, "LED RGB", rgbLedEnabled);
+  drawSetToggle(3, "BLUETOOTH PC", bleEnabled);
+  drawSetToggle(4, "NOTIFICHE PC", notifEnabled);
 
-  panel(18, 182, 284, 32, 9, C_PANEL2, C_LINE);
+  panel(18, SET_ROW_Y[5], 284, SET_ROW_H, 10, C_PANEL2, C_LINE);
+  tft.setTextDatum(MC_DATUM);
   tft.setTextColor(C_FG, C_PANEL2);
-  tft.drawString("CHIUDI", 30, 191, 2);
+  tft.drawString("CHIUDI", 160, SET_ROW_Y[5] + 15, 2);
+  tft.setTextDatum(TL_DATUM);
+}
+
+int setMenuRowAt(int x, int y)
+{
+  if (x < 18 || x > 302)
+    return -1;
+  for (int i = 0; i < 6; i++)
+    if (y >= SET_ROW_Y[i] - 2 && y <= SET_ROW_Y[i] + SET_ROW_H + 2)
+      return i;
+  return -1;
 }
 
 void runTouchCalibrationMenu()
@@ -3879,32 +4196,49 @@ void runTouchCalibrationMenu()
     if (!waitMappedTouchTap(x, y))
       continue;
 
-    if (x >= 18 && x <= 302 && y >= 38 && y <= 72)
-      runTouchCalibration();
-    else if (x >= 18 && x <= 302 && y >= 84 && y <= 118 && touchCal.valid)
+    switch (setMenuRowAt(x, y))
     {
+    case 0:
+      runTouchCalibration();
+      break;
+    case 1:
+      if (!touchCal.valid)
+        break;
       resetTouchCalibration();
-      tft.fillScreen(C_BG);
+      drawBackdrop();
       drawTopBar("IMPOSTAZIONI", C_AMBER);
       tft.setTextDatum(MC_DATUM);
-      tft.setTextColor(C_AMBER, C_BG);
+      tft.setTextColor(C_AMBER);
       tft.drawString("CALIBRAZIONE RESET", 160, 114, 2);
       tft.setTextDatum(TL_DATUM);
       delay(750);
-    }
-    else if (x >= 18 && x <= 302 && y >= 130 && y <= 164)
-    {
+      break;
+    case 2:
       rgbLedEnabled = !rgbLedEnabled;
       prefs.putBool("led_on", rgbLedEnabled);
       updateRgbLed();
-    }
-    else if (x >= 18 && x <= 302 && y >= 182 && y <= 214)
+      break;
+    case 3:
+      // Lo stack Bluetooth si avvia solo al boot: salva e riavvia.
+      bleEnabled = !bleEnabled;
+      prefs.putBool("ble_on", bleEnabled);
+      centerMsg(bleEnabled ? "Bluetooth ON" : "Bluetooth OFF", "riavvio in corso...");
+      delay(1200);
+      ESP.restart();
+      break;
+    case 4:
+      notifEnabled = !notifEnabled;
+      prefs.putBool("notif_on", notifEnabled);
+      break;
+    case 5:
       done = true;
+      break;
+    }
   }
   waitTouchReleased();
 }
 
-// ===================== Orologio =====================
+// ########==================== PAGINA 4 - OROLOGIO / HOME ====================########
 void drawNavBar();
 int lastMin = -1;
 
@@ -3923,6 +4257,8 @@ static void hexV(int cx, int y0, int y1, int ht, uint16_t c)
   tft.fillTriangle(cx, y0, cx - ht, y0 + ht, cx + ht, y0 + ht, c);
   tft.fillTriangle(cx, y1, cx - ht, y1 - ht, cx + ht, y1 - ht, c);
 }
+// Colore "neon al tramonto": giallo in alto, arancio al centro, magenta in basso.
+
 void drawBigDigit(int x, int y, int digit, uint16_t on, uint16_t off)
 {
   //   A
@@ -3947,30 +4283,33 @@ void drawBigDigit(int x, int y, int digit, uint16_t on, uint16_t off)
   hexH(xl + g, xr - g, ym, ht, col(0x01));
 }
 
+constexpr int CLK_GAP = 6, CLK_COLON_W = 22;
+constexpr int CLK_TOTAL_W = CLK_DW * 4 + CLK_GAP * 2 + CLK_COLON_W;
+constexpr int CLK_X1 = (320 - CLK_TOTAL_W) / 2;
+constexpr int CLK_COLON_X = CLK_X1 + 2 * CLK_DW + CLK_GAP + CLK_COLON_W / 2;
+
+
 void drawBigClock(int hour, int minute)
 {
-  constexpr int GAP = 6, COLON_W = 22;
-  constexpr int TOTAL_W = CLK_DW * 4 + GAP * 2 + COLON_W;
-  const int x1 = (320 - TOTAL_W) / 2;
-  const int x2 = x1 + CLK_DW + GAP;
-  const int colonX = x2 + CLK_DW + COLON_W / 2;
-  const int x3 = x2 + CLK_DW + COLON_W;
-  const int x4 = x3 + CLK_DW + GAP;
+  const int x2 = CLK_X1 + CLK_DW + CLK_GAP;
+  const int x3 = x2 + CLK_DW + CLK_COLON_W;
+  const int x4 = x3 + CLK_DW + CLK_GAP;
   const uint16_t off = C565(10, 12, 18);
-  tft.fillRect(0, CLK_Y - 2, 320, CLK_DH + 4, C_BG);
-  drawBigDigit(x1, CLK_Y, hour / 10, C_FG, off);
+  fillBg(0, CLK_Y - 2, 320, CLK_DH + 4);
+  drawBigDigit(CLK_X1, CLK_Y, hour / 10, C_FG, off);
   drawBigDigit(x2, CLK_Y, hour % 10, C_FG, off);
   drawBigDigit(x3, CLK_Y, minute / 10, C_FG, off);
   drawBigDigit(x4, CLK_Y, minute % 10, C_FG, off);
-  rrect(colonX - 5, CLK_Y + 30, 10, 10, 3, C_AMBER);
-  rrect(colonX - 5, CLK_Y + 64, 10, 10, 3, C_AMBER);
+  rrect(CLK_COLON_X - 5, CLK_Y + 30, 10, 10, 3, C_AMBER);
+  rrect(CLK_COLON_X - 5, CLK_Y + 64, 10, 10, 3, C_AMBER);
 }
 
+// Riga dei secondi: sottile, sotto le cifre.
 // Riga dei secondi: sottile, sotto le cifre.
 void drawSecondsBar(int sec)
 {
   constexpr int X = 50, W = 220, Y = 140;
-  tft.fillRect(X - 6, Y - 2, W + 12, 8, C_BG);
+  fillBg(X - 6, Y - 2, W + 12, 8);
   rrect(X, Y, W, 3, 1, C_TRACK);
   int w = (int)((long)W * sec / 59);
   if (w > 3)
@@ -3978,50 +4317,70 @@ void drawSecondsBar(int sec)
   tft.fillCircle(X + w, Y + 1, 2, C_AMBER);
 }
 
+// Pulsante rapido per il microfono del PC (Win+Alt+K via Bluetooth), accanto a SET.
+constexpr int HOME_MIC_X = 140, HOME_MIC_W = 48;
+
+void drawHomeMicPill()
+{
+  bool live = bleConnected;
+  uint16_t fill = !live ? C_PANEL : micMuted ? mix565(C_PANEL, C_RED, 130) : mix565(C_PANEL2, C_PINK, 40);
+  uint16_t border = !live ? C_LINE : micMuted ? C_RED : mix565(C_LINE, C_PINK, 120);
+  fillBg(HOME_MIC_X - 2, 2, HOME_MIC_W + 4, 22);
+  panel(HOME_MIC_X, 4, HOME_MIC_W, 18, 9, fill, border);
+  glowDisc(HOME_MIC_X + 9, 13, 2, !live ? C_FAINT : micMuted ? C_FG : C_PINK, 2, fill);
+  tft.setTextDatum(MC_DATUM);
+  tft.setTextColor(!live ? C_FAINT : C_FG, fill);
+  tft.drawString(micMuted ? "MUTO" : "MIC", HOME_MIC_X + 28, 13, 1);
+  tft.setTextDatum(TL_DATUM);
+}
+
 void drawClockFull(const tm &ti)
 {
   char b[80];
-  tft.fillScreen(C_BG);
-  drawTopBar("HOME", C_AMBER);
-  panel(194, 4, 38, 18, 8, C_PANEL2, C_LINE, C_BG);
+  const uint16_t acc = themeAccent;
+  drawBackdrop();
+  drawTopBar("HOME", acc);
+  panel(194, 4, 38, 18, 9, C_PANEL2, C_LINE);
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(C_AMBER, C_PANEL2);
+  tft.setTextColor(acc, C_PANEL2);
   tft.drawString("SET", 213, 13, 1);
   tft.setTextDatum(TL_DATUM);
+  if (bleEnabled)
+    drawHomeMicPill();
   // data: giorno in accento, resto attenuato
   String wd = upperStr(DAYS_L[ti.tm_wday]);
   snprintf(b, sizeof(b), "%d %s %d", ti.tm_mday, MONTHS[ti.tm_mon], ti.tm_year + 1900);
   int w1 = tft.textWidth(wd, 2), w2 = tft.textWidth(b, 2), gap = 10;
   int sx = (320 - (w1 + gap + w2)) / 2;
   tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(C_AMBER);
+  tft.setTextColor(acc);
   tft.drawString(wd, sx, 38, 2);
   tft.setTextColor(C_DIM);
   tft.drawString(b, sx + w1 + gap, 38, 2);
   drawBigClock(ti.tm_hour, ti.tm_min);
-  // drawSecondsBar(ti.tm_sec);
   // meteo compatto
-  panel(12, 154, 296, 52, 12);
+  panel(12, 156, 296, 52, 14);
   if (weatherOk)
   {
-    drawIcon(42, 180, 34, W.code, W.isDay, C_PANEL);
+    glowDisc(42, 182, 20, mix565(C_PANEL, C_CYAN, 50), 3, C_PANEL);
+    drawIcon(42, 182, 32, W.code, W.isDay, mix565(C_PANEL, C_CYAN, 50));
     String t = String((int)lroundf(W.t));
     tft.setTextDatum(ML_DATUM);
     tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString(t, 72, 180, 4);
-    drawDegree(72 + tft.textWidth(t, 4) + 5, 173, C_FG, C_PANEL);
-    tft.drawFastVLine(148, 164, 32, C_LINE);
+    tft.drawString(t, 72, 182, 4);
+    drawDegree(72 + tft.textWidth(t, 4) + 5, 175, C_FG, C_PANEL);
+    tft.fillRectVGradient(148, 166, 1, 32, C_PANEL, C_LINE);
     tft.setTextColor(C_FG, C_PANEL);
-    tft.drawString(descOf(W.code), 160, 170, 2);
+    tft.drawString(descOf(W.code), 160, 172, 2);
     snprintf(b, sizeof(b), "MIN %d`  MAX %d`", (int)lroundf(W.tmin[0]), (int)lroundf(W.tmax[0]));
     tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString(b, 160, 190, 2);
+    tft.drawString(b, 160, 192, 2);
   }
   else
   {
     tft.setTextDatum(MC_DATUM);
     tft.setTextColor(C_DIM, C_PANEL);
-    tft.drawString("meteo non disponibile", 160, 180, 2);
+    tft.drawString("meteo non disponibile", 160, 182, 2);
   }
   tft.setTextDatum(TL_DATUM);
 }
@@ -4037,12 +4396,19 @@ void clockLoop()
   struct tm ti;
   if (!getLocalTime(&ti, 0))
     return;
-  if (ti.tm_min != lastMin || ti.tm_mday != lastDay)
+  if (lastMin < 0 || ti.tm_mday != lastDay)
   {
+    // Ingresso, cambio giorno o meteo aggiornato: ridisegno completo.
     drawClockFull(ti);
     drawNavBar();
     lastMin = ti.tm_min;
     lastDay = ti.tm_mday;
+    lastSec = ti.tm_sec;
+  }
+  else if (ti.tm_min != lastMin)
+  {
+    drawBigClock(ti.tm_hour, ti.tm_min);
+    lastMin = ti.tm_min;
     lastSec = ti.tm_sec;
   }
   else if (ti.tm_sec != lastSec)
@@ -4050,18 +4416,29 @@ void clockLoop()
     // drawSecondsBar(ti.tm_sec);
     lastSec = ti.tm_sec;
   }
+  if (bleStateDirty && bleEnabled)
+  {
+    bleStateDirty = false;
+    drawHomeMicPill();
+  }
 }
 
 void clockTap(int x, int y)
 {
-  if (x >= 188 && x <= 238 && y <= 28)
+  if (bleEnabled && x >= HOME_MIC_X - 4 && x < 190 && y <= 28)
+  {
+    pcToggleMic();
+    drawHomeMicPill();
+    return;
+  }
+  if (x >= 190 && x <= 238 && y <= 28)
   {
     runTouchCalibrationMenu();
     lastMin = -1;
     lastDay = -1;
   }
 }
-// ===================== Calendario Juventus (iCal) + Sport =====================
+// ########==================== PAGINA 6 - SPORT / JUVENTUS + UI SPORT ====================########
 static const char *JUVE_ICS_URL = "https://ics.fixtur.es/v2/juventus.ics";
 constexpr uint32_t JUVE_REFRESH_MS = 6UL * 60UL * 60UL * 1000UL;
 constexpr int JUVE_MAX_MATCHES = 6;
@@ -4170,7 +4547,7 @@ bool fetchJuveCalendar()
     return false;
   }
 
-  http.addHeader("User-Agent", "CYD-Hub/6.0");
+  http.addHeader("User-Agent", HUB_USER_AGENT);
   int code = http.GET();
   if (code != HTTP_CODE_OK)
   {
@@ -4317,75 +4694,91 @@ void drawSportsJuveRow(int index, int y)
 
   const JuveMatch &m = juveMatches[index];
   const bool next = index == 0;
-  uint16_t fill = next ? mix565(C_PANEL, C_FG, 14) : C_PANEL;
-  uint16_t border = next ? mix565(C_LINE, C_FG, 95) : C_LINE;
+  uint16_t fill = next ? mix565(C_PANEL, C_FG, 16) : C_PANEL;
+  uint16_t border = next ? mix565(C_LINE, C_FG, 100) : C_LINE;
 
-  // v7: con due soli eventi sfruttiamo meglio lo spazio disponibile.
   // Data/ora su una riga piccola e partita piu' grande sotto.
-  panel(12, y, 296, JUVE_ROW_H, 8, fill, border);
+  panel(12, y, 296, JUVE_ROW_H, 9, fill, border);
+
+  // Badge bianconero a strisce verticali.
+  for (int k = 0; k < 6; k++)
+    tft.fillRect(19 + k * 2, y + 6, 2, JUVE_ROW_H - 12, (k & 1) ? C565(16, 16, 20) : C_FG);
+  roundCorners(19, y + 6, 12, JUVE_ROW_H - 12, 3, fill);
 
   char dateBuf[24], timeBuf[12];
   formatJuveDate(m, dateBuf, sizeof(dateBuf), timeBuf, sizeof(timeBuf));
 
-  String when = String(dateBuf) + " " + String(timeBuf);
-  when = fitTextToWidth(when, 1, 270);
-  String match = fitTextToWidth(m.title, 2, 270);
+  String when = String(dateBuf) + "  " + String(timeBuf);
+  when = fitTextToWidth(when, 1, 258);
+  String match = fitTextToWidth(m.title, 2, 258);
 
   tft.setTextDatum(TL_DATUM);
-  tft.setTextColor(next ? C_AMBER : C_DIM, fill);
-  tft.drawString(when, 18, y + 4, 1);
+  tft.setTextColor(next ? C_SUN : C_DIM, fill);
+  tft.drawString(when, 40, y + 4, 1);
 
   tft.setTextColor(C_FG, fill);
-  tft.drawString(match, 18, y + 16, 2);
+  tft.drawString(match, 40, y + 15, 2);
 }
 
 void drawSportsPage()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("SPORT", C_RED);
+  const uint16_t acc = themeAccent;
+  drawBackdrop();
+  drawTopBar("SPORT", acc);
 
   // Refresh comune F1 + Juventus.
-  panel(282, 31, 26, 22, 8, C_PANEL2, C_LINE);
+  panel(282, 31, 26, 22, 9, C_PANEL2, C_LINE);
   drawRefreshIcon(295, 42, C_FG, C_PANEL2);
 
   // --------------------- Formula 1 ---------------------
+  rrect(12, 37, 3, 9, 1, acc);
   tft.setTextDatum(ML_DATUM);
-  tft.setTextColor(C_RED);
-  tft.drawString("FORMULA 1", 12, 41, 1);
+  tft.setTextColor(acc);
+  tft.drawString("FORMULA 1", 20, 42, 1);
   tft.setTextDatum(TL_DATUM);
 
   if (f1Ok && f1Count > 0)
   {
     F1Race &r = f1Races[0];
-    uint16_t heroFill = mix565(C_PANEL, C_RED, 16);
-    panel(12, 51, 296, 62, 12, heroFill, mix565(C_LINE, C_RED, 95));
+    uint16_t heroFill = mix565(C_PANEL, acc, 22);
+    panel(12, 51, 296, 62, 12, heroFill, mix565(C_LINE, acc, 120));
 
+    // Strisce di velocita' decorative in basso a destra.
+    for (int k = 0; k < 4; k++)
+    {
+      int x0 = 252 + k * 12;
+      uint16_t c = mix565(heroFill, acc, 50 + k * 40);
+      tft.fillTriangle(x0, 107, x0 + 6, 107, x0 + 12, 97, c);
+      tft.fillTriangle(x0, 107, x0 + 12, 97, x0 + 6, 97, c);
+    }
+
+    // Blocco countdown.
+    uint16_t cdFill = mix565(heroFill, acc, 70);
+    rrect(18, 57, 54, 50, 10, cdFill, heroFill);
     String num, unit;
     f1CountdownParts(r.raceEpoch, num, unit);
-
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_RED, heroFill);
-    tft.drawString(num, 43, 73, 4);
-    tft.setTextColor(C_DIM, heroFill);
-    tft.drawString(unit, 43, 96, 1);
-    tft.drawFastVLine(75, 60, 44, mix565(C_LINE, C_RED, 55));
+    tft.setTextColor(C_FG, cdFill);
+    tft.drawString(num, 45, 76, 4);
+    tft.setTextColor(mix565(C_FG, acc, 90), cdFill);
+    tft.drawString(unit, 45, 99, 1);
 
     char b[48];
     snprintf(b, sizeof(b), "R%02d  PROSSIMO GP", r.round);
     tft.setTextDatum(TL_DATUM);
-    tft.setTextColor(C_RED, heroFill);
-    tft.drawString(b, 88, 59, 1);
+    tft.setTextColor(acc, heroFill);
+    tft.drawString(b, 84, 59, 1);
 
-    String raceName = fitTextToWidth(r.name, 2, 202);
+    String raceName = fitTextToWidth(r.name, 2, 206);
     tft.setTextColor(C_FG, heroFill);
-    tft.drawString(raceName, 88, 73, 2);
+    tft.drawString(raceName, 84, 72, 2);
 
     formatLocalRaceTime(r.raceEpoch, b, sizeof(b));
     tft.setTextColor(C_DIM, heroFill);
-    tft.drawString(b, 88, 96, 1);
+    tft.drawString(b, 84, 96, 1);
 
     if (r.sprint)
-      pill(255, 57, 44, 13, "SPR", C_FG, C565(120, 34, 40), 1, heroFill);
+      pill(255, 57, 44, 13, "SPR", C_FG, mix565(heroFill, acc, 140), 1, heroFill);
   }
   else
   {
@@ -4397,11 +4790,12 @@ void drawSportsPage()
   }
 
   // --------------------- Juventus ---------------------
+  rrect(12, 120, 3, 9, 1, C_FG);
   tft.setTextDatum(ML_DATUM);
   tft.setTextColor(C_FG);
-  tft.drawString("JUVENTUS", 12, 124, 1);
+  tft.drawString("JUVENTUS", 20, 125, 1);
   tft.setTextColor(C_FAINT);
-  tft.drawString("PROSSIME PARTITE", 77, 124, 1);
+  tft.drawString("PROSSIME PARTITE", 84, 125, 1);
   tft.setTextDatum(TL_DATUM);
 
   if (juveLoading)
@@ -4429,15 +4823,14 @@ void drawSportsPage()
       drawSportsJuveRow(i, 135 + i * (JUVE_ROW_H + JUVE_ROW_GAP));
   }
 
-  // Anche SPORT usa fillScreen(): la barra inferiore va sempre ridisegnata.
+  // drawBackdrop() copre tutto lo schermo: la barra inferiore va sempre ridisegnata.
   drawNavBar();
 }
 
-// ===================== Calendario mensile =====================
+// ########==================== PAGINA 7 - CALENDARIO MENSILE ====================########
 
 int calendarYear = 0;
 int calendarMonth = 0; // 0 = gennaio
-int calendarToday = 0;
 
 bool isLeapYear(int year)
 {
@@ -4479,47 +4872,51 @@ int firstWeekdayOfMonth(int year, int month)
 
 void drawCalendarPage()
 {
-  tft.fillScreen(C_BG);
-  drawTopBar("CALENDARIO", C_VIOLET);
+  const uint16_t acc = themeAccent;
+  drawBackdrop();
+  drawTopBar("CALENDARIO", acc);
   // titolo mese + anno
   tft.setTextDatum(ML_DATUM);
   tft.setTextColor(C_FG);
-  tft.drawString(MONTHS[calendarMonth], 14, 44, 4);
-  tft.setTextColor(C_DIM);
-  tft.drawString(String(calendarYear), 14 + tft.textWidth(MONTHS[calendarMonth], 4) + 8, 47, 2);
+  tft.drawString(MONTHS[calendarMonth], 14, 45, 4);
+  tft.setTextColor(acc);
+  tft.drawString(String(calendarYear), 14 + tft.textWidth(MONTHS[calendarMonth], 4) + 8, 48, 2);
   // frecce
   panel(242, 31, 30, 26, 10, C_PANEL2, C_LINE);
   drawChevron(257, 44, true, C_FG, C_PANEL2);
   panel(278, 31, 30, 26, 10, C_PANEL2, C_LINE);
   drawChevron(293, 44, false, C_FG, C_PANEL2);
-  // intestazione giorni
+  // intestazione giorni dentro una card
   static const char *weekDays[7] = {"L", "M", "M", "G", "V", "S", "D"};
   constexpr int GRID_X = 12, COL_W = 42;
+  panel(12, 62, 296, 148, 14);
   for (int col = 0; col < 7; col++)
   {
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(col >= 5 ? C_VIOLET : C_FAINT);
-    tft.drawString(weekDays[col], GRID_X + col * COL_W + COL_W / 2, 68, 1);
+    tft.setTextColor(col >= 5 ? acc : C_FAINT, C_PANEL);
+    tft.drawString(weekDays[col], GRID_X + col * COL_W + COL_W / 2, 73, 1);
   }
-  tft.drawFastHLine(12, 76, 296, C_HAIR);
+  tft.drawFastHLine(20, 81, 280, C_HAIR);
   // giorni
   int firstDay = firstWeekdayOfMonth(calendarYear, calendarMonth);
   int count = daysInMonth(calendarYear, calendarMonth);
   int prevMonth = (calendarMonth + 11) % 12;
   int prevYear = calendarMonth == 0 ? calendarYear - 1 : calendarYear;
   int prevCount = daysInMonth(prevYear, prevMonth);
-  constexpr int FIRST_ROW_Y = 90, ROW_H = 22;
   struct tm now;
   bool timeOk = getLocalTime(&now, 0);
   int realYear = timeOk ? now.tm_year + 1900 : -1;
   int realMonth = timeOk ? now.tm_mon : -1;
   int realDay = timeOk ? now.tm_mday : -1;
   int rows = (firstDay + count + 6) / 7;
+  // 5 righe da 24 px, 6 righe (mesi lunghi) da 20 px: la griglia resta nella card.
+  const int rowH = rows > 5 ? 20 : 24;
+  const int firstRowY = 95;
   for (int cell = 0; cell < rows * 7; cell++)
   {
     int col = cell % 7, row = cell / 7;
     int x = GRID_X + col * COL_W + COL_W / 2;
-    int y = FIRST_ROW_Y + row * ROW_H;
+    int y = firstRowY + row * rowH;
     int day = cell - firstDay + 1;
     bool inMonth = day >= 1 && day <= count;
     if (day < 1)
@@ -4527,20 +4924,21 @@ void drawCalendarPage()
     else if (day > count)
       day -= count;
     bool today = inMonth && calendarYear == realYear && calendarMonth == realMonth && day == realDay;
-    uint16_t txt;
+    uint16_t txt, under = C_PANEL;
     if (today)
     {
-      disc(x, y, 11, C_VIOLET);
+      glowDisc(x, y, 9, acc, 4, C_PANEL);
       txt = C_BG;
+      under = acc;
     }
     else if (!inMonth)
-      txt = C565(58, 64, 82);
+      txt = C565(64, 68, 98);
     else
-      txt = col >= 5 ? mix565(C_DIM, C_VIOLET, 120) : C_FG;
+      txt = col >= 5 ? mix565(C_DIM, acc, 130) : C_FG;
     char d[4];
     snprintf(d, sizeof(d), "%d", day);
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(txt);
+    tft.setTextColor(txt, under);
     tft.drawString(d, x, y, 2);
   }
   tft.setTextDatum(TL_DATUM);
@@ -4554,7 +4952,6 @@ void calendarEnter()
   {
     calendarYear = ti.tm_year + 1900;
     calendarMonth = ti.tm_mon;
-    calendarToday = ti.tm_mday;
   }
 
   drawCalendarPage();
@@ -4595,7 +4992,503 @@ void calendarTap(int x, int y)
     }
   }
 }
-// ===================== Gestione pagine =====================
+// ########==================== PAGINA 8 - PC / RIUNIONE ====================########
+// Controllo del PC via Bluetooth: microfono (Win+Alt+K) e volume di sistema.
+// I pulsanti del volume ripetono il comando se tenuti premuti.
+enum PcButton
+{
+  PCB_MIC,
+  PCB_VOL_UP,
+  PCB_MUTE,
+  PCB_PLAY,
+  PCB_VOL_DOWN,
+  PCB_COUNT
+};
+
+struct PcRect
+{
+  int x, y, w, h;
+};
+
+constexpr PcRect PC_BTN[PCB_COUNT] = {
+    {12, 58, 140, 150},  // microfono
+    {160, 58, 148, 46},  // volume +
+    {160, 108, 72, 46},  // muto audio
+    {236, 108, 72, 46},  // play / pausa
+    {160, 158, 148, 46}, // volume -
+};
+
+constexpr uint32_t PC_REPEAT_DELAY_MS = 450;
+constexpr uint32_t PC_REPEAT_EVERY_MS = 110;
+
+String pcStatusMsg;
+uint32_t pcStatusUntil = 0;
+bool pcRepeatUsed = false;
+int pcRepeatId = -1;
+
+int pcButtonAt(int x, int y)
+{
+  for (int i = 0; i < PCB_COUNT; i++)
+  {
+    const PcRect &r = PC_BTN[i];
+    if (x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h)
+      return i;
+  }
+  return -1;
+}
+
+void drawSpeakerIcon(int cx, int cy, uint16_t c, uint16_t bg)
+{
+  tft.fillRect(cx - 9, cy - 4, 5, 8, c);
+  tft.fillTriangle(cx - 5, cy - 4, cx + 2, cy - 10, cx + 2, cy + 10, c);
+  tft.fillTriangle(cx - 5, cy + 4, cx - 5, cy - 4, cx + 2, cy + 10, c);
+}
+
+void drawMicGlyph(int cx, int cy, uint16_t c, uint16_t bg)
+{
+  tft.fillSmoothRoundRect(cx - 10, cy - 28, 21, 34, 10, c, bg);
+  tft.drawSmoothArc(cx, cy - 4, 18, 15, 270, 360, c, bg, true);
+  tft.drawSmoothArc(cx, cy - 4, 18, 15, 0, 90, c, bg, true);
+  tft.fillRect(cx - 1, cy + 14, 3, 8, c);
+  rrect(cx - 10, cy + 21, 21, 3, 1, c, bg);
+}
+
+void drawPcButton(int id, bool pressed)
+{
+  const PcRect &r = PC_BTN[id];
+  const uint16_t acc = themeAccent;
+  bool online = bleConnected;
+  uint16_t fill = pressed ? mix565(C_PANEL2, acc, 100) : C_PANEL;
+  uint16_t border = pressed ? acc : C_LINE;
+  uint16_t fg = online ? C_FG : C_FAINT;
+
+  if (id == PCB_MIC && online)
+  {
+    if (micMuted)
+    {
+      fill = pressed ? mix565(C_PANEL, C_RED, 170) : mix565(C_PANEL, C_RED, 95);
+      border = C_RED;
+    }
+    else if (!pressed)
+    {
+      fill = mix565(C_PANEL, acc, 26);
+      border = mix565(C_LINE, acc, 140);
+    }
+  }
+  panel(r.x, r.y, r.w, r.h, 14, fill, border);
+
+  int cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+  tft.setTextDatum(MC_DATUM);
+  switch (id)
+  {
+  case PCB_MIC:
+  {
+    uint16_t micCol = !online ? C_FAINT : micMuted ? C_FG : acc;
+    // alone attorno al microfono: rosso se muto, d'accento se attivo
+    if (online)
+      glowDisc(cx, r.y + 54, 34, mix565(fill, micMuted ? C_RED : acc, 60), 6, fill, 110);
+    drawMicGlyph(cx, r.y + 58, micCol, online ? mix565(fill, micMuted ? C_RED : acc, 60) : fill);
+    if (micMuted)
+      tft.drawWideLine(cx - 24, r.y + 24, cx + 24, r.y + 86, 4.0f, online ? C_RED : C_FAINT,
+                       online ? mix565(fill, C_RED, 60) : fill);
+    tft.setTextColor(online ? C_DIM : C_FAINT, fill);
+    tft.drawString("MICROFONO", cx, r.y + 106, 1);
+    tft.setTextColor(!online ? C_FAINT : micMuted ? C_FG : acc, fill);
+    tft.drawString(micMuted ? "MUTO" : "ATTIVO", cx, r.y + 126, 4);
+    break;
+  }
+  case PCB_VOL_UP:
+  case PCB_VOL_DOWN:
+  {
+    uint16_t chip = mix565(fill, acc, online ? 60 : 20);
+    disc(r.x + 26, cy, 15, chip, fill);
+    drawSpeakerIcon(r.x + 29, cy, fg, chip);
+    tft.setTextColor(fg, fill);
+    tft.drawString("VOLUME", r.x + 82, cy, 2);
+    rrect(r.x + r.w - 32, cy - 1, 16, 3, 1, online ? acc : C_FAINT, fill);
+    if (id == PCB_VOL_UP)
+      rrect(r.x + r.w - 25, cy - 8, 3, 17, 1, online ? acc : C_FAINT, fill);
+    break;
+  }
+  case PCB_MUTE:
+    drawSpeakerIcon(cx - 6, cy - 6, fg, fill);
+    tft.drawWideLine(cx + 6, cy - 11, cx + 14, cy - 1, 2.0f, online ? acc : C_FAINT, fill);
+    tft.drawWideLine(cx + 14, cy - 11, cx + 6, cy - 1, 2.0f, online ? acc : C_FAINT, fill);
+    tft.setTextColor(fg, fill);
+    tft.drawString("MUTO", cx, cy + 14, 1);
+    break;
+  case PCB_PLAY:
+    tft.fillTriangle(cx - 12, cy - 13, cx - 12, cy + 1, cx - 2, cy - 6, fg);
+    tft.fillRect(cx + 3, cy - 13, 3, 14, online ? acc : C_FAINT);
+    tft.fillRect(cx + 9, cy - 13, 3, 14, online ? acc : C_FAINT);
+    tft.setTextColor(fg, fill);
+    tft.drawString("PLAY", cx, cy + 14, 1);
+    break;
+  }
+  tft.setTextDatum(TL_DATUM);
+}
+
+void drawPcStatus()
+{
+  fillBg(0, 28, 320, 28);
+  uint16_t dot;
+  String txt;
+  if (pcStatusMsg.length())
+  {
+    dot = C_AMBER;
+    txt = pcStatusMsg;
+  }
+  else if (!bleEnabled)
+  {
+    dot = C_FAINT;
+    txt = "Bluetooth disattivato (HOME > SET)";
+  }
+  else if (bleConnected)
+  {
+    dot = C_GREEN;
+    txt = "Connesso al PC";
+  }
+  else
+  {
+    dot = C_AMBER;
+    txt = String("In attesa: abbina \"") + BLE_DEVICE_NAME + "\" dal PC";
+  }
+  glowDisc(19, 42, 3, dot, 3);
+  tft.setTextDatum(ML_DATUM);
+  tft.setTextColor(C_DIM);
+  tft.drawString(fitTextToWidth(txt, 2, 284), 30, 42, 2);
+  tft.setTextDatum(TL_DATUM);
+}
+
+void drawPcPage()
+{
+  drawBackdrop();
+  drawTopBar("PC / RIUNIONE", themeAccent);
+  drawPcStatus();
+  for (int i = 0; i < PCB_COUNT; i++)
+    drawPcButton(i, false);
+}
+
+void pcSetStatus(const char *msg)
+{
+  pcStatusMsg = msg;
+  pcStatusUntil = millis() + 2500;
+  drawPcStatus();
+}
+
+// Invia il comando del pulsante; ritorna false se il PC non e' connesso.
+bool pcSendButton(int id)
+{
+  switch (id)
+  {
+  case PCB_MIC:
+    return pcToggleMic();
+  case PCB_VOL_UP:
+    return bleSendConsumer(CK_VOL_UP);
+  case PCB_VOL_DOWN:
+    return bleSendConsumer(CK_VOL_DOWN);
+  case PCB_MUTE:
+    return bleSendConsumer(CK_MUTE);
+  case PCB_PLAY:
+    return bleSendConsumer(CK_PLAY_PAUSE);
+  }
+  return false;
+}
+
+void pcEnter()
+{
+  pcRepeatUsed = false;
+  pcRepeatId = -1;
+  bleStateDirty = false;
+  drawPcPage();
+}
+
+void pcLoop()
+{
+  uint32_t now = millis();
+  if (bleStateDirty)
+  {
+    bleStateDirty = false;
+    drawPcPage();
+    drawNavBar();
+    return;
+  }
+  if (pcStatusMsg.length() && timeReached(now, pcStatusUntil))
+  {
+    pcStatusMsg = "";
+    drawPcStatus();
+  }
+
+  // Auto-repeat del volume: si attiva tenendo il dito fermo sul pulsante.
+  static uint32_t lastTouchStart = 0, nextRepeat = 0;
+  if (!tsDown)
+  {
+    // Rilascio dopo una pressione lunga (non e' un tap): ridisegna il pulsante.
+    if (pcRepeatId >= 0)
+    {
+      drawPcButton(pcRepeatId, false);
+      pcRepeatId = -1;
+      pcRepeatUsed = false;
+    }
+    return;
+  }
+  if (tsStartT != lastTouchStart)
+  {
+    lastTouchStart = tsStartT;
+    pcRepeatUsed = false;
+  }
+  int id = pcButtonAt(sx, sy);
+  if (id != PCB_VOL_UP && id != PCB_VOL_DOWN)
+    return;
+  if (pcButtonAt(lx, ly) != id || now - tsStartT < PC_REPEAT_DELAY_MS || !timeReached(now, nextRepeat))
+    return;
+  if (!pcRepeatUsed)
+    drawPcButton(id, true);
+  pcRepeatUsed = true;
+  pcRepeatId = id;
+  nextRepeat = now + PC_REPEAT_EVERY_MS;
+  pcSendButton(id);
+}
+
+void pcTap(int x, int y)
+{
+  int id = pcButtonAt(x, y);
+  if (id < 0)
+    return;
+  if (pcRepeatUsed)
+  {
+    // Il volume e' gia' stato inviato in ripetizione: al rilascio si ridisegna e basta.
+    pcRepeatUsed = false;
+    pcRepeatId = -1;
+    drawPcButton(id, false);
+    return;
+  }
+  drawPcButton(id, true);
+  bool ok = pcSendButton(id);
+  delay(70);
+  drawPcButton(id, false);
+  if (!ok)
+    pcSetStatus(bleEnabled ? "PC non connesso" : "Attiva il Bluetooth da HOME > SET");
+}
+
+// ########==================== PAGINA - NOTIFICHE PC ====================########
+// Le notifiche di Teams, Webex e Slack arrivano da tools/cyd_sync.py via Bluetooth.
+// Una notifica nuova appare in un popup per 10 s su qualsiasi pagina; qui c'e' lo storico.
+constexpr int NOTIF_PAGE = 2;
+constexpr int NOTIF_MAX = 30;
+constexpr uint32_t NOTIF_POPUP_MS = 10000;
+constexpr int NOTIF_Y = 32, NOTIF_H = 42, NOTIF_GAP = 2, NOTIF_ROWS = 4;
+constexpr int POPUP_X = 8, POPUP_Y = 32, POPUP_W = 304, POPUP_H = 52;
+
+struct Notif
+{
+  uint32_t id;
+  String app, title, body, time;
+};
+std::vector<Notif> notifs;    // la piu' recente in testa
+int notifScroll = 0;
+bool notifListDirty = false;  // lista cambiata (impostato dall'handler HTTP)
+bool notifPopupNew = false;   // notifica nuova da mostrare nel popup
+uint32_t notifPopupUntil = 0; // 0 = nessun popup a schermo
+uint32_t notifLedUntil = 0;   // lampeggio del LED RGB (vedi updateRgbLed)
+uint8_t notifLedRgb[3];
+bool notifUnread = false;     // notifiche arrivate dopo l'ultima visita allo storico: puntino sulla dock
+bool navDotShown = false;     // stato del puntino attualmente disegnato
+
+// Colore dell'app: Teams viola, Webex verde acqua, Slack bianco, altre arancio.
+// rgb (opzionale) riceve la versione satura per il LED.
+uint16_t notifAppColor(const String &app, uint8_t *rgb = nullptr)
+{
+  static const uint8_t LED[4][3] = {{140, 0, 255}, {0, 255, 150}, {255, 255, 255}, {255, 90, 0}};
+  static const uint16_t SCREEN[4] = {C_VIOLET, SP_GREEN, C_FG, C_ORANGE};
+  String a = app;
+  a.toLowerCase();
+  int k = a.indexOf("teams") >= 0 ? 0 : a.indexOf("webex") >= 0 ? 1 : a.indexOf("slack") >= 0 ? 2 : 3;
+  if (rgb)
+    memcpy(rgb, LED[k], 3);
+  return SCREEN[k];
+}
+
+// old = notifica gia' presente all'avvio dello script: va nello storico senza popup.
+void addNotif(uint32_t id, bool old, const String &time, const String &app, const String &title, const String &body)
+{
+  for (const Notif &n : notifs)
+    if (n.id == id)
+      return;
+  notifs.insert(notifs.begin(), {id, app, title, body, time});
+  if (notifs.size() > NOTIF_MAX)
+    notifs.pop_back();
+  notifListDirty = true;
+  if (curPage != NOTIF_PAGE)
+    notifUnread = true;
+  if (!old && notifEnabled)
+  {
+    notifPopupNew = true;
+    notifAppColor(app, notifLedRgb);
+    notifLedUntil = millis() + NOTIF_POPUP_MS;
+  }
+}
+
+// Chiamato dal loop: applica stato del microfono e notifiche scritti dal PC.
+void bleSyncService()
+{
+  std::vector<std::string> queue;
+  int mic;
+  {
+    std::lock_guard<std::mutex> lock(syncMutex);
+    queue.swap(syncNotifQueue);
+    mic = syncMicState;
+    syncMicState = -1;
+  }
+  if (mic >= 0)
+  {
+    micSyncAt = millis();
+    if ((bool)mic != micMuted)
+    {
+      micMuted = mic;
+      bleStateDirty = true; // ridisegna pillola HOME / pagina PC
+    }
+  }
+  for (const std::string &raw : queue)
+  {
+    String f[6]; // id, old, ora, app, titolo, testo
+    int k = 0;
+    for (char ch : raw)
+      if (ch == '\x1f' && k < 5)
+        k++;
+      else
+        f[k] += ch;
+    addNotif(f[0].toInt(), f[1] == "1", f[2], fold(f[3].c_str()), fold(f[4].c_str()), fold(f[5].c_str()));
+  }
+}
+
+// App + ora sulla prima riga, poi titolo e testo: stesso blocco nella lista e nel popup.
+void drawNotifText(const Notif &n, int x, int y, int w, uint16_t fill, uint16_t c)
+{
+  glowDisc(x + 2, y + 4, 2, c, 2, fill);
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(c, fill);
+  tft.drawString(fitTextToWidth(upperStr(n.app.c_str()), 1, w - 50), x + 10, y, 1);
+  tft.setTextDatum(TR_DATUM);
+  tft.setTextColor(C_FAINT, fill);
+  tft.drawString(n.time, x + w, y, 1);
+  tft.setTextDatum(TL_DATUM);
+  tft.setTextColor(C_FG, fill);
+  tft.drawString(fitTextToWidth(n.title, 2, w), x, y + 11, 2);
+  tft.setTextColor(C_DIM, fill);
+  tft.drawString(fitTextToWidth(n.body, 1, w), x, y + 29, 1);
+}
+
+void drawNotifPopup(const Notif &n)
+{
+  uint16_t c = notifAppColor(n.app);
+  uint16_t fill = mix565(C_PANEL2, c, 30);
+  uint16_t under = bgAt(POPUP_Y);
+  // cornice color sfondo: stacca il popup dal contenuto della pagina sottostante
+  tft.fillRoundRect(POPUP_X - 3, POPUP_Y - 3, POPUP_W + 6, POPUP_H + 6, 16, under);
+  panel(POPUP_X, POPUP_Y, POPUP_W, POPUP_H, 14, fill, c, under);
+  drawNotifText(n, POPUP_X + 12, POPUP_Y + 7, POPUP_W - 24, fill, c);
+}
+
+void drawNotifList()
+{
+  fillBg(0, NOTIF_Y, 320, NAV_Y - NOTIF_Y);
+  if (notifs.empty())
+  {
+    panel(24, 74, 272, 92, 16);
+    tft.setTextDatum(MC_DATUM);
+    tft.setTextColor(C_FG, C_PANEL);
+    tft.drawString("Nessuna notifica", 160, 108, 2);
+    tft.setTextColor(C_DIM, C_PANEL);
+    tft.drawString("avvia tools/cyd_sync.py sul PC", 160, 134, 2);
+    tft.setTextDatum(TL_DATUM);
+    return;
+  }
+  for (int i = 0; i < NOTIF_ROWS && notifScroll + i < (int)notifs.size(); i++)
+  {
+    const Notif &n = notifs[notifScroll + i];
+    int y = NOTIF_Y + i * (NOTIF_H + NOTIF_GAP);
+    uint16_t c = notifAppColor(n.app);
+    panel(12, y, 290, NOTIF_H, 10);
+    rrect(12, y + 8, 3, NOTIF_H - 16, 1, c, C_PANEL);
+    drawNotifText(n, 24, y + 3, 270, C_PANEL, c);
+  }
+  // scrollbar laterale, come nella coda Spotify
+  int total = notifs.size();
+  if (total > NOTIF_ROWS)
+  {
+    int trackH = NOTIF_ROWS * (NOTIF_H + NOTIF_GAP) - NOTIF_GAP;
+    int thumbH = max(14, trackH * NOTIF_ROWS / total);
+    int thumbY = NOTIF_Y + (trackH - thumbH) * notifScroll / (total - NOTIF_ROWS);
+    rrect(307, NOTIF_Y, 3, trackH, 1, C_TRACK);
+    rrect(307, thumbY, 3, thumbH, 1, themeAccent);
+  }
+}
+
+void drawNotifPage()
+{
+  drawBackdrop();
+  drawTopBar("NOTIFICHE", themeAccent);
+  if (!notifs.empty())
+    pill(160, 5, 66, 17, "CANCELLA", themeAccent, C_PANEL2);
+  drawNotifList();
+}
+
+void notifScrollBy(int dy)
+{
+  int rows = max(1, abs(dy) / (NOTIF_H + NOTIF_GAP));
+  int maxFirst = max(0, (int)notifs.size() - NOTIF_ROWS);
+  notifScroll = constrain(notifScroll + (dy < 0 ? rows : -rows), 0, maxFirst);
+  drawNotifList();
+}
+
+void notifEnter()
+{
+  notifScroll = 0;
+  notifListDirty = false;
+  notifUnread = false;
+  drawNotifPage();
+}
+
+void notifLoop()
+{
+  if (!notifListDirty)
+    return;
+  notifListDirty = false;
+  notifScroll = 0;
+  drawNotifPage();
+  drawNavBar();
+}
+
+void notifTap(int x, int y)
+{
+  if (y < 28 && x >= 156 && x < 230 && !notifs.empty())
+  {
+    notifs.clear();
+    notifScroll = 0;
+    drawNotifPage();
+  }
+}
+
+// Chiamato dal loop principale: mostra il popup e lo chiude dopo NOTIF_POPUP_MS.
+void notifService()
+{
+  if (notifPopupNew)
+  {
+    notifPopupNew = false;
+    if (curPage != NOTIF_PAGE && !notifs.empty())
+    {
+      drawNotifPopup(notifs[0]);
+      notifPopupUntil = millis() + NOTIF_POPUP_MS;
+    }
+  }
+  if (notifPopupUntil && timeReached(millis(), notifPopupUntil))
+    switchPage(curPage); // ridisegna la pagina sotto il popup
+  if (notifUnread != navDotShown)
+    drawNavBar();
+}
+
+// ########==================== NAVIGAZIONE / GESTIONE PAGINE ====================########
 struct Page
 {
   void (*enter)();
@@ -4606,14 +5499,16 @@ struct Page
 const Page pages[] = {
     {playlistEnter, playlistLoop, playlistTap}, // 0
     {spEnter, spLoop, spTap},                   // 1
-    {weatherEnter, weatherLoop, weatherTap},    // 2
-    {clockEnter, clockLoop, clockTap},          // 3 HOME
-    {radarEnter, radarLoop, radarTap},          // 4
-    {f1Enter, f1Loop, f1Tap},                   // 5
-    {calendarEnter, calendarLoop, calendarTap}  // 6 CALENDARIO
+    {notifEnter, notifLoop, notifTap},          // 2 NOTIFICHE (NOTIF_PAGE)
+    {weatherEnter, weatherLoop, weatherTap},    // 3
+    {clockEnter, clockLoop, clockTap},          // 4 HOME
+    {radarEnter, radarLoop, radarTap},          // 5
+    {f1Enter, f1Loop, f1Tap},                   // 6
+    {calendarEnter, calendarLoop, calendarTap}, // 7 CALENDARIO
+    {pcEnter, pcLoop, pcTap}                    // 8 PC / RIUNIONE
 };
 constexpr int NUM_PAGES = sizeof(pages) / sizeof(pages[0]);
-constexpr int HOME_PAGE = 3;
+constexpr int HOME_PAGE = 4;
 int curPage = HOME_PAGE;
 
 int pageTabX(int i)
@@ -4621,28 +5516,35 @@ int pageTabX(int i)
   return (2 * i + 1) * 320 / (2 * NUM_PAGES);
 }
 
+// Dock flottante in vetro: la pagina attiva ha una "pillola" tinta d'accento.
 void drawNavBar()
 {
-  bool sp = (curPage == 0 || curPage == 1);
-  uint16_t accent = sp ? SP_GREEN : pageAccent(curPage);
-  uint16_t nav = sp ? SP_NAV : C_NAV;
-  uint16_t panelCol = sp ? SP_PANEL2 : C_PANEL2;
-  uint16_t lineCol = sp ? SP_LINE : C_HAIR;
+  const uint16_t acc = themeAccent;
+  bool sp = isSpotifyPage(curPage);
+  uint16_t dock = sp ? SP_NAV : C_NAV;
+  uint16_t line = sp ? SP_LINE : C_LINE;
   uint16_t inactive = sp ? SP_FAINT : C_FAINT;
-  tft.fillRect(0, NAV_Y, 320, NAV_H, nav);
-  tft.drawFastHLine(0, NAV_Y, 320, lineCol);
+  fillBg(0, NAV_Y, 320, NAV_H);
+  panel(3, NAV_Y + 1, 314, NAV_H - 2, 12, dock, line);
   for (int i = 0; i < NUM_PAGES; i++)
   {
     int cx = pageTabX(i), cy = NAV_Y + 14;
     if (i == curPage)
     {
-      rrect(cx - 17, NAV_Y + 3, 34, 21, 9, panelCol, nav);
-      drawTabIcon(i, cx, cy, accent, panelCol);
-      rrect(cx - 7, NAV_Y, 14, 2, 1, accent, nav);
+      uint16_t chip = mix565(dock, acc, 70);
+      rrect(cx - 18, NAV_Y + 3, 36, 23, 10, chip, dock);
+      drawTabIcon(i, cx, cy, acc, chip);
     }
     else
-      drawTabIcon(i, cx, cy, inactive, nav);
+      drawTabIcon(i, cx, cy, inactive, dock);
   }
+  if (notifUnread)
+  {
+    int cx = pageTabX(NOTIF_PAGE) + 8;
+    tft.fillCircle(cx, NAV_Y + 6, 4, dock); // anello color dock: stacca il puntino dall'icona
+    tft.fillCircle(cx, NAV_Y + 6, 3, C_RED);
+  }
+  navDotShown = notifUnread;
 }
 
 void switchPage(int n)
@@ -4651,6 +5553,9 @@ void switchPage(int n)
   Serial.printf("[WOKWI] Pagina -> %d\n", (n + NUM_PAGES) % NUM_PAGES);
 #endif
   curPage = (n + NUM_PAGES) % NUM_PAGES;
+  notifPopupUntil = 0; // il ridisegno completo copre l'eventuale popup
+  // Ogni pagina ha il suo bagliore; il player usa il colore della copertina.
+  applyTheme(curPage == 1 ? SP_GREEN : pageAccent(curPage), isSpotifyPage(curPage));
   tft.setTextPadding(0);
   tft.setTextDatum(TL_DATUM);
   tft.setTextSize(1);
@@ -4659,27 +5564,32 @@ void switchPage(int n)
 }
 
 // Aggiorna il meteo solo quando non si e' sulle pagine Spotify/Playlist.
+// Ridisegna soltanto le pagine che mostrano il meteo: il radar o lo SPORT
+// non vengono riscaricati ogni 15 minuti.
 void maybeFetchWeather()
 {
 #ifdef WOKWI
   return;
 #endif
-  if (curPage == 0 || curPage == 1)
+  if (isSpotifyPage(curPage) || WiFi.status() != WL_CONNECTED)
     return;
   uint32_t now = millis();
   bool stale = weatherOk && (now - weatherTs > WEATHER_REFRESH_MS);
-  bool retry = !weatherOk && (weatherTry == 0 || now - weatherTry > 30000);
-  if (stale || retry)
-  {
-    if (fetchWeather())
-      switchPage(curPage);
-  }
+  bool retry = !weatherOk && (weatherTry == 0 || now - weatherTry > 60000);
+  if (!stale && !retry)
+    return;
+  if (!fetchWeather())
+    return;
+  if (curPage == 3)
+    switchPage(curPage);
+  else if (curPage == HOME_PAGE)
+    lastMin = -1; // clockLoop ridisegna tutto al prossimo giro
 }
 
 // Nessuna sospensione/screensaver automatica.
 // Il display resta sulla pagina corrente finche l'utente non cambia pagina.
 
-// ===================== LED RGB CYD: avvio e riproduzione Spotify =====================
+// ########==================== LED RGB - AVVIO E RIPRODUZIONE SPOTIFY ====================########
 constexpr int RGB_PWM_CH_R = 0;
 constexpr int RGB_PWM_CH_G = 1;
 constexpr int RGB_PWM_CH_B = 2;
@@ -4761,6 +5671,17 @@ void updateRgbLed()
     return;
   lastUpdate = now;
 
+  // Notifica nuova: lampeggia col colore dell'app, poi torna dolcemente allo stato Spotify.
+  if (notifLedUntil && !timeReached(now, notifLedUntil))
+  {
+    bool on = (now / 400) % 2 == 0;
+    actualR = on ? notifLedRgb[0] : 0;
+    actualG = on ? notifLedRgb[1] : 0;
+    actualB = on ? notifLedRgb[2] : 0;
+    writeRgbPwm(actualR, actualG, actualB);
+    return;
+  }
+
   uint8_t targetR = 0, targetG = 0, targetB = 0;
   if (T.playing)
   {
@@ -4770,12 +5691,7 @@ void updateRgbLed()
     uint32_t phase = now % CYCLE;
     uint32_t wave = phase <= CYCLE / 2 ? phase : CYCLE - phase;
     uint16_t brightness = 155 + wave * 100 / (CYCLE / 2);
-    uint8_t baseR = artColorValid ? artColorR : 0;
-    uint8_t baseG = artColorValid ? artColorG : 255;
-    uint8_t baseB = artColorValid ? artColorB : 0;
-    targetR = (uint16_t)baseR * brightness / 255;
-    targetG = (uint16_t)baseG * brightness / 255;
-    targetB = (uint16_t)baseB * brightness / 255;
+    targetG = brightness; // verde Spotify
   }
 
   // Una dissolvenza morbida; non salta di colore con i singoli campioni.
@@ -4791,7 +5707,7 @@ void updateRgbLed()
   writeRgbPwm(actualR, actualG, actualB);
 }
 
-// ===================== Navigazione alternativa SOLO Wokwi =====================
+// ########==================== NAVIGAZIONE ALTERNATIVA SOLO WOKWI ====================########
 // Pulsanti virtuali nel diagram.json: tasti freccia sinistra/destra.
 // Non sono presenti ne' usati nel firmware ESP32 reale.
 #ifdef WOKWI
@@ -4824,7 +5740,7 @@ void handleWokwiNavigation()
 }
 #endif
 
-// ===================== Touch =====================
+// ########==================== TOUCH / GESTURE ====================########
 bool tsDown = false;
 uint32_t tsLastSeen = 0, tsStartT = 0;
 int sx, sy, lx, ly;
@@ -4872,17 +5788,18 @@ void handleTouch()
                   lx, ly, dx, dy, (int)tap);
 #endif
 
-    if (tap && ly >= NAV_Y - 2)
+    if (tap && notifPopupUntil && ly < NAV_Y - 2)
+    {
+      // Tocco sul popup: apre lo storico; altrove lo chiude.
+      bool inside = lx >= POPUP_X && lx < POPUP_X + POPUP_W && ly >= POPUP_Y && ly < POPUP_Y + POPUP_H;
+      switchPage(inside ? NOTIF_PAGE : curPage);
+    }
+    else if (tap && ly >= NAV_Y - 2)
     {
       // Tab bar: la colonna toccata decide la pagina.
       int best = constrain(lx * NUM_PAGES / 320, 0, NUM_PAGES - 1);
       if (best != curPage)
         switchPage(best);
-    }
-    else if (curPage == 1 && sx >= 206 && sy >= 174 && sy <= 195 &&
-             ly >= 174 && ly <= 195 && abs(dx) > 12)
-    {
-      spTap(lx, ly);
     }
     else if (curPage == 0 && spotifyLibraryView == LIB_QUEUE &&
              abs(dy) > 24 && abs(dy) > abs(dx))
@@ -4896,6 +5813,10 @@ void handleTouch()
         queueScrollRow = max(0, queueScrollRow - rows);
       drawPlaylistPage();
     }
+    else if (curPage == NOTIF_PAGE && abs(dy) > 24 && abs(dy) > abs(dx))
+    {
+      notifScrollBy(dy);
+    }
     else if (abs(dx) > 50 && abs(dx) > abs(dy) * 2)
     {
       switchPage(curPage + (dx < 0 ? 1 : -1));
@@ -4907,7 +5828,7 @@ void handleTouch()
   }
 }
 
-// ===================== Boot animation =====================
+// ########==================== BOOT ANIMATION ====================########
 
 static const uint16_t BOOT_DOTS[4] = {C_GREEN, C_CYAN, C_AMBER, C_RED};
 
@@ -4917,24 +5838,35 @@ void drawBootLogo(float phase)
   int active = ((int)(phase * 2.5f)) % 4;
   setBootRgbLed(active);
   const int cx = 160, cy = 84;
-  panel(cx - 34, cy - 34, 68, 68, 18, C_PANEL, C_LINE);
-  static const int8_t ox[4] = {-15, 15, 15, -15}, oy[4] = {-15, -15, 15, 15};
+  panel(cx - 36, cy - 36, 72, 72, 20, C_PANEL, mix565(C_LINE, BOOT_DOTS[active], 90));
+  static const int8_t ox[4] = {-16, 16, 16, -16}, oy[4] = {-16, -16, 16, 16};
+  tft.drawLine(cx + ox[0], cy + oy[0], cx + ox[2], cy + oy[2], C_LINE);
+  tft.drawLine(cx + ox[1], cy + oy[1], cx + ox[3], cy + oy[3], C_LINE);
   for (int i = 0; i < 4; i++)
   {
-    uint16_t c = (i == active) ? BOOT_DOTS[i] : mix565(C_PANEL, BOOT_DOTS[i], 105);
-    disc(cx + ox[i], cy + oy[i], (i == active) ? 8 : 7, c, C_PANEL);
+    if (i == active)
+      glowDisc(cx + ox[i], cy + oy[i], 7, BOOT_DOTS[i], 4, C_PANEL, 160);
+    else
+    {
+      // ripulisce l'alone del nodo precedente
+      disc(cx + ox[i], cy + oy[i], 11, C_PANEL, C_PANEL);
+      disc(cx + ox[i], cy + oy[i], 6, mix565(C_PANEL, BOOT_DOTS[i], 110), C_PANEL);
+    }
   }
-  disc(cx, cy, 4, C_FG, C_PANEL);
+  glowDisc(cx, cy, 4, C_FG, 2, C_PANEL, 120);
 }
 
 void drawBootProgress(float progress)
 {
   progress = constrain(progress, 0.0f, 1.0f);
-  constexpr int X = 80, Y = 196, W = 160, H = 4;
+  constexpr int X = 80, Y = 198, W = 160, H = 4;
   rrect(X, Y, W, H, 2, C_TRACK);
   int fillW = (int)(W * progress);
   if (fillW > 0)
-    rrect(X, Y, max(fillW, H), H, 2, C_GREEN, C_TRACK);
+  {
+    tft.fillRectHGradient(X, Y, max(fillW, H), H, C_GREEN, mix565(C_GREEN, C_CYAN, (uint8_t)(255 * progress)));
+    disc(X + max(fillW, H), Y + 2, 2, C_FG);
+  }
 }
 
 void drawBootFrame(
@@ -4944,20 +5876,19 @@ void drawBootFrame(
 {
   if (!bootStatic)
   {
-    tft.fillScreen(C_BG);
+    applyTheme(C_CYAN, false);
+    drawBackdrop();
     tft.setTextDatum(MC_DATUM);
-    tft.setTextColor(C_FG, C_BG);
-    tft.drawString("CYD HUB", 160, 146, 4);
-    tft.setTextColor(C_FAINT, C_BG);
-    tft.drawString("v6", 160, 166, 1);
+    tft.setTextColor(C_FG);
+    tft.drawString("CYD HUB", 160, 144, 4);
+    pill(140, 160, 40, 13, HUB_VERSION, C_BG, C_CYAN, 1);
     bootStatic = true;
   }
   drawBootLogo(phase);
+  fillBg(30, 175, 260, 16);
   tft.setTextDatum(MC_DATUM);
-  tft.setTextColor(C_DIM, C_BG);
-  tft.setTextPadding(200);
-  tft.drawString(status && strlen(status) ? status : "avvio...", 160, 182, 2);
-  tft.setTextPadding(0);
+  tft.setTextColor(C_DIM);
+  tft.drawString(status && strlen(status) ? status : "avvio...", 160, 183, 2);
   drawBootProgress(progress);
   tft.setTextDatum(TL_DATUM);
 }
@@ -4971,7 +5902,7 @@ void bootIntro()
     delay(90);
   }
 }
-// ===================== Test calibrazione colori =====================
+// ########==================== TEST CALIBRAZIONE COLORI ====================########
 
 uint16_t testColor565(uint8_t r, uint8_t g, uint8_t b)
 {
@@ -5038,12 +5969,17 @@ void showColorCalibrationTest()
   tft.setTextDatum(TL_DATUM);
 }
 
-bool connectWiFi(const char *ssid, const char *password, uint32_t timeoutMs)
+
+// ########==================== SETUP / LOOP PRINCIPALE ====================########
+bool connectWiFi(const char *ssid, const char *password, int32_t channel, uint32_t timeoutMs)
 {
-  WiFi.begin(ssid, password);
+  if (!ssid || !*ssid)
+    return false;
+  WiFi.disconnect(true);
+  delay(50);
+  WiFi.begin(ssid, password, channel);
 
   uint32_t start = millis();
-
   while (WiFi.status() != WL_CONNECTED &&
          millis() - start < timeoutMs)
   {
@@ -5053,7 +5989,6 @@ bool connectWiFi(const char *ssid, const char *password, uint32_t timeoutMs)
   return WiFi.status() == WL_CONNECTED;
 }
 
-// ===================== Setup / loop =====================
 void setup()
 {
   Serial.begin(115200);
@@ -5061,6 +5996,8 @@ void setup()
   // Preferenze caricate prima del boot per rispettare LED ON/OFF.
   prefs.begin("cyddash", false);
   rgbLedEnabled = prefs.getBool("led_on", true);
+  bleEnabled = prefs.getBool("ble_on", true);
+  notifEnabled = prefs.getBool("notif_on", true);
   initRgbLed();
 
   // Display
@@ -5097,6 +6034,9 @@ void setup()
 #endif
   refreshToken = prefs.getString("rt", "");
 
+  // Bluetooth avviato subito: il controllo del PC funziona anche senza WiFi.
+  bleInit();
+
 #ifdef WOKWI
   // In simulazione NON si usano credenziali, Internet o servizi esterni.
   // Timestamp fisso per far funzionare orologio e calendario senza NTP.
@@ -5124,7 +6064,7 @@ void setup()
   T.key = "";
   switchPage(HOME_PAGE);
   updateRgbLed();
-  Serial.println("WOKWI DEMO: 7 pagine, tabs, swipe e coda pronti");
+  Serial.println("WOKWI DEMO: 8 pagine, tabs, swipe e coda pronti");
   Serial.println("WOKWI NAV: frecce SX/DX o pulsanti PREV/NEXT nel diagramma");
 #else
 
@@ -5138,19 +6078,21 @@ void setup()
 
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
-  WiFi.begin(WIFI_SSID_PRIMARY, WIFI_PASS_PRIMARY, WIFI_CHANNEL);
-
-  uint32_t wifiStart = millis();
-  while (WiFi.status() != WL_CONNECTED &&
-         millis() - wifiStart < 25000)
+  bool wifiOk = connectWiFi(WIFI_SSID_PRIMARY, WIFI_PASS_PRIMARY, WIFI_CHANNEL, 15000);
+  if (!wifiOk)
   {
-    delay(100);
+    // Rete principale non raggiungibile: prova quella di backup definita in secret.h.
+    drawBootFrame(
+        1.0f,
+        0.22f,
+        (String("connecting to ") + WIFI_SSID_2).c_str());
+    wifiOk = connectWiFi(WIFI_SSID_2, WIFI_PASS_2, 0, 15000);
   }
 
   drawBootFrame(
       1.2f,
       0.30f,
-      WiFi.status() == WL_CONNECTED ? "WiFi connected" : "WiFi offline");
+      wifiOk ? "WiFi connected" : "WiFi offline");
 
   delay(180);
 
@@ -5205,7 +6147,9 @@ void setup()
   initFilter();
 
 #if REQUIRE_SPOTIFY_AUTH
-  if (!refreshToken.length())
+  // Senza WiFi la pagina di collegamento non sarebbe raggiungibile: si salta e
+  // le pagine Spotify restano semplicemente vuote fino al prossimo avvio.
+  if (!refreshToken.length() && WiFi.status() == WL_CONNECTED)
   {
     drawBootFrame(
         3.6f,
@@ -5240,12 +6184,18 @@ void loop()
   handleWokwiNavigation();
 #endif
   handleTouch();
+  bleSyncService();
+  notifService();
 
-  pages[curPage].loop();
+  // Con il popup a schermo la pagina non si aggiorna, per non disegnarci sopra.
+  if (!notifPopupUntil)
+    pages[curPage].loop();
 
   updateTopBarClock();
 
   maybeFetchWeather();
+
+  spotifyBackgroundPoll();
 
   updateRgbLed();
   delay(2);
@@ -5256,6 +6206,7 @@ void loop()
 .pio/
 .vscode/
 src/secret.h
+.claude/
 </file>
 
 </files>
