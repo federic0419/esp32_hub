@@ -5,13 +5,17 @@
 Uso:  pip install pycaw winrt-runtime winrt-Windows.Devices.Bluetooth ^
           winrt-Windows.Devices.Bluetooth.GenericAttributeProfile winrt-Windows.Devices.Enumeration ^
           winrt-Windows.Storage.Streams winrt-Windows.UI.Notifications winrt-Windows.UI.Notifications.Management ^
-          winrt-Windows.Foundation winrt-Windows.Foundation.Collections winrt-Windows.ApplicationModel
+          winrt-Windows.Foundation winrt-Windows.Foundation.Collections winrt-Windows.ApplicationModel ^
+          pystray pillow
       pythonw cyd_sync.py      (senza finestra; nessun indirizzo da configurare)
+
+Icona nel tray: verde = collegato, rossa = CYD non raggiungibile, grigia = in connessione. Tasto destro > Esci.
 
 Per le notifiche serve l'accesso: Impostazioni > Privacy e sicurezza > Notifiche.
 """
 import asyncio
 import datetime
+import os
 import sys
 import time
 import uuid
@@ -19,7 +23,9 @@ import winreg
 from ctypes import POINTER, cast
 
 sys.coinit_flags = 0  # COM multithread: in STA (default di comtypes) le chiamate Bluetooth WinRT non terminano mai
+import pystray
 from comtypes import CLSCTX_ALL
+from PIL import Image, ImageDraw
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from winrt.windows.devices.bluetooth import BluetoothCacheMode, BluetoothLEDevice
 from winrt.windows.devices.bluetooth.genericattributeprofile import (
@@ -35,6 +41,26 @@ NOTIF = uuid.UUID("c7d10002-5f6e-4b8a-9a2d-3c1e0f6b7a90")
 TIMEOUT = 15  # s: oltre, una chiamata Bluetooth appesa fa ripartire il collegamento
 APPS = ("teams", "webex", "slack")
 OK = GattCommunicationStatus.SUCCESS
+
+
+def dot(color):
+    img = Image.new("RGBA", (64, 64))
+    ImageDraw.Draw(img).ellipse((6, 6, 58, 58), fill=color)
+    return img
+
+
+def quit_tray():
+    tray.visible = False  # toglie subito l'icona: con os._exit resterebbe un'icona fantasma
+    os._exit(0)
+
+
+tray = pystray.Icon("cyd_sync", dot("gray"), "CYD Hub: in connessione...",
+                    pystray.Menu(pystray.MenuItem("Esci", quit_tray)))
+
+
+def show(color, text):
+    tray.icon, tray.title = dot(color), "CYD Hub: " + text
+    print(text)
 
 
 def mic():
@@ -117,7 +143,7 @@ async def session(listener):
         GattClientCharacteristicConfigurationDescriptorValue.NOTIFY), TIMEOUT)
     if status != OK:
         raise ConnectionError("iscrizione alle notifiche del CYD fallita")
-    print("Collegato al CYD Hub")
+    show("limegreen", "collegato")
     last_mute, last_beat, next_notif = None, 0.0, 0.0
     while True:
         vol = mic()
@@ -159,8 +185,9 @@ async def main():
         try:
             await session(listener)
         except Exception as e:
-            print("CYD non raggiungibile:", repr(e))  # repr: TimeoutError ha messaggio vuoto
+            show("red", "non raggiungibile " + repr(e)[:60])  # repr: TimeoutError ha messaggio vuoto
         await asyncio.sleep(5)
 
 
+tray.run_detached()  # l'icona gira nel suo thread, il loop Bluetooth resta su questo
 asyncio.run(main())

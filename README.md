@@ -123,12 +123,12 @@ Un solo script Python che parla con il CYD sullo **stesso collegamento Bluetooth
 ### Installazione
 
 ```bash
-pip install pycaw winrt-runtime winrt-Windows.Devices.Bluetooth winrt-Windows.Devices.Bluetooth.GenericAttributeProfile winrt-Windows.Devices.Enumeration winrt-Windows.Storage.Streams winrt-Windows.UI.Notifications winrt-Windows.UI.Notifications.Management winrt-Windows.Foundation winrt-Windows.Foundation.Collections winrt-Windows.ApplicationModel
+pip install pycaw winrt-runtime winrt-Windows.Devices.Bluetooth winrt-Windows.Devices.Bluetooth.GenericAttributeProfile winrt-Windows.Devices.Enumeration winrt-Windows.Storage.Streams winrt-Windows.UI.Notifications winrt-Windows.UI.Notifications.Management winrt-Windows.Foundation winrt-Windows.Foundation.Collections winrt-Windows.ApplicationModel pystray pillow
 
 python tools/cyd_sync.py
 ```
 
-Quando è collegato scrive `Collegato al CYD Hub`.
+Lo stato del collegamento è nell'icona nel tray (passa il mouse per il dettaglio): **verde** collegato, **rossa** CYD non raggiungibile, **grigia** in connessione. Tasto destro → *Esci* chiude lo script.
 
 - per le notifiche Windows deve concedere l'accesso: *Impostazioni → Privacy e sicurezza → Notifiche*; senza accesso lo script sincronizza solo il microfono;
 - il primo collegamento può richiedere **circa 30 secondi** (ricerca Bluetooth di Windows); se il CYD è spento lo script riprova ogni 5 secondi;
